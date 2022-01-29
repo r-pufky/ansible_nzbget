@@ -1,0 +1,47 @@
+---
+###############################################################################
+# Manager NZBGet Users
+###############################################################################
+# Check if user exists and create if enabled.
+#
+# Args:
+#   nzbget_user: string nzbget username.
+#   nzbget_group: string nzbget group.
+#   nzbget_create_user: boolean true to create role default user.
+#   nzbget_default_user: dict containing builitin.user options for nzbget.
+#   nzbget_default_group: dict containing builitin.group options for nzbget.
+
+- name: 'manage users | confirm user exists'
+  ansible.builtin.command: 'id {{ nzbget_user }}'
+  register: _nzbget_user_exists
+  changed_when: _nzbget_user_exists.rc > 0
+  failed_when: false
+
+- name: 'manage users | confirm group exists'
+  ansible.builtin.command: 'groups {{ nzbget_group }}'
+  register: _nzbget_group_exists
+  changed_when: _nzbget_group_exists.rc > 0
+  failed_when: false
+
+- name: 'manage users | create nzbget group'
+  ansible.builtin.group:
+    name:  '{{ nzbget_default_group.name }}'
+    gid:   '{{ nzbget_default_group.gid }}'
+    state: 'present'
+  when: nzbget_create_user and _nzbget_group_exists.rc != 0
+
+- name: 'manage users | create nzbget user (logins disabled)'
+  ansible.builtin.user:
+    name:            '{{ nzbget_default_user.name }}'
+    group:           '{{ nzbget_default_user.group }}'
+    uid:             '{{ nzbget_default_user.uid }}'
+    shell:           '{{ nzbget_default_user.shell }}'
+    home:            '{{ nzbget_default_user.home }}'
+    create_home:     '{{ nzbget_default_user.create_home }}'
+    password:        '{{ nzbget_default_user.password }}'
+    password_lock:   '{{ nzbget_default_user.password_lock }}'
+    update_password: '{{ nzbget_default_user.update_password }}'
+    expires:         '{{ nzbget_default_user.expires }}'
+    system:          '{{ nzbget_default_user.system }}'
+    state:           'present'
+  when: nzbget_create_user and _nzbget_user_exists.rc != 0

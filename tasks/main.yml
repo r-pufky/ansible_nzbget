@@ -1,0 +1,103 @@
+---
+###############################################################################
+# NZBGet Install
+###############################################################################
+#
+# Reference:
+# * https://nzbget.net/installation-on-linux
+# * https://github.com/nzbget/nzbget
+# * https://github.com/mpataki/ansible-nzbget
+# * https://www.linuxbabe.com/apps/install-nzbget-usenet-client-ubuntu-linux-mint
+
+- ansible.builtin.include_tasks: manage_users.yml
+
+- name: 'install | set binary location'
+  ansible.builtin.stat:
+    path: '{{ nzbget_dir }}/nzbget'
+  register: _nzbget_binary
+
+- name: 'install | download and run nstaller'
+  block:
+    - name: 'install | fetch nzbget release metadata'
+      ansible.builtin.uri:
+        url: 'https://api.github.com/repos/nzbget/nzbget/releases/latest'
+        return_content: true
+      register: _nzbget_release_metadata
+
+    - name: 'install | set nzbget version'
+      ansible.builtin.set_fact:
+        _nzbget_latest_version: '{{ _nzbget_release_metadata.json.tag_name[1:] }}'
+        _nzbget_installer: 'nzbget-{{ _nzbget_release_metadata.json.tag_name[1:] }}-bin-linux.run'
+
+    - name: 'install | get installer'
+      ansible.builtin.get_url:
+        url:   'https://github.com/nzbget/nzbget/releases/download/v{{ _nzbget_latest_version }}/{{ _nzbget_installer }}'
+        dest:  '/tmp/{{ _nzbget_installer }}'
+        owner: '{{ nzbget_user }}'
+        group: '{{ nzbget_group }}'
+        mode:  0700
+
+    - name: 'install | install'
+      ansible.builtin.command: "/tmp/{{ _nzbget_installer }} --destdir '{{ nzbget_dir }}'"
+      notify:
+        - 'reload systemd'
+        - 'restart nzbget'
+  when: not _nzbget_binary.stat.exists
+
+- name: 'install | set configuration'
+  ansible.builtin.template:
+    src:  'nzbget.conf.j2'
+    dest: '{{ nzbget_dir }}/nzbget.conf'
+    mode: 0600 #0640 originally
+  notify: 'restart nzbget'
+
+- name: 'install | create nzb main dir'
+  ansible.builtin.file:
+    path:  '{{ nzbget_main_dir }}'
+    owner: '{{ nzbget_user }}'
+    group: '{{ nzbget_group }}'
+    mode:  0755
+    state: 'directory'
+
+- name: 'install | create nzb dirs'
+  ansible.builtin.file:
+    path:  '{{ item }}'
+    owner: '{{ nzbget_user }}'
+    group: '{{ nzbget_group }}'
+    mode:  '2775'
+    state: 'directory'
+  loop:
+    - '{{ nzbget_dest_dir }}'
+    - '{{ nzbget_inter_dir }}'
+    - '{{ nzbget_nzb_dir }}'
+
+- name: 'install | set /etc/nzbget permissions' # noqa risky-file-permissions set only user/group, perms above
+  ansible.builtin.file:
+    dest:  '{{ item }}'
+    owner: '{{ nzbget_user }}'
+    group: '{{ nzbget_group }}'
+    recurse: true
+    state: 'directory'
+  loop:
+    - '{{ nzbget_dir }}'
+    - '{{ nzbget_main_dir }}'
+    - '{{ nzbget_dest_dir }}'
+    - '{{ nzbget_inter_dir }}'
+    - '{{ nzbget_nzb_dir }}'
+
+- name: 'install | restart nzbget service daily'
+  ansible.builtin.cron:
+    name:         'restart nzbget service daily'
+    special_time: 'daily'
+    user:         'root'
+    job:          'service nzbget restart'
+    state:        'present'
+
+- name: 'install | set /etc/systemd/system/nzbget.service'
+  ansible.builtin.template:
+    src:   'nzbget.service.j2'
+    dest:  '/etc/systemd/system/nzbget.service'
+    owner: 'root'
+    group: 'root'
+    mode:  0755
+  notify: 'reload systemd'

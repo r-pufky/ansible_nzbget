@@ -1,0 +1,14 @@
+---
+###############################################################################
+# NZBGet Handlers
+###############################################################################
+
+- name: 'reload systemd'
+  ansible.builtin.systemd:
+    daemon-reload: true
+
+- name: 'restart nzbget'
+  ansible.builtin.systemd:
+    name:    'nzbget'
+    enabled: true
+    state:   'restarted'
