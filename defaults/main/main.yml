@@ -12,9 +12,6 @@ nzbget_create_user: false
 # Installation directory
 nzbget_dir: '/etc/nzbget'
 
-# Subdomain hint for nzbget service.
-nzbget_subdomain: 'nzbget'
-
 ###############################################################################
 # nzbget nzbget.conf configuration
 ###############################################################################
