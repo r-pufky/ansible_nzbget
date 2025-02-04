@@ -1,0 +1,49 @@
+---
+# Confirm:
+# * Role fails when nzbget_service_auto_add_apt_sources_enable=false and
+#   nzbget_create_user=false (source and user managed externally).
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        nzbget_service_auto_add_apt_sources_enable: false
+        nzbget_create_user: false
+platforms:
+  - name: 'nzbget-debian-12-fail_no_apt_sources'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    # - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # drop-ins always created
+    # - 'side_effect'
+    # - 'verify'  # role failure test only requires converge
+    # - 'cleanup'
+    - 'destroy'

@@ -1,0 +1,164 @@
+---
+###############################################################################
+# Check and Repair
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+
+# Check CRC of downloaded and decoded articles?
+#
+# Typically enabled to detect download errors and for quick par verification
+# nzbget_par_quick.
+#
+# Default: True.
+nzbget_crc_check: true
+
+# PAR verification actions.
+#
+# Values:
+#     auto: PAR check is performed when needed. One PAR2 file is always
+#           downloaded. Additional PAR2 files are downloaded if needed
+#           for repair. Repair performed if nzbget_par_repair=true. (default)
+#   always: check every download (even undamaged). One PAR2 file is always
+#           downloaded. Additional PAR2 files are downloaded if needed for
+#           repair. Repair performed if nzbget_par_repair=true.
+#    force: force PAR check for every download (even undamaged). All PAR2 files
+#           are always downloaded. Repair performed if nzbget_par_repair=true.
+#   manual: PAR check is skipped. One PAR2 file is always downloaded. If a
+#           damaged download is detected, all PAR2 files are downloaded but
+#           neither PAR check nor PAR repair take place. The download can be
+#           then repaired manually, eventually on another faster computer.
+#
+# Default: 'auto'.
+nzbget_par_check: 'auto'
+
+# Automatic PAR repair after PAR verification?
+#
+# Repair damaged files if nzbget_par_check 'auto' or 'force'. Repairing may
+# consume too many resources and time on a slow computer.
+#
+# Default: True.
+nzbget_par_repair: true
+
+# Files scanned during PAR verification.
+#
+# Values:
+#    limited: scan only files belonging to PAR set
+#   extended: scan files belonging to PAR set first, scan other files until all
+#             missing files are found. (default)
+#       full: scan all files in destination directory. Can be very time
+#             consuming but may sometimes repair where limited/extended fail.
+#       dupe: scan files belonging to PAR set first, scan other files until
+#             repair is possible. Even files from other duplicate-downloads are
+#             scanned. Can be very time consuming but brings best results.
+#
+# Default: 'extended'.
+nzbget_par_scan: 'extended'
+
+# Quick file verification during PAR check?
+#
+# Files verified using checksums calculated during download comparing with
+# checksums stored in PAR file (no disk reads).
+#
+# Default: True.
+nzbget_par_quick: true
+
+# Memory limit for PAR repair buffer (MB).
+#
+# Optimal size is total size of all damaged blocks. For best performance set
+# to a few hundred MB's.
+#
+# Default: 100.
+nzbget_par_buffer: 100
+
+# Number of threads to use during PAR repair.
+#
+# Values:
+#   0: automatically use all available CPU cores (default)
+#   1: single-core CPUs use only one thread
+#   *: number of physical cores + hyper-threading units; add 1-2 additional
+#      threads to get 100% utilization accounting for wait intervals.
+#
+# Default: 0 (auto).
+nzbget_par_threads: 0
+
+# List of files to ignore during PAR check.
+#
+# If PAR rename or PAR check detect missing or damaged files they will ignore
+# files matching this option and will not initiate repair. This avoids time
+# costing repair for unimportant files.
+#
+# File extensions, file names or file masks.
+#
+# Special Case:
+#   *?: wildcard and pattern matching allowed
+#   .{EXT}: file extension
+#   {FILE}: file
+#
+# Default: ['.sfv', '.nzb', '.nfo']
+nzbget_par_ignore_ext: ['.sfv', '.nzb', '.nfo']
+
+# Check for renamed and missing files using PAR files?
+#
+# PAR rename detects missing files and restores original file names using
+# information stored in PAR2 files. First step of post-processing for every NZB
+# file.
+#
+# Default: True.
+nzbget_par_rename: true
+
+# Check for renamed RAR files?
+#
+# RAR rename restores original file names using information stored in RAR
+# files. First step of post-processing for every NZB file.
+#
+# RAR rename is useful for downloads not having PAR2 files or for downloads
+# those files were renamed before creating PAR2 files. In both cases PAR rename
+# nzbget_par_rename can't rename files and the RAR rename makes it possible to
+# unpack downloads which would fail otherwise.
+#
+# Default: True.
+nzbget_rar_rename: true
+
+# Directly rename files during downloading?
+#
+# Similar to nzbget_par_rename but files renamed during downloading instead of
+# post-processing stage. Works only for healthy downloads.
+#
+# Default: True.
+nzbget_direct_rename: true
+
+# Download critical health action.
+#
+# nzbget_dupe_check requires delete, park, or none. If nzbget_par_scan=dupe
+# park performed only if article completion is below 10%; improves efficiency
+# of dupe par scan mode.
+#
+# Values:
+#   delete: delete NZB file from queue also delete already downloaded files
+#     park: move NZB file to history, keep already downloaded files (default)
+#    pause: pause NZB file
+#     none: do nothing (continue download)
+#
+# Default: 'park'.
+nzbget_health_check: 'park'
+
+# Maximum allowed time for PAR repair (minutes).
+#
+# Cancel PAR repair if estimated value exceeds limit.
+#
+# Special Case:
+#   =>5: checked after first 5 minutes when estimated time is more accurate
+#    <5: checked after first minute
+#     0: unlimited time (default)
+#
+# Default: 0 (unlimited).
+nzbget_par_time_limit: 0
+
+# Pause download queue during check/repair?
+#
+# Speed up check/repair for slow CPU's with a fast connection. Temporarily
+# unpauses if additional PAR files are required. See nzbget_script_pause_queue
+# and nzbget_unpack_pause_queue.
+#
+# Default: False.
+nzbget_par_pause_queue: false

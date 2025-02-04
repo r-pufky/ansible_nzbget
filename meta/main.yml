@@ -1,17 +1,15 @@
 ---
 galaxy_info:
-  role_name:   'nzbget'
-  author:      'r_pufky'
-  description: 'NZBGet Server'
-  company:     'N/A'
-  license:     'AGPL-3.0 License'
-  min_ansible_version: 2.11
+  author: 'r_pufky'
+  description: 'NZBGet(.com) Server'
+  company: 'N/A'
+  license: 'AGPL-3.0 License'
+  min_ansible_version: '2.18.0'
 
   platforms:
     - name: 'Debian'
       versions:
-        - 'buster'
-        - 'bullseye'
+        - 'bookworm'
 
   galaxy_tags:
     - 'nzb'

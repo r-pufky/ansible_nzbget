@@ -1,12 +1,14 @@
 ---
+# yamllint disable rule:line-length
 ###############################################################################
 # Ports Configuration
 ###############################################################################
-# Ports should be managed externally via an OS role.
+# Manage firewall with r_pufky.srv.ufw.
 #
 # Reference:
-# * https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+# * https://github.com/r-pufky/ansible_ufw
+# * https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
 
-ports:
+nzbget_ports:
   - {proto: 'tcp', from_ip: 'any', to_port: 6789, direction: 'in', comment: 'nzbget http'}
   - {proto: 'tcp', from_ip: 'any', to_port: 6791, direction: 'in', comment: 'nzbget https'}

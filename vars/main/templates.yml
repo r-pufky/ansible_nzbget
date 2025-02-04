@@ -1,0 +1,60 @@
+---
+###############################################################################
+# NZBGet Role Templates
+###############################################################################
+# Default dictionary templates are used as a base dictionary with user settings
+# merged into them to provide a known good dictionary of settings with defaults
+# if user has not specified all values.
+#
+# These should only be changed if new values are added to the config.
+
+# Template default values for nzbget_news_servers
+nzbget_role_template_news_servers:
+  id: 1
+  active: true
+  name: ''
+  level: 0
+  optional: false
+  group: 0
+  srv_host: ''
+  srv_port: 563
+  encryption: true
+  username: ''
+  password: ''
+  join_group: false
+  cipher: ''
+  connections: 8
+  retention: 0
+  cert_verification: 'strict'
+  ip_version: 'auto'
+  notes: ''
+
+# Template default values for nzbget_categories
+nzbget_role_template_categories:
+  id: 1
+  name: ''
+  dest_dir: ''
+  unpack: true
+  extensions: []
+  aliases: []
+
+# Template default values for nzbget_rss_feeds
+nzbget_role_template_rss_feeds:
+  id: 1
+  name: ''
+  url: ''
+  filter: []
+  interval: 0
+  backlog: false
+  pause_nzb: false
+  category: ''
+  priority: 0
+  extensions: []
+
+# Template default values for nzbget_tasks
+nzbget_role_template_tasks:
+  id: 1
+  time: []
+  week_days: []
+  command: ''
+  param: ['']

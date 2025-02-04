@@ -1,0 +1,68 @@
+---
+###############################################################################
+# RSS Feeds
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+
+# RSS Feeds
+#
+# nzbget_rss_feeds:
+#     list of dict - RSS Feed definitions
+#   - id: int - feed ID starting at 1; feeds must be defined sequently
+#           without holes otherwise NZBGet will not properly read config.
+#     name: str - feed name used in WebUI and logging
+#     url: str - URL of RSS Feed
+#     filter: list of str - filter rules for items; see documentation
+#
+#           Reference:
+#           * https://nzbget.com/documentation/rss/
+#         Default: [] (no filters).
+#     interval: int - interval to check for new items (minutes)
+#         Default: 0 (disabled).
+#     backlog: bool - treat all items on first fetch as backlog
+#         Values:
+#            True: feeds fetched for the very first time or after changing URL
+#                  or filter; all existing items are ignored (marked backlog).
+#                  Subsequent fetches are processed. (default)
+#           False: all items are processed
+#         Default: False.
+#     pause_nzb: bool - add NZB files as paused
+#         Default: False.
+#     category: str - category for added NZB files
+#         Default: '' (use providers category).
+#     priority: int - download priority for NZB files; any integer value
+#           Downloads with priorities equal to or greater than 900 are
+#           downloaded and post-processed even if the program is in paused
+#           state (force mode).
+#         Values:
+#           -100: very low priority
+#            -50: low priority
+#              0: normal priority (default)
+#             50: high priority
+#            100: very high priority
+#           900+: force priority
+#         Default: 0 (normal priority).
+#     extensions: list of str - list of extension scripts for this category,
+#           located in nzbget_script_dir. See nzbget_extensions.
+#
+#           Reference:
+#           * https://nzbget.com/documentation/extension-scripts/.
+#         Default: [] (no extensions).
+#
+# nzbget_rss_feeds:
+#   - id: 1
+#     name: 'my feed'
+#     url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
+#     filter: []
+#     interval: 15
+#     backlog: true
+#     pause_nzb: true
+#     category: 'shows'
+#     priority: 100
+#     extensions: ['Move.sh', 'Email.py']
+#   - id: 2
+#     name: 'another feed'
+#     url: 'https://example.com'
+#
+# Default: []
+nzbget_rss_feeds: []

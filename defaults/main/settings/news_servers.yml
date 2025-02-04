@@ -1,0 +1,115 @@
+---
+###############################################################################
+# News Servers
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+#
+# Ansible has 'port' as RESERVED keyword, use srv_port instead.
+#
+# Reference:
+# * https://github.com/ansible/ansible/pull/69585
+
+# NZB News Servers to use.
+#
+# nzbget_news_servers:
+#     list of dict - NZB news server definitions
+#   - id: int - server ID starting at 1; servers must be defined sequently
+#           without holes otherwise NZBGet will not properly read config. ID
+#           does not affect priority level.
+#     active: bool - use this news server; servers at higher levels are only
+#           used if at least one server below a given level is enabled.
+#         Default: True.
+#     name: str - news server friendly name
+#         Default: ''.
+#     level: int - priority level of news server; all servers are tried at
+#           priority level before trying lower levels. Fill servers should be
+#           below major servers. Multiple servers may have the same level.
+#         Values:
+#            0: highest priority (default)
+#           99: lowest priority
+#         Default: 0.
+#     optional: bool - mark server as optional and non-reliable; ignore server
+#           if a connection fails and immediately go with higher level servers.
+#         Default: False.
+#     group: int - server group; downloads failing on one news server, will not
+#           try other servers from the same group.
+#         Values:
+#            0: no group defined (default)
+#            1: min group
+#           99: max group
+#         Default: 0 (no group).
+#     srv_host: str - server hostname
+#     srv_port: int - server port
+#         Values:
+#             563: typical for secure connections (default)
+#             443: rare secure connections
+#             119: typical for unsecure connections
+#              80: rare unsecure connections
+#           65535: max port
+#         Default: 563.
+#     encryption: bool - use encrypted server connection (TLS/SSL); ensure the
+#           correct port is set.
+#         Default: True.
+#     username: str - news server username
+#     password: str - news server password
+#     join_group: bool - enable when server requires 'Join Group' command
+#         Default: False.
+#     cipher: str - cipher to use for encrypted server connections
+#           unsupported ciphers will cause TLS handshake errors. Invalid
+#           ciphers will generate 'Could not select cipher for TLS'.
+#
+#           Reference:
+#           * https://nzbget.com/documentation/choosing-cipher/
+#         Values:
+#                 '': automatic cipher selection (default)
+#           {CIPHER}: manual cipher selection
+#         Default: '' (automatic).
+#     connections: int - max simultaneous connections to this server (0-999)
+#         Default: 8.
+#     retention: int - server retention time (days); articles exceeding
+#           retention are not tried and instead considered failed.
+#         Special Case:
+#           0: disables retention check (default)
+#         Default: 0.
+#     cert_verification: str - certificate verification level
+#         Values:
+#              none: disable signing check, disable hostname check
+#           minimal: enable signing check, disable hostname check
+#            strict: enable signing check, enable hostname check (default)
+#         Default: 'strict'.
+#     ip_version: str - IP protocol version to use
+#         Values:
+#           auto: use either IPv4 or IPv6 (disable)
+#           ipv4: IPv4 only
+#           ipv6: IPv6 only
+#         Default: 'auto'.
+#     notes: str - user comments on server
+#         Default: ''.
+#
+# nzbget_news_servers:
+#   - id: 1
+#     active: true
+#     name: ''
+#     level: 0
+#     optional: false
+#     group: 0
+#     srv_host: 'news.example.com'
+#     srv_port: 563
+#     encryption: true
+#     username: 'user'
+#     password: 'pass'
+#     join_group: false
+#     cipher: ''
+#     connections: 4
+#     retention: 0
+#     cert_verification: 'strict'
+#     ip_version: 'auto'
+#     notes: ''
+#   - id: 2
+#     level: 1
+#     srv_host: 'alt.example.com'
+#     username: 'user'
+#     password: 'pass'
+#
+# Default: [].
+nzbget_news_servers: []

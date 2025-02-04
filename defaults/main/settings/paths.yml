@@ -1,0 +1,127 @@
+---
+###############################################################################
+# Paths
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case. Do NOT use
+# NZBGet config variable interpretation.
+
+# Root directory for all tasks. Default: '/var/lib/nzbget/downloads'.
+nzbget_main_dir: '/var/lib/nzbget/downloads'
+
+# Destination directory for downloaded files.
+#
+# Distinguish between partially downloaded files and completed downloads with
+# nzbget_inter_dir.
+#
+# Default: '/var/lib/nzbget/downloads/completed'.
+nzbget_dest_dir: '/var/lib/nzbget/downloads/completed'
+
+# Directory to store intermediate files.
+#
+# If set files are downloaded into this directory first. After successful
+# download of nzb-file (possibly after par-repair) files are moved to
+# nzbget_dest_dir. Failed download or unpacked files remain in intermediate
+# directory.
+#
+# Using of intermediate directory can significantly improve unpack performance
+# if you can put nzbget_inter_dir and nzbget_dest_dir on separate physical hard
+# drives.
+#
+# Values:
+#       '': downloaded files are put directly to nzbget_dest_dir
+#   {PATH}: absolute path to intermediate directory
+#
+# Default: '/var/lib/nzbget/downloads/intermediate'
+nzbget_inter_dir: '/var/lib/nzbget/downloads/intermediate'
+
+# Directory for incoming nzb-files.
+#
+# New nzb-files added to queue via web-interface or RPC-API, are saved into
+# this directory and then processed by extension scripts nzbget_extensions.
+#
+# Directory is also monitored for new nzb-files. If a new file is found it is
+# added to download queue. The directory can have sub-directories. A nzb-file
+# queued from a subdirectory is automatically assigned to category with
+# sub-directory-name.
+#
+# Default: '/var/lib/nzbget/downloads/nzb'
+nzbget_nzb_dir: '/var/lib/nzbget/downloads/nzb'
+
+# Directory to store program state.
+#
+# Directory to save download queue, history, information about fetched RSS
+# feeds, statistics, etc.
+#
+# Default: '/var/lib/nzbget/downloads/queue'
+nzbget_queue_dir: '/var/lib/nzbget/downloads/queue'
+
+# Directory to store temporary files. Default: '/var/lib/nzbget/tmp'.
+nzbget_temp_dir: '/var/lib/nzbget/tmp'
+
+# Directory with web-interface files.
+#
+# Values:
+#       '': disables WebUI (JSON/XML/RPC requests still enabled)
+#   {PATH}: WebUI source files (default)
+#
+# Default: '/usr/share/nzbget/webui'
+nzbget_web_dir: '/usr/share/nzbget/webui'
+
+# List of directories with post-processing and other scripts.
+#
+# Default: '/var/lib/nzbget/scripts'
+#
+# Reference:
+# * https://nzbget.com/documentation/extension-scripts/.
+nzbget_script_dir: '/var/lib/nzbget/scripts'
+
+# Lock-file for daemon-mode.
+#
+# Values:
+#   '': disable lock file and check for running instances (not recommended)
+#   {PATH}: absolute path to lock file
+#
+# Default: '/var/lib/nzbget/downloads/nzbget.lock'
+nzbget_lock_file: '/var/lib/nzbget/downloads/nzbget.lock'
+
+# Logfile location. Default: '/var/lib/nzbget/downloads/nzbget.log'.
+nzbget_log_file: '/var/lib/nzbget/downloads/nzbget.log'
+
+# Configuration file template.
+#
+# NZBGet configuration templated used by WebUI to read option descriptions.
+#
+# Default: '/usr/share/nzbget/nzbget.conf'
+nzbget_config_template: '/usr/share/nzbget/nzbget.conf'
+
+# List of required directories before processing starts.
+#
+# The list of directories is checked on program start. The program waits until
+# all directories become available before starting download or post-processing.
+# This is useful if the download destination is configured on network or
+# external drives, which may require some time to mount on boot.
+#
+# Special Case:
+#   * Only nzbget_inter_dir, nzbget_dest_dir (and per category) can be waited
+#
+# Default: [] (disabled).
+nzbget_required_dir: []
+
+# Certificate store file or directory.
+#
+# Certificate store contains root certificates used for server certificate
+# verification when connecting to servers with encryption (TLS/SSL). This
+# includes communication with news-servers for article downloading and
+# with web-servers (via https) for fetching of rss feeds and nzb-files.
+#
+# Certificate verification must be enabled separately via nzbget_cert_check.
+#
+# Values:
+#   {PATH}: absolute path to directory containing certificate files
+#   {FILE}: absolute path to big file containing all root certificates
+#
+# Default: '/usr/share/nzbget/cacert.pem'
+#
+# Reference:
+# * https://nzbget.com/documentation/certificate-verification/.
+nzbget_cert_store: '/usr/share/nzbget/cacert.pem'

@@ -1,0 +1,57 @@
+---
+###############################################################################
+# Install NZBGet Packages
+###############################################################################
+# NZBGet requires APT Debian components contrib, non-free to be enabled for all
+# dependencies to be installed.
+#
+# Attempt to install packages. If failed, install Debian repository components
+# and re-run install if enabled.
+
+- name: 'Install'
+  block:
+    - name: 'Install | packages'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.apt'
+      vars:
+        apt_packages:
+          - '{{ nzbget_role_packages }}'
+        apt_sources: '{{ nzbget_role_apt_sources }}'
+        apt_package_update_cache: true
+  rescue:
+    - name: 'Install | APT SOURCE REQUIRED'
+      when: not nzbget_service_auto_add_apt_sources_enable
+      ansible.builtin.fail:
+        msg: |
+          Required packages could not be installed.
+
+          NZBGet requires APT Debian components:
+          * contrib
+          * non-free
+
+          Enable nzbget_service_auto_add_apt_sources_enable or manage APT
+          outside of this role.
+
+    - name: 'Install | APT SOURCE REQUIRED'
+      when: not nzbget_service_auto_add_apt_sources_enable
+      ansible.builtin.fail:
+        msg: |
+          Required packages could not be installed.
+
+          NZBGet requires APT Debian components:
+          * contrib
+          * non-free
+
+          nzbget_service_auto_add_apt_sources_enable=true
+
+          Automatically adding irequired Debian components ...
+
+    - name: 'Install | packages (modify APT debian repository)'
+      when: nzbget_service_auto_add_apt_sources_enable
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.apt'
+      vars:
+        apt_packages:
+          - '{{ nzbget_role_packages }}'
+        apt_sources: '{{ nzbget_role_apt_debian_all }}'
+        apt_package_update_cache: true

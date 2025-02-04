@@ -1,0 +1,187 @@
+---
+###############################################################################
+# Download Queue
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+
+# Flush download queue to disk?
+#
+# Immediately flush file buffers for queue state file. This improves safety for
+# the queue file but may decrease disk performance due to disabling of disk
+# caching for queue state file.
+#
+# Disable if disk performance affacted but create backups of nzbget_queue_dir;
+# keep enabled if system crashes often.
+#
+# Default: True.
+nzbget_flush_queue: true
+
+# Continue download of partially downloaded files?
+#
+# Only files with download jobs are affected, not jobs themselves. Disabling
+# slightly reduces disk usage.
+#
+# Default: True.
+nzbget_continue_partial: true
+
+# Propagation delay to your news servers (minutes).
+#
+# The option sets minimum post age for NZB files. Very recent files
+# are not downloaded to avoid download failures. The files remain
+# on hold in the download queue until the propagation delay expires,
+# after that they are downloaded.
+#
+# Default: 0.
+nzbget_propagation_delay: 0
+
+# Memory limit for article cache (MB).
+#
+# Improves performance by reducing disk operations, files are less fragmented
+# speeding up unpacking.
+#
+# Works best with nzbget_direct_write=true which is effective even with 50MB.
+#
+# if nzbget_direct_write=false then nzbget_article_cache should be big enough
+# to hold all articles of one file (typically ~200MB-500MB). Otherwise
+# articles written into temporary directory when cache is full, degrading
+# performance. See nzbget_write_buffer.
+#
+# Default: 0 (disabled).
+nzbget_article_cache: 100
+
+# Write decoded articles directly into destination output file?
+#
+# Improves performance by reducing disk operations but may produce more
+# fragmented files when used without nzbget_article_cache.
+#
+# The direct write relies on the ability of file system to create empty files
+# without allocating the space on the drive (sparse files), which most modern
+# file systems support including EXT3, EXT4, and NTFS. HFS+ does not.
+#
+# Values:
+#   False: disable; when nzbget_article_cache full/not active downloads are
+#          saved to temporary directory. All files are read on completion to
+#          write to destination file.
+#    True: enable; create destination file with required size and write
+#          articles directly to this file without creating of any temporary
+#          files. If nzbget_article_cache=true articles saved into cache first
+#          and written to destination file when the cache flushes (90% full) or
+#          all articles downloaded.
+#
+# Default: True.
+nzbget_direct_write: true
+
+# Memory limit for per connection write buffer (KB).
+#
+# Highly OS dependent. Internal OS buffer caching data before disk writes per
+# connection/download thread. Larger buffers decrease disk operations and help
+# produce less fragmented files, speeding up unpacking. See
+# nzbget_article_cache.
+#
+# nzbget_write_buffer * [connections per news server].
+#
+# Values:
+#   0: use OS default buffer size (~1-4KB)
+#   1024: recommended value for computers with enough memory (default)
+#
+# Default: 1024.
+nzbget_write_buffer: 1024
+
+# How to name downloaded files.
+#
+# No effect on files extracted from archives.
+#
+# Values:
+#   article: use file names stored in article metadata
+#       nzb: use file names as defined in NZB file
+#      auto: prefer names from article metadata, obfuscated files use names
+#            from NZB file. (default)
+#
+# Default: 'auto'.
+nzbget_file_naming: 'auto'
+
+# Reorder files within NZB for optimal download order?
+#
+# Sorts files alphabetically to ensure download of archive parts in correct
+# order. PAR2 files are moved to the end and then sorted by size. When
+# nzbget_direct_rename=true files are sorted again after names become known.
+#
+# Default: True.
+nzbget_reorder_files: true
+
+# Post-processing strategy.
+#
+# Post-processing is extremely resource intensive.
+#
+# values:
+#   sequential: use queue and process one item at a time to dedicate the most
+#               resources to each item. A post process PAR repair will prevent
+#               another task from running even if the item does not require a
+#               PAR repair.
+#     balanced: items that do not need PAR repair are post processed one at a
+#               time. PAR repair tasks may also run simultaneously one after
+#               another at the same time. A post process par repair will not
+#               prevent another task from running. Uses more resources.
+#               (default)
+#   aggressive: simultaneously post process up to three items including one PAR
+#               repair task.
+#       rocket: simultaneously post process up to six items including 1-2 PAR
+#               repair tasks.
+nzbget_post_strategy: 'balanced'
+
+# Pause if disk space gets below this value (MB).
+#
+# Space checked against nzbget_dest_dir, nzbget_inter_dir.
+#
+# Values:
+#   0: disabled
+#
+# Default: 250.
+nzbget_disk_space: 250
+
+# Delete source NZB file when not needed anymore? Default: True.
+nzbget_nzb_cleanup_disk: true
+
+# Keep history of downloaded NZB files (days).
+#
+# After download and post-processing the items are added to history where
+# their status can be checked and they can be post-processed again if
+# necessary.
+#
+# When nzbget_dupe_check=true items become hidden on expiry and only fields
+# necessary for duplicate check are kept. Remains in hidden history forever.
+#
+# When removed from history or hidden all downloaded files of item are deleted.
+#
+# Values:
+#   0: disable, nzbget_dupe_check will not work
+#
+# Default: 30.
+nzbget_keep_history: 30
+
+# Keep the history of outdated RSS feed items (days).
+#
+# Keeping items helps in situations when feed provider has technical issues
+# and may respond with empty feeds (or with missing items). When fixed, items
+# may reappear in the feed causing the program to re-download items if they
+# were not found in the feed history.
+#
+# Values:
+#   0: outdated items are deleted from history immediately
+#
+# Default: 7.
+nzbget_feed_history: 7
+
+# Discard downloaded data (do not write to disk)?
+#
+# Benchmarking speedtest only. Development option only.
+#
+# Default: False.
+nzbget_skip_write: false
+
+# Write raw article data?
+#
+# Development option only.
+#
+# Default: False.
+nzbget_raw_article: false
