@@ -1,0 +1,115 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Configure NZBGet Install
+###############################################################################
+# NZBGet requires nzbget_script_dir, /var/lib/nzbget/nzbget.conf to start.
+# Service only supports restarts for configuration reloading.
+#
+# Decision: nzbget_script_dir is one directory - explicitly restricted to a
+#     single directory instead of a list of directories in original config.
+#
+# New nzbget.conf options must be manually added to the template and role
+# default templates.
+#
+# Args:
+#   _nzbget_news_servers: list of dict - sanitized nzbget_news_servers
+#   _nzbget_categories: list of dict - sanitized nzbget_categories
+#   _nzbget_rss_feeds:  list of dict - sanitized nzbget_rss_feeds
+#   _nzbget_tasks: list of dict - sanitized nzbget_tasks
+#
+# Reference:
+# * https://nzbgetcom.github.io/#debian-repository
+# * https://nzbget.com
+
+- name: 'Prep | set NZBGet service drop-in'
+  when: nzbget_user != 'nzbget' or nzbget_group != 'nzbget'
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.systemd'
+  vars:
+    systemd_daemon_reload_enable: true
+    systemd_services:
+      - name: 'nzbget'
+        state: 'present'
+        drop_in: true
+        service: {}
+        exec:
+          user: '{{ nzbget_user }}'
+          group: '{{ nzbget_group }}'
+
+- name: 'Config | purge NZBGet package user'
+  when: nzbget_service_purge_package_user_enable and nzbget_user != 'nzbget'
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.users'
+  vars:
+    users_accounts_users_absent: ['nzbget']
+
+# Permissions determined from vanilla service start
+- name: 'Config | manage required directories'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    owner: '{{ item.owner }}'
+    group: '{{ item.group }}'
+    mode: '{{ item.mode }}'
+    recurse: true
+    state: 'directory'
+  become: true
+  changed_when: false  # https://github.com/ansible/ansible/issues/32636
+  loop:
+    - {path: '/var/lib/nzbget', mode: '2750', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_script_dir }}', mode: '2750', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_main_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_nzb_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_queue_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_temp_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_script_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_lock_file | basename }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_log_file | basename }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_dest_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_inter_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_web_dir }}', mode: '0755', owner: 'root', group: 'root'}
+    - {path: '{{ nzbget_cert_store | basename }}', mode: '0755', owner: 'root', group: 'root'}
+    - {path: '{{ nzbget_config_template | basename }}', mode: '0755', owner: 'root', group: 'root'}
+
+# Permissions determined from vanilla service start
+- name: 'Config | manage required files'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    owner: '{{ item.owner }}'
+    group: '{{ item.group }}'
+    mode: '{{ item.mode }}'
+    state: 'file'
+  become: true
+  changed_when: false  # https://github.com/ansible/ansible/issues/32636
+  loop:
+    - {path: '/var/lib/nzbget/nzbget.conf', mode: '0640', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
+    - {path: '{{ nzbget_cert_store }}', mode: '0644', owner: 'root', group: 'root'}
+    - {path: '{{ nzbget_config_template }}', mode: '0644', owner: 'root', group: 'root'}
+
+- name: 'Config | extension scripts'
+  when: nzbget_service_scripts_source | length > 0
+  block:
+    - name: 'Config | extension scripts | copy'
+      ansible.posix.synchronize:
+        src: '{{ nzbget_service_scripts_source if nzbget_service_scripts_source.endswith("/") else nzbget_service_scripts_source ~ "/" }}'
+        dest: '{{ nzbget_script_dir }}'
+        delete: true
+        recursive: true
+        archive: false
+        checksum: true
+
+    - name: 'Config | extension scripts | set permissions'
+      ansible.builtin.shell: |
+        chown -R {{ nzbget_user }}:{{ nzbget_group }} '{{ nzbget_script_dir }}' &&
+        find '{{ nzbget_script_dir }}' -type d -exec chmod 2750 {} \; &&
+        find '{{ nzbget_script_dir }}' -type f -exec chmod 0755 {} \;
+      changed_when: false
+
+- name: 'Config | set nzbget configuration'
+  notify: 'Handlers | restart nzbget'
+  ansible.builtin.template:
+    src: 'nzbget.conf.j2'
+    dest: '{{ nzbget_role_config }}'
+    owner: '{{ nzbget_user }}'
+    group: '{{ nzbget_group }}'
+    mode: '0640'

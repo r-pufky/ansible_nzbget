@@ -1,0 +1,135 @@
+---
+# Confirm:
+# * complex variable expressions rendered correctly; news_servers, categories,
+#   rss_feeds, tasks are all merged with templates, just ensure filters and
+#   lists/dicts are rendered correctly.
+# * custom extension configuration
+# * scripts dir with working example script
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        nzbget_service_scripts_source: 'files/scripts'
+        nzbget_required_dir:
+          - '{{ nzbget_main_dir }}'
+          - '{{ nzbget_script_dir }}'
+        nzbget_extensions:
+          - 'scan'
+          - 'post_processing'
+        nzbget_script_order:
+          - 'post_processing'
+          - 'scan'
+        nzbget_shell_override:
+          - ext: '.py'
+            shell: '/usr/bin/python2'
+          - ext: '.py3'
+            shell: '/usr/bin/python3'
+          - ext: '.sh'
+            shell: '/usr/bin/bash'
+        nzbget_settings_extensions:
+          InfoTarget: 'log'
+        nzbget_authorized_ip:
+          - '0.0.0.0'
+          - '127.0.0.1'
+        nzbget_news_servers:
+          - id: 1
+            name: 'activate_1'
+          - id: 2
+            name: 'activate_2'
+          - id: 3
+            name: 'deactivate_1'
+          - id: 4
+            name: 'deactivate_2'
+        nzbget_categories:
+          - id: 1
+            name: 'Alt-Movies'
+            dest_dir: ''
+            unpack: true
+            extensions: ['scan', 'post_processing']
+            aliases: ['TV - HD', 'TV*']
+          - id: 2
+            name: 'Alt-Series'
+        nzbget_rss_feeds:
+          - id: 1
+            name: 'my feed'
+            url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
+            filter: ['debian bookworm', 'iso', 'netinstall']
+            interval: 15
+            backlog: true
+            pause_nzb: true
+            category: 'shows'
+            priority: 100
+            extensions: ['post_processing', 'scan']
+          - id: 2
+            name: 'second feed'
+            url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
+        nzbget_tasks:
+          - id: 1
+            time: ['00:00', '06:00', '12:00', '18:00']
+            week_days: [1, 3, 5, '6-7']
+            command: 'DownloadRate'
+            param: ['1000']
+          - id: 2
+            time: ['00:00']
+            week_days: [1]
+            command: 'Process'
+            param: ['/home/user/task process.sh', "world''s fun"]
+          - id: 3
+            time: ['00:00']
+            week_days: [1]
+            command: 'Script'
+            param: ['scan', 'post_processing']
+          - id: 4
+            time: ['00:00']
+            week_days: [1]
+            command: 'ActivateServer'
+            param: ['activate_1', 'activate_2']
+          - id: 5
+            time: ['00:00']
+            week_days: [1]
+            command: 'DeactivateServer'
+            param: ['deactivate_1', 'deactivate_2']
+          - id: 6
+            time: ['00:00']
+            week_days: [1]
+            command: 'FetchFeed'
+            param: ['my feed', 'second feed']
+platforms:
+  - name: 'nzbget-debian-12-variable_expressions'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    # - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # drop-ins always created
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

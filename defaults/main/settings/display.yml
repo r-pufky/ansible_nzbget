@@ -1,0 +1,38 @@
+---
+###############################################################################
+# Display (Terminal)
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+
+# Screen output mode.
+#
+# Values:
+#   loggable: only messages will be printed to standard output
+#    colored: prints messages (color for categories) and download progress info
+#             uses escape-sequences to move cursor
+#     curses: advanced interactive interface with the ability to edit download
+#             queue and various output option. (default)
+#
+# Default: 'curses'.
+nzbget_output_mode: 'curses'
+
+# Show NZB filename in file list for nzbget_output_mode=curses? Default: True.
+nzbget_curses_nzb_name: true
+
+# Show NZB files in groups on queue list for nzbget_output_mode=curses?
+#
+# Default: False.
+nzbget_curses_group: false
+
+# Show timestamps in message list for nzbget_output_mode=curses?
+#
+# Default: False.
+nzbget_curses_time: false
+
+# Frontend update interval in console or remote client mode (MS).
+#
+# Special Case:
+#   25+: minimum value 25; bigger values reduce CPU/Network usage
+#
+# Default: 200.
+nzbget_update_interval: 200

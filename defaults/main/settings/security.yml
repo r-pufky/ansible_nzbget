@@ -1,0 +1,194 @@
+---
+###############################################################################
+# Security
+###############################################################################
+# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+
+# NZBGet server listen IP.
+#
+# Applies to WebUI as well.
+#
+# Values:
+#       {DNS}: DNS hostname
+#        {IP}: IPv4 or IPv6 address
+#    {SOCKET}: unix domain socket
+#     0.0.0.0: listen on all available interfaces (default)
+#   127.0.0.1: connect only from computer running NZBGet
+#
+# Default: '0.0.0.0' (all interfaces).
+nzbget_control_ip: '0.0.0.0'
+
+# NZBGet unencrypted (HTTP) server port.
+#
+# See nzbget_secure_port for encrypted ports.
+#
+# Default: 6789.
+nzbget_control_port: 6789
+
+# Server (admin control) username.
+#
+# Special Case:
+#   '': disables username check; check password if nzbget_control_password set
+#
+# Default: 'nzbget'.
+nzbget_control_username: 'nzbget'
+
+# Server (admin control) password.
+#
+# Special Case:
+#   '': disables password check
+#
+# Default: 'tegbzn6789'.
+nzbget_control_password: 'tegbzn6789'
+
+# Restricted username.
+#
+# Use this user to connect to NZBGet from other programs and websites.
+#
+# WebUI:
+#   * cannot change program settings
+#   * cannot view security related options
+#   * cannot view options provided by extension scripts
+#
+# RPC-API:
+#   * methods 'config' and 'saveconfig' return string '***'
+#
+# Default: '' (disabled).
+nzbget_restricted_username: ''
+
+# Restricted password.
+#
+# Special Case:
+#   '': disables password check
+#
+# Default: '' (disabled).
+nzbget_restricted_password: ''
+
+# RPC-API add downloads username.
+#
+# RPC-API:
+#   * add new downloads using RPC-method 'append'
+#   * check program version using RPC-method 'version'
+#
+# Special Case:
+#   '': disables RPC-API add downloads user
+#
+# Default: '' (disabled).
+nzbget_add_username: ''
+
+# RPC-API add downloads password.
+#
+# Special Case:
+#   '': disables password check
+#
+# Default: '' (disabled).
+nzbget_add_password: ''
+
+# Authenticate using web form?
+#
+# Use web forms for authentication instead of browser dialogs.
+#
+# Default: False.
+nzbget_form_auth: false
+
+# Use HTTPS?
+#
+# Both WebUI and RPC-API. Provide nzbget_secure_cert and nzbget_secure_key.
+#
+# Default: False.
+nzbget_secure_control: false
+
+# NZBGet encrypted (HTTPS) server port. Default: 6791.
+nzbget_secure_port: 6791
+
+# Absolute path to certificate file for encrypted communication.
+#
+# Use fullchain.pem for Let's Encrypt certificates. Managed outside role.
+#
+# Default: '' (no cert).
+nzbget_secure_cert: ''
+
+# Absolute path to key file for encrypted communication.
+#
+# Use privkey.pem for Let's Encrypt certificates. Managed outside role.
+#
+# Default: '' (no key).
+nzbget_secure_key: ''
+
+# List of IP addresses allowed to connect without authorization.
+#
+# Do not use this option if the program works behind another web-server because
+# all requests will have the address of this server.
+#
+# List of privileged IPs for easy access to NZBGet built-in web-server
+# (web-interface and RPC). The connected clients have full unrestricted access.
+#
+# Special Case:
+#   *?: wildcard and pattern matching allowed
+#
+# Default: ['127.0.0.1'].
+nzbget_authorized_ip: ['127.0.0.1']
+
+# Use TLS certificate verification?
+#
+# Connecting to a news server or web server validate authenticity using server
+# security certificate. If the check fails that means the connection cannot be
+# trusted and must be closed with an error message explaining the security
+# issue.
+#
+# If you still need to connect to servers with invalid certificates you can
+# disable the certificate verification but you should know that your connection
+# is insecure and you might be connecting to attacker's server without your
+# awareness.
+#
+# Certificate verification requires a list of trusted root certificates, which
+# must be configured using nzbget_cert_store.
+#
+# Default: True.
+#
+# Reference:
+# * https://nzbget.com/documentation/certificate-verification/.
+nzbget_cert_check: true
+
+# Automatically check for new releases.
+#
+# Values:
+#      none: do not show notifications
+#    stable: show notifications about new stable releases
+#   testing: show notifications about new testing releases
+#
+# Default:
+nzbget_update_check: 'none'
+
+# User name for daemon-mode.
+#
+# Set the user that the daemon normally runs at. Set nzbget_main_dir with an
+# absolute path to be sure where it will write. This allows NZBGet daemon to be
+# launched in rc.local (at boot), and download items as a specific user ID.
+#
+# Special Case:
+#   * if nzbget_daemon_username is not root and doesn't exist the daemon will
+#     not start.
+#   * if daemon is running as root (superuser) and nzbget_daemon_username
+#     exists, NZBGet will drop root privileges to the user specified by
+#     nzbget_daemon_username.
+#
+# Default: 'root'.
+nzbget_daemon_username: 'root'
+
+# Octal default umask.
+#
+# UMask determines the settings of a mask that controls how file permissions
+# are set for newly created files and directories. Please note that UMask
+# doesn't set file permissions directly, it merely filters out certain
+# permissions.
+#
+# Special Case:
+#       '': disabled
+#   '1000': disabled
+#
+# Default: '0002'.
+#
+# Reference:
+# * http://en.wikipedia.org/wiki/Umask
+nzbget_u_mask: '0002'

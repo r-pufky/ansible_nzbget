@@ -1,0 +1,50 @@
+---
+# yamllint disable rule:line-length
+- name: 'Default | verify | service'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | verify | service | gather service status'
+      ansible.builtin.service_facts:
+
+    # NZBGet will fail if configuration is bad (r_pufky.srv.systemd)
+    - name: 'Default | verify | service | assert nzbget.service active'
+      ansible.builtin.assert:
+        that:
+          - '"nzbget.service" in ansible_facts.services'
+          - 'ansible_facts["services"]["nzbget.service"]["state"] == "running"'
+        fail_msg: 'nzbget.service should be enabled and running.'
+
+    - name: 'Default | verify | service | query nzbget.conf'
+      ansible.builtin.copy:
+        src: 'files/nzbget.conf'
+        dest: '/var/lib/nzbget/nzbget.conf'
+        owner: 'media'
+        group: 'media'
+        mode: '0640'
+      check_mode: true
+      diff: true
+      register: _test_nzbget_config
+
+    - name: 'Default | verify | service | assert expected nzbget.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_nzbget_config.changed
+        fail_msg: '/var/lib/nzbget/nzbget.conf is not in expected format: {{ _test_nzbget_config.diff }}.'
+
+- name: 'Default | verify | nzbget user removed'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | verify | nzbget user removed | query user nzbget'
+      ansible.builtin.getent:
+        database: 'passwd'
+        key: 'nzbget'
+      failed_when: false
+      register: _test_nzbget_user
+
+    - name: 'Default | verify | nzbget user removed | assert user nzbget removed'
+      ansible.builtin.assert:
+        that:
+          - '"key could not be found" in _test_nzbget_user.msg'
+        fail_msg: 'nzbget user should be removed.'

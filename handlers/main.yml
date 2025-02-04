@@ -3,12 +3,9 @@
 # NZBGet Handlers
 ###############################################################################
 
-- name: 'reload systemd'
+- name: 'Handlers | restart nzbget'
   ansible.builtin.systemd:
-    daemon-reload: true
-
-- name: 'restart nzbget'
-  ansible.builtin.systemd:
-    name:    'nzbget'
+    name: 'nzbget'
     enabled: true
-    state:   'restarted'
+    daemon_reload: true
+    state: 'restarted'

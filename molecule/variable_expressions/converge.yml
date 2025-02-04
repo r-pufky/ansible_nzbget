@@ -1,0 +1,8 @@
+---
+- name: 'Variable expressions | converge'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Variable expressions | converge | apply r_pufky.srv.nzbget'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.nzbget'

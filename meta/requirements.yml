@@ -1,0 +1,5 @@
+---
+collections:
+  - 'r_pufky.srv'  # https://github.com/r-pufky/ansible_collection_srv
+
+roles: []
