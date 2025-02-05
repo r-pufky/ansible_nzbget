@@ -12,6 +12,13 @@ nzbget_role_validate_date: '2025-02-01'
 nzbget_role_validate_release: 'bookworm'
 nzbget_role_validate_version: 'v24.5'
 
+# Debian nzbget.conf location.
+nzbget_role_config: '/var/lib/nzbget/nzbget.conf'
+
+###############################################################################
+# APT Packages
+###############################################################################
+
 nzbget_role_packages:
   - 'nzbget'
   - 'unrar'  # requires: contrib, non-free
@@ -19,7 +26,6 @@ nzbget_role_packages:
   - 'p7zip-full'  # provides: 7za
   - 'rsync'  # ansible.posix.synchronize (script files)
 
-# NZBGet APT repository
 nzbget_role_apt_sources:
   - name: 'nzbget'
     types:
@@ -31,7 +37,7 @@ nzbget_role_apt_sources:
       - 'main'
     signed_by: 'https://nzbgetcom.github.io/nzbgetcom.asc'
 
-# Debian APT sources if user hasn't managed them
+# Debian APT sources to use if package install fails.
 nzbget_role_apt_debian_all:
   - name: 'debian'
     types:
@@ -62,10 +68,10 @@ nzbget_role_apt_debian_all:
       - 'non-free-firmware'
     signed_by: '/usr/share/keyrings/debian-archive-keyring.gpg'
 
-# Debian nzbget.conf location
-nzbget_role_config: '/var/lib/nzbget/nzbget.conf'
+###############################################################################
+# Default NZBGet User/Group
+###############################################################################
 
-# Auto-created default user
 nzbget_role_group:
   name: 'media'
   gid: 5555
