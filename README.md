@@ -1,5 +1,5 @@
 # NZBGet
-NZBGet (nzbget.com) using maintained debain release.
+NZBGet (nzbget.com) using maintained Debian release.
 
 ## Requirements
 [supported platforms](https://github.com/r-pufky/ansible_nzbget/blob/main/meta/main.yml)
