@@ -2,8 +2,9 @@
 ###############################################################################
 # Paths
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case. Do NOT use
-# NZBGet config variable interpretation.
+# PascalCase: nzbget_main_dir > MainDir.
+#
+# Do NOT use NZBGet config variable interpretation.
 
 # Root directory for all tasks. Default: '/var/lib/nzbget/downloads'.
 nzbget_main_dir: '/var/lib/nzbget/downloads'

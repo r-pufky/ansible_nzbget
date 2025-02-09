@@ -2,7 +2,7 @@
 ###############################################################################
 # News Servers
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: cert_verification > CertVerification.
 #
 # Ansible has 'port' as RESERVED keyword, use srv_port instead.
 #

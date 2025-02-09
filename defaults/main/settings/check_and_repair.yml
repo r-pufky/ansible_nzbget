@@ -2,7 +2,7 @@
 ###############################################################################
 # Check and Repair
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_par_check > ParCheck.
 
 # Check CRC of downloaded and decoded articles?
 #

@@ -2,7 +2,7 @@
 ###############################################################################
 # Security
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_control_port > ControlPort.
 
 # NZBGet server listen IP.
 #

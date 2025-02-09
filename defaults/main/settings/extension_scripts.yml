@@ -2,7 +2,7 @@
 ###############################################################################
 # Extension Scripts
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_script_order > ScriptOrder.
 
 # List of active extension scripts for new downloads.
 #

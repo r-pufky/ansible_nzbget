@@ -2,7 +2,7 @@
 ###############################################################################
 # Logging
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_wite_log > WriteLog.
 
 # Log file write mode.
 #

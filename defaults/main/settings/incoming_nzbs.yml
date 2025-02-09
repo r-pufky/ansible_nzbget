@@ -2,7 +2,7 @@
 ###############################################################################
 # Incoming NZBs
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_append_category_dir > AppendCategoryDir.
 
 # Create subdirectory with category name in nzbget_dest_dir?
 #

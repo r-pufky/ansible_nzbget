@@ -2,7 +2,7 @@
 ###############################################################################
 # Connection
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_article_retries > ArticleRetries.
 
 # Max article download retries before error.
 #

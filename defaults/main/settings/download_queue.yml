@@ -2,7 +2,7 @@
 ###############################################################################
 # Download Queue
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: nzbget_flush_queue > FlushQueue.
 
 # Flush download queue to disk?
 #

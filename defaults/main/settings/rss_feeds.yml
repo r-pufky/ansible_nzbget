@@ -2,7 +2,7 @@
 ###############################################################################
 # RSS Feeds
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: pause_nzb > PauseNzb.
 
 # RSS Feeds
 #

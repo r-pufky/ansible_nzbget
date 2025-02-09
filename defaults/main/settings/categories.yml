@@ -2,7 +2,7 @@
 ###############################################################################
 # Categories
 ###############################################################################
-# NZBGet uses PascalCase; equivalent variable is nzbget_pascal_case.
+# PascalCase: dest_dir > DestDir.
 
 # Available categories for WebUI.
 #
