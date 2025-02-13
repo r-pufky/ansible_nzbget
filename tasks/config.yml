@@ -37,12 +37,12 @@
           user: '{{ nzbget_user }}'
           group: '{{ nzbget_group }}'
 
-- name: 'Config | purge NZBGet package user'
-  when: nzbget_service_purge_package_user_enable and nzbget_user != 'nzbget'
-  ansible.builtin.include_role:
-    name: 'r_pufky.srv.users'
-  vars:
-    users_accounts_users_absent: ['nzbget']
+- name: 'Config | lock NZBGet package user'
+  when: nzbget_user != 'nzbget'
+  ansible.builtin.user:
+    name: 'nzbget'
+    password: '!'
+    password_lock: true
 
 # Permissions determined from vanilla service start
 - name: 'Config | manage required directories'

@@ -31,20 +31,3 @@
         that:
           - not _test_nzbget_config.changed
         fail_msg: '/var/lib/nzbget/nzbget.conf is not in expected format: {{ _test_nzbget_config.diff }}.'
-
-- name: 'Default | verify | nzbget user removed'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | nzbget user removed | query user nzbget'
-      ansible.builtin.getent:
-        database: 'passwd'
-        key: 'nzbget'
-      failed_when: false
-      register: _test_nzbget_user
-
-    - name: 'Default | verify | nzbget user removed | assert user nzbget removed'
-      ansible.builtin.assert:
-        that:
-          - '"key could not be found" in _test_nzbget_user.msg'
-        fail_msg: 'nzbget user should be removed.'

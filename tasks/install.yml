@@ -44,7 +44,7 @@
 
           nzbget_service_auto_add_apt_sources_enable=true
 
-          Automatically adding irequired Debian components ...
+          Automatically adding required Debian components ...
 
     - name: 'Install | packages (modify APT debian repository)'
       when: nzbget_service_auto_add_apt_sources_enable

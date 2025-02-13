@@ -3,10 +3,15 @@
 ###############################################################################
 # Prep NZBGet
 ###############################################################################
-# NZBGet package does not have any debconf options. Prepare system for install
-# by creating user/group for service, add drop-in for user/group service
-# override, and sanitize (standardize with default values if not set) NZBGet
-# configuration.
+# NZBGet install from deb packages are categorically broken. There are no
+# debconf options.
+#
+# Prepare system for install by creating user/group for service, add drop-in
+# for user/group service override, and sanitize (standardize with default
+# values if not set) NZBGet configuration.
+#
+# Do not remove the default (NZBGet) user as this will put APT in a broken
+# state. Instead ensure the account is fully locked.
 #
 # Generates:
 #   _nzbget_news_servers: list of dict - sanitized nzbget_news_servers
@@ -17,6 +22,7 @@
 # Reference:
 # * https://nzbget.com
 
+# TODO(role): add account lock for non-standard user.
 - name: 'Prep | manage users'
   when: nzbget_create_user
   ansible.builtin.include_role:

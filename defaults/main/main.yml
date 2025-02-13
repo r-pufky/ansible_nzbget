@@ -14,17 +14,6 @@
 # Default: '' (disabled).
 nzbget_service_scripts_source: ''
 
-# Purge NZBGet package user?
-#
-# NZBGet debian package will always install a 'nzbget' user regardless of how
-# the service is configured. Enabling this option will check for and remove
-# that user on role application if nzbget_user is NOT 'nzbget'.
-#
-# This does NOT prevent automatic NZBGet upgrades from re-creating this user.
-#
-# Default: True.
-nzbget_service_purge_package_user_enable: true
-
 # Automatically add Debian APT sources if required?
 #
 # Additional APT components (contrib, non-free) are required for NZBGet
