@@ -11,7 +11,7 @@
             name: 'r_pufky.srv.nzbget'
           register: _test_failure
       rescue:
-        - name: 'Fail no APT sources | converge | role failure | expected failure'
+        - name: 'Fail no APT sources | converge | role failure | EXPECTED FAILURE'
           ansible.builtin.assert:
             that:
               - not _test_failure.changed
