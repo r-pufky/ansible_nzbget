@@ -9,11 +9,11 @@
 # Applies to WebUI as well.
 #
 # Values:
-#       {DNS}: DNS hostname
-#        {IP}: IPv4 or IPv6 address
-#    {SOCKET}: unix domain socket
-#     0.0.0.0: listen on all available interfaces (default)
-#   127.0.0.1: connect only from computer running NZBGet
+#       {DNS}: DNS hostname.
+#        {IP}: IPv4 or IPv6 address.
+#    {SOCKET}: Unix domain socket.
+#     0.0.0.0: Listen on all available interfaces (default).
+#   127.0.0.1: Connect only from computer running NZBGet.
 #
 # Default: '0.0.0.0' (all interfaces).
 nzbget_control_ip: '0.0.0.0'
@@ -28,7 +28,7 @@ nzbget_control_port: 6789
 # Server (admin control) username.
 #
 # Special Case:
-#   '': disables username check; check password if nzbget_control_password set
+#   '': Disables username check; check password if nzbget_control_password set.
 #
 # Default: 'nzbget'.
 nzbget_control_username: 'nzbget'
@@ -36,7 +36,7 @@ nzbget_control_username: 'nzbget'
 # Server (admin control) password.
 #
 # Special Case:
-#   '': disables password check
+#   '': Disables password check.
 #
 # Default: 'tegbzn6789'.
 nzbget_control_password: 'tegbzn6789'
@@ -59,7 +59,7 @@ nzbget_restricted_username: ''
 # Restricted password.
 #
 # Special Case:
-#   '': disables password check
+#   '': Disables password check.
 #
 # Default: '' (disabled).
 nzbget_restricted_password: ''
@@ -71,7 +71,7 @@ nzbget_restricted_password: ''
 #   * check program version using RPC-method 'version'
 #
 # Special Case:
-#   '': disables RPC-API add downloads user
+#   '': Disables RPC-API add downloads user.
 #
 # Default: '' (disabled).
 nzbget_add_username: ''
@@ -79,7 +79,7 @@ nzbget_add_username: ''
 # RPC-API add downloads password.
 #
 # Special Case:
-#   '': disables password check
+#   '': Disables password check.
 #
 # Default: '' (disabled).
 nzbget_add_password: ''
@@ -124,7 +124,7 @@ nzbget_secure_key: ''
 # (web-interface and RPC). The connected clients have full unrestricted access.
 #
 # Special Case:
-#   *?: wildcard and pattern matching allowed
+#   *?: Wildcard and pattern matching allowed.
 #
 # Default: ['127.0.0.1'].
 nzbget_authorized_ip: ['127.0.0.1']
@@ -153,9 +153,9 @@ nzbget_cert_check: true
 # Automatically check for new releases.
 #
 # Values:
-#      none: do not show notifications
-#    stable: show notifications about new stable releases
-#   testing: show notifications about new testing releases
+#      none: Do not show notifications.
+#    stable: Show notifications about new stable releases.
+#   testing: Show notifications about new testing releases.
 #
 # Default:
 nzbget_update_check: 'none'
@@ -167,11 +167,11 @@ nzbget_update_check: 'none'
 # launched in rc.local (at boot), and download items as a specific user ID.
 #
 # Special Case:
-#   * if nzbget_daemon_username is not root and doesn't exist the daemon will
-#     not start.
-#   * if daemon is running as root (superuser) and nzbget_daemon_username
-#     exists, NZBGet will drop root privileges to the user specified by
-#     nzbget_daemon_username.
+#   *: If nzbget_daemon_username is not root and doesn't exist the daemon will
+#      not start.
+#   *: If daemon is running as root (superuser) and nzbget_daemon_username
+#      exists, NZBGet will drop root privileges to the user specified by
+#      nzbget_daemon_username.
 #
 # Default: 'root'.
 nzbget_daemon_username: 'root'
@@ -184,8 +184,8 @@ nzbget_daemon_username: 'root'
 # permissions.
 #
 # Special Case:
-#       '': disabled
-#   '1000': disabled
+#     '': Disabled.
+#   1000: Disabled.
 #
 # Default: '0002'.
 #

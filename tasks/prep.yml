@@ -37,21 +37,29 @@
   ansible.builtin.set_fact:
     _nzbget_news_servers: '{{ _nzbget_news_servers | default([]) + [nzbget_role_template_news_servers | combine(item)] }}'
   loop: '{{ nzbget_news_servers }}'
+  loop_control:
+    label: '{{ item.name }}'
 
 - name: 'Prep | sanitize nzbget_categories'
   when: nzbget_categories | length > 0
   ansible.builtin.set_fact:
     _nzbget_categories: '{{ _nzbget_categories | default([]) + [nzbget_role_template_categories | combine(item)] }}'
   loop: '{{ nzbget_categories }}'
+  loop_control:
+    label: '{{ item.name }}'
 
 - name: 'Prep | sanitize nzbget_rss_feeds'
   when: nzbget_rss_feeds | length > 0
   ansible.builtin.set_fact:
     _nzbget_rss_feeds: '{{ _nzbget_rss_feeds | default([]) + [nzbget_role_template_rss_feeds | combine(item)] }}'
   loop: '{{ nzbget_rss_feeds }}'
+  loop_control:
+    label: '{{ item.name }}'
 
 - name: 'Prep | sanitize nzbget_tasks'
   when: nzbget_tasks | length > 0
   ansible.builtin.set_fact:
     _nzbget_tasks: '{{ _nzbget_tasks | default([]) + [nzbget_role_template_tasks | combine(item)] }}'
   loop: '{{ nzbget_tasks }}'
+  loop_control:
+    label: '{{ item.id }}'
