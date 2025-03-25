@@ -33,7 +33,7 @@
           outside of this role.
 
     - name: 'Install | APT SOURCE REQUIRED'
-      when: not nzbget_service_auto_add_apt_sources_enable
+      when: nzbget_service_auto_add_apt_sources_enable
       ansible.builtin.fail:
         msg: |
           Required packages could not be installed.
