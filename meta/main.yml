@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: 'nzbget'
   author: 'r_pufky'
   description: 'NZBGet(.com) Server'
   company: 'N/A'

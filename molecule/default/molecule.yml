@@ -1,9 +1,15 @@
 ---
-# Confirm:
-# * alternative user created
-# * nzbget user deleted
-# * permissions propagated to all directories
-# * service is active and running
+###############################################################################
+# Default
+###############################################################################
+# Default role is applied correctly.
+#
+# Tests:
+# * alternative user created.
+# * nzbget user deleted.
+# * permissions propagated to all directories.
+# * service is active and running.
+
 dependency:
   name: 'galaxy'
 driver:

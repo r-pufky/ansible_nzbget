@@ -13,10 +13,12 @@
 # default templates.
 #
 # Args:
-#   _nzbget_news_servers: list of dict - sanitized nzbget_news_servers
-#   _nzbget_categories: list of dict - sanitized nzbget_categories
-#   _nzbget_rss_feeds:  list of dict - sanitized nzbget_rss_feeds
-#   _nzbget_tasks: list of dict - sanitized nzbget_tasks
+#   _nzbget_news_servers: list of dict - Sanitized nzbget_news_servers.
+#   _nzbget_categories: list of dict - Sanitized nzbget_categories.
+#   _nzbget_rss_feeds:  list of dict - Sanitized nzbget_rss_feeds.
+#   _nzbget_tasks: list of dict - Sanitized nzbget_tasks.
+#   _nzbget_uid: int - NZBGet user UID.
+#   _nzbget_gid: int - NZBGet user GID.
 #
 # Reference:
 # * https://nzbgetcom.github.io/#debian-repository
@@ -25,7 +27,7 @@
 - name: 'Prep | set NZBGet service drop-in'
   when: nzbget_user != 'nzbget' or nzbget_group != 'nzbget'
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
+    name: 'r_pufky.deb.systemd'
   vars:
     systemd_daemon_reload_enable: true
     systemd_services:
@@ -46,52 +48,114 @@
 
 # Permissions determined from vanilla service start
 - name: 'Config | manage required directories'
-  ansible.builtin.file:
-    path: '{{ item.path }}'
-    owner: '{{ item.owner }}'
-    group: '{{ item.group }}'
-    mode: '{{ item.mode }}'
-    recurse: true
-    state: 'directory'
-  become: true
-  changed_when: false  # https://github.com/ansible/ansible/issues/32636
+  ansible.builtin.include_role:
+    name: 'r_pufky.lib.utils'
+    tasks_from: 'remote_file.yml'
+  vars:
+    file_path: '{{ item.path }}'
+    file_owner: '{{ item.owner }}'
+    file_group: '{{ item.group }}'
+    file_mode: '{{ item.mode }}'
+    file_recurse: true
+    file_state: 'directory'
   loop:
-    - {path: '/var/lib/nzbget', mode: '2750', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_script_dir }}', mode: '2750', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_main_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_nzb_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_queue_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_temp_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_script_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_lock_file | basename }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_log_file | basename }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_dest_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_inter_dir }}', mode: '2755', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_web_dir }}', mode: '0755', owner: 'root', group: 'root'}
-    - {path: '{{ nzbget_cert_store | basename }}', mode: '0755', owner: 'root', group: 'root'}
-    - {path: '{{ nzbget_config_template | basename }}', mode: '0755', owner: 'root', group: 'root'}
+    - path: '/var/lib/nzbget'
+      mode: '2750'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_script_dir }}'
+      mode: '2750'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_main_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_nzb_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_queue_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_temp_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_script_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_lock_file | basename }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_log_file | basename }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_dest_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_inter_dir }}'
+      mode: '2755'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_web_dir }}'
+      mode: '0755'
+      owner: 'root'
+      group: 'root'
+    - path: '{{ nzbget_cert_store | basename }}'
+      mode: '0755'
+      owner: 'root'
+      group: 'root'
+    - path: '{{ nzbget_config_template | basename }}'
+      mode: '0755'
+      owner: 'root'
+      group: 'root'
+  loop_control:
+    label: '{{ item.path }}'
 
 # Permissions determined from vanilla service start
 - name: 'Config | manage required files'
-  ansible.builtin.file:
-    path: '{{ item.path }}'
-    owner: '{{ item.owner }}'
-    group: '{{ item.group }}'
-    mode: '{{ item.mode }}'
-    state: 'file'
-  become: true
-  changed_when: false  # https://github.com/ansible/ansible/issues/32636
+  ansible.builtin.include_role:
+    name: 'r_pufky.lib.utils'
+    tasks_from: 'remote_file.yml'
+  vars:
+    file_path: '{{ item.path }}'
+    file_owner: '{{ item.owner }}'
+    file_group: '{{ item.group }}'
+    file_mode: '{{ item.mode }}'
+    file_recurse: false
+    file_state: 'file'
   loop:
-    - {path: '/var/lib/nzbget/nzbget.conf', mode: '0640', owner: '{{ nzbget_user }}', group: '{{ nzbget_group }}'}
-    - {path: '{{ nzbget_cert_store }}', mode: '0644', owner: 'root', group: 'root'}
-    - {path: '{{ nzbget_config_template }}', mode: '0644', owner: 'root', group: 'root'}
+    - path: '/var/lib/nzbget/nzbget.conf'
+      mode: '0640'
+      owner: '{{ _nzbget_uid }}'
+      group: '{{ _nzbget_gid }}'
+    - path: '{{ nzbget_cert_store }}'
+      mode: '0644'
+      owner: 'root'
+      group: 'root'
+    - path: '{{ nzbget_config_template }}'
+      mode: '0644'
+      owner: 'root'
+      group: 'root'
+  loop_control:
+    label: '{{ item.path }}'
 
 - name: 'Config | extension scripts'
   when: nzbget_service_scripts_source | length > 0
   block:
     - name: 'Config | extension scripts | copy'
       ansible.posix.synchronize:
-        src: '{{ nzbget_service_scripts_source if nzbget_service_scripts_source.endswith("/") else nzbget_service_scripts_source ~ "/" }}'
+        src: '{{
+            nzbget_service_scripts_source
+            if nzbget_service_scripts_source.endswith("/") else
+            nzbget_service_scripts_source ~ "/"
+          }}'
         dest: '{{ nzbget_script_dir }}'
         delete: true
         recursive: true

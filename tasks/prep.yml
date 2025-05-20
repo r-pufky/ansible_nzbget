@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Prep NZBGet
 ###############################################################################
@@ -14,28 +13,44 @@
 # state. Instead ensure the account is fully locked.
 #
 # Generates:
-#   _nzbget_news_servers: list of dict - sanitized nzbget_news_servers
-#   _nzbget_categories: list of dict - sanitized nzbget_categories
-#   _nzbget_rss_feeds:  list of dict - sanitized nzbget_rss_feeds
-#   _nzbget_tasks: list of dict - sanitized nzbget_tasks
+#   _nzbget_news_servers: list of dict - Sanitized nzbget_news_servers.
+#   _nzbget_categories: list of dict - Sanitized nzbget_categories.
+#   _nzbget_rss_feeds:  list of dict - Sanitized nzbget_rss_feeds.
+#   _nzbget_tasks: list of dict - Sanitized nzbget_tasks.
+#   _nzbget_uid: int - NZBGet user UID.
+#   _nzbget_gid: int - NZBGet user GID.
 #
 # Reference:
 # * https://nzbget.com
 
-# TODO(role): add account lock for non-standard user.
 - name: 'Prep | manage users'
   when: nzbget_create_user
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.users'
+    name: 'r_pufky.deb.users'
     tasks_from: 'role_account_add.yml'
   vars:
     users_role_group: '{{ nzbget_role_group }}'
     users_role_user: '{{ nzbget_role_user }}'
 
+- name: 'Prep | enumerate system user {{ nzbget_user }}'
+  ansible.builtin.user:
+    name: '{{ nzbget_user }}'
+  check_mode: true
+  changed_when: false
+  register: _nzbget_user_query
+
+- name: 'Prep | parse system user UID/GID'
+  ansible.builtin.set_fact:
+    _nzbget_uid: '{{ _nzbget_user_query.uid }}'
+    _nzbget_gid: '{{ _nzbget_user_query.group }}'
+
 - name: 'Prep | sanitize nzbget_news_servers'
   when: nzbget_news_servers | length > 0
   ansible.builtin.set_fact:
-    _nzbget_news_servers: '{{ _nzbget_news_servers | default([]) + [nzbget_role_template_news_servers | combine(item)] }}'
+    _nzbget_news_servers: '{{
+        _nzbget_news_servers | default([]) +
+        [nzbget_role_template_news_servers | combine(item)]
+      }}'
   loop: '{{ nzbget_news_servers }}'
   loop_control:
     label: '{{ item.name }}'
@@ -43,7 +58,10 @@
 - name: 'Prep | sanitize nzbget_categories'
   when: nzbget_categories | length > 0
   ansible.builtin.set_fact:
-    _nzbget_categories: '{{ _nzbget_categories | default([]) + [nzbget_role_template_categories | combine(item)] }}'
+    _nzbget_categories: '{{
+        _nzbget_categories | default([]) +
+        [nzbget_role_template_categories | combine(item)]
+      }}'
   loop: '{{ nzbget_categories }}'
   loop_control:
     label: '{{ item.name }}'
@@ -51,7 +69,10 @@
 - name: 'Prep | sanitize nzbget_rss_feeds'
   when: nzbget_rss_feeds | length > 0
   ansible.builtin.set_fact:
-    _nzbget_rss_feeds: '{{ _nzbget_rss_feeds | default([]) + [nzbget_role_template_rss_feeds | combine(item)] }}'
+    _nzbget_rss_feeds: '{{
+        _nzbget_rss_feeds | default([]) +
+        [nzbget_role_template_rss_feeds | combine(item)]
+      }}'
   loop: '{{ nzbget_rss_feeds }}'
   loop_control:
     label: '{{ item.name }}'
@@ -59,7 +80,10 @@
 - name: 'Prep | sanitize nzbget_tasks'
   when: nzbget_tasks | length > 0
   ansible.builtin.set_fact:
-    _nzbget_tasks: '{{ _nzbget_tasks | default([]) + [nzbget_role_template_tasks | combine(item)] }}'
+    _nzbget_tasks: '{{
+        _nzbget_tasks | default([]) +
+        [nzbget_role_template_tasks | combine(item)]
+      }}'
   loop: '{{ nzbget_tasks }}'
   loop_control:
     label: '{{ item.id }}'

@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Default | verify | service'
   hosts: 'all'
   gather_facts: false
@@ -7,27 +6,23 @@
     - name: 'Default | verify | service | gather service status'
       ansible.builtin.service_facts:
 
-    # NZBGet will fail if configuration is bad (r_pufky.srv.systemd)
+    # NZBGet will fail if configuration is bad (r_pufky.deb.systemd)
     - name: 'Default | verify | service | assert nzbget.service active'
       ansible.builtin.assert:
+        quiet: true
         that:
           - '"nzbget.service" in ansible_facts.services'
           - 'ansible_facts["services"]["nzbget.service"]["state"] == "running"'
-        fail_msg: 'nzbget.service should be enabled and running.'
+        fail_msg: '✘ nzbget.service should be enabled and running.'
 
-    - name: 'Default | verify | service | query nzbget.conf'
-      ansible.builtin.copy:
-        src: 'files/nzbget.conf'
-        dest: '/var/lib/nzbget/nzbget.conf'
-        owner: 'media'
-        group: 'media'
-        mode: '0640'
-      check_mode: true
-      diff: true
-      register: _test_nzbget_config
-
-    - name: 'Default | verify | service | assert expected nzbget.conf'
-      ansible.builtin.assert:
-        that:
-          - not _test_nzbget_config.changed
-        fail_msg: '/var/lib/nzbget/nzbget.conf is not in expected format: {{ _test_nzbget_config.diff }}.'
+    - name: 'Default | verify | service | /var/lib/nzbget/nzbget.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | service | /var/lib/nzbget/nzbget.conf'
+        test_src: 'files/nzbget.conf'
+        test_file: '/var/lib/nzbget/nzbget.conf'
+        test_owner: 'media'
+        test_group: 'media'
+        test_mode: '0640'

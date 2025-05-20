@@ -12,18 +12,18 @@
   block:
     - name: 'Install | packages'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.apt'
+        name: 'r_pufky.deb.apt'
       vars:
         apt_packages:
           - '{{ nzbget_role_packages }}'
         apt_sources: '{{ nzbget_role_apt_sources }}'
         apt_package_update_cache: true
   rescue:
-    - name: 'Install | APT SOURCE REQUIRED'
+    - name: 'Install | APT SOURCE REQUIRED ⚠'
       when: not nzbget_service_auto_add_apt_sources_enable
       ansible.builtin.fail:
         msg: |
-          Required packages could not be installed.
+          ✘ Required packages could not be installed.
 
           NZBGet requires APT Debian components:
           * contrib
@@ -32,11 +32,11 @@
           Enable nzbget_service_auto_add_apt_sources_enable or manage APT
           outside of this role.
 
-    - name: 'Install | APT SOURCE REQUIRED'
+    - name: 'Install | APT SOURCE REQUIRED ⚠'
       when: nzbget_service_auto_add_apt_sources_enable
       ansible.builtin.fail:
         msg: |
-          Required packages could not be installed.
+          ⚠ Required packages could not be installed.
 
           NZBGet requires APT Debian components:
           * contrib
@@ -49,7 +49,7 @@
     - name: 'Install | packages (modify APT debian repository)'
       when: nzbget_service_auto_add_apt_sources_enable
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.apt'
+        name: 'r_pufky.deb.apt'
       vars:
         apt_packages:
           - '{{ nzbget_role_packages }}'

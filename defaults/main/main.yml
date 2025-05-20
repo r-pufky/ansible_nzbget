@@ -45,7 +45,7 @@ nzbget_group: 'media'
 
 # Create nzbget_user, nzbget_group if not detected?
 #
-# Applied via r_pufky.srv.users, see vars/main.yml for default user attributes.
+# Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
 #
 # Default: True.
 nzbget_create_user: true

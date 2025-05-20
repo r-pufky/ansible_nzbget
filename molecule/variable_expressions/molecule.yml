@@ -1,10 +1,16 @@
 ---
-# Confirm:
-# * complex variable expressions rendered correctly; news_servers, categories,
+###############################################################################
+# Variable Expressions
+###############################################################################
+# Complex configuration variables render correctly to the config file.
+#
+# Tests:
+# * Complex variable expressions rendered correctly; news_servers, categories,
 #   rss_feeds, tasks are all merged with templates, just ensure filters and
 #   lists/dicts are rendered correctly.
-# * custom extension configuration
-# * scripts dir with working example script
+# * Custom extension configuration.
+# * Scripts dir with working example script.
+
 dependency:
   name: 'galaxy'
 driver:
