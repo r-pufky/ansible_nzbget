@@ -2,20 +2,19 @@
 ###############################################################################
 # Incoming NZBs
 ###############################################################################
-# PascalCase: nzbget_append_category_dir > AppendCategoryDir.
 
-# Create subdirectory with category name in nzbget_dest_dir?
+# Create subdirectory with category name in nzbget_cfg_dest_dir?
 #
 # Default: True.
-nzbget_append_category_dir: true
+nzbget_cfg_append_category_dir: true
 
-# Check nzbget_nzb_dir interval for new NZB files (seconds).
+# Check nzbget_cfg_nzb_dir interval for new NZB files (seconds).
 #
 # Values:
-#   0: disabled
+#   0: Disabled.
 #
 # Default: 5.
-nzbget_nzb_dir_interval: 5
+nzbget_cfg_nzb_dir_interval: 5
 
 # Minimum NZB file age to add to queue (seconds).
 #
@@ -23,17 +22,17 @@ nzbget_nzb_dir_interval: 5
 # still being downloaded in web-browser).
 #
 # Default: 60.
-nzbget_nzb_dir_file_age: 60
+nzbget_cfg_nzb_dir_file_age: 60
 
 # Check for duplicate titles?
 #
-# nzbget_health_check must be delete, park, or none.
+# nzbget_cfg_health_check must be delete, park, or none.
 #
 # Duplicates determined (NZB not added):
-# * history contains the same title with success status
-# * download queue already contains the same title; NZB file added to queue for
+# * History contains the same title with success status.
+# * Download queue already contains the same title; NZB file added to queue for
 #   backup if first file fails.
-# * NZB file contains duplicate entries, helps to find errors in bad NZB files
+# * NZB file contains duplicate entries, helps to find errors in bad NZB files.
 #
 # Same title means the NZB file name is same or the duplicate key is same.
 # Duplicate keys are set by fetching from RSS feeds using title identifier
@@ -46,4 +45,4 @@ nzbget_nzb_dir_file_age: 60
 #
 # Reference:
 # * https://nzbget.com/documentation/rss/
-nzbget_dupe_check: true
+nzbget_cfg_dupe_check: true

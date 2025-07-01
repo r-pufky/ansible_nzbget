@@ -2,57 +2,56 @@
 ###############################################################################
 # Check and Repair
 ###############################################################################
-# PascalCase: nzbget_par_check > ParCheck.
 
 # Check CRC of downloaded and decoded articles?
 #
 # Typically enabled to detect download errors and for quick par verification
-# nzbget_par_quick.
+# nzbget_cfg_par_quick.
 #
 # Default: True.
-nzbget_crc_check: true
+nzbget_cfg_crc_check: true
 
 # PAR verification actions.
 #
 # Values:
 #     auto: PAR check is performed when needed. One PAR2 file is always
 #           downloaded. Additional PAR2 files are downloaded if needed
-#           for repair. Repair performed if nzbget_par_repair=true. (default)
-#   always: check every download (even undamaged). One PAR2 file is always
+#           for repair. Repaired if nzbget_cfg_par_repair=true. (default).
+#   always: Check every download (even undamaged). One PAR2 file is always
 #           downloaded. Additional PAR2 files are downloaded if needed for
-#           repair. Repair performed if nzbget_par_repair=true.
-#    force: force PAR check for every download (even undamaged). All PAR2 files
-#           are always downloaded. Repair performed if nzbget_par_repair=true.
+#           repair. Repair performed if nzbget_cfg_par_repair=true.
+#    force: Force PAR check for every download (even undamaged). All PAR2 files
+#           are always downloaded. Repaired if nzbget_cfg_par_repair=true.
 #   manual: PAR check is skipped. One PAR2 file is always downloaded. If a
 #           damaged download is detected, all PAR2 files are downloaded but
 #           neither PAR check nor PAR repair take place. The download can be
 #           then repaired manually, eventually on another faster computer.
 #
 # Default: 'auto'.
-nzbget_par_check: 'auto'
+nzbget_cfg_par_check: 'auto'
 
 # Automatic PAR repair after PAR verification?
 #
-# Repair damaged files if nzbget_par_check 'auto' or 'force'. Repairing may
+# Repair damaged files if nzbget_cfg_par_check 'auto' or 'force'. Repairing may
 # consume too many resources and time on a slow computer.
 #
 # Default: True.
-nzbget_par_repair: true
+nzbget_cfg_par_repair: true
 
 # Files scanned during PAR verification.
 #
 # Values:
-#    limited: scan only files belonging to PAR set
-#   extended: scan files belonging to PAR set first, scan other files until all
+#    limited: Scan only files belonging to PAR set
+#   extended: Scan files belonging to PAR set first, scan other files until all
 #             missing files are found. (default)
-#       full: scan all files in destination directory. Can be very time
+#       full: Scan all files in destination directory. Can be very time
 #             consuming but may sometimes repair where limited/extended fail.
-#       dupe: scan files belonging to PAR set first, scan other files until
+#       dupe: Scan files belonging to PAR set first, scan other files until
 #             repair is possible. Even files from other duplicate-downloads are
 #             scanned. Can be very time consuming but brings best results.
 #
 # Default: 'extended'.
-nzbget_par_scan: 'extended'
+nzbget_cfg_par_scan: 'extended'
 
 # Quick file verification during PAR check?
 #
@@ -60,7 +59,7 @@ nzbget_par_scan: 'extended'
 # checksums stored in PAR file (no disk reads).
 #
 # Default: True.
-nzbget_par_quick: true
+nzbget_cfg_par_quick: true
 
 # Memory limit for PAR repair buffer (MB).
 #
@@ -68,18 +67,18 @@ nzbget_par_quick: true
 # to a few hundred MB's.
 #
 # Default: 100.
-nzbget_par_buffer: 100
+nzbget_cfg_par_buffer: 100
 
 # Number of threads to use during PAR repair.
 #
 # Values:
-#   0: automatically use all available CPU cores (default)
-#   1: single-core CPUs use only one thread
-#   *: number of physical cores + hyper-threading units; add 1-2 additional
+#   0: Automatically use all available CPU cores (default)
+#   1: Single-core CPUs use only one thread
+#   *: Number of physical cores + hyper-threading units; add 1-2 additional
 #      threads to get 100% utilization accounting for wait intervals.
 #
 # Default: 0 (auto).
-nzbget_par_threads: 0
+nzbget_cfg_par_threads: 0
 
 # List of files to ignore during PAR check.
 #
@@ -90,12 +89,12 @@ nzbget_par_threads: 0
 # File extensions, file names or file masks.
 #
 # Special Case:
-#   *?: wildcard and pattern matching allowed
-#   .{EXT}: file extension
-#   {FILE}: file
+#       *?: Wildcard and pattern matching allowed.
+#   .{EXT}: File extension.
+#   {FILE}: File.
 #
 # Default: ['.sfv', '.nzb', '.nfo']
-nzbget_par_ignore_ext: ['.sfv', '.nzb', '.nfo']
+nzbget_cfg_par_ignore_ext: ['.sfv', '.nzb', '.nfo']
 
 # Check for renamed and missing files using PAR files?
 #
@@ -104,7 +103,7 @@ nzbget_par_ignore_ext: ['.sfv', '.nzb', '.nfo']
 # file.
 #
 # Default: True.
-nzbget_par_rename: true
+nzbget_cfg_par_rename: true
 
 # Check for renamed RAR files?
 #
@@ -113,52 +112,52 @@ nzbget_par_rename: true
 #
 # RAR rename is useful for downloads not having PAR2 files or for downloads
 # those files were renamed before creating PAR2 files. In both cases PAR rename
-# nzbget_par_rename can't rename files and the RAR rename makes it possible to
-# unpack downloads which would fail otherwise.
+# nzbget_cfg_par_rename can't rename files and the RAR rename makes it possible
+# to unpack downloads which would fail otherwise.
 #
 # Default: True.
-nzbget_rar_rename: true
+nzbget_cfg_rar_rename: true
 
 # Directly rename files during downloading?
 #
-# Similar to nzbget_par_rename but files renamed during downloading instead of
-# post-processing stage. Works only for healthy downloads.
+# Similar to nzbget_cfg_par_rename but files renamed during downloading instead
+# of post-processing stage. Works only for healthy downloads.
 #
 # Default: True.
-nzbget_direct_rename: true
+nzbget_cfg_direct_rename: true
 
 # Download critical health action.
 #
-# nzbget_dupe_check requires delete, park, or none. If nzbget_par_scan=dupe
-# park performed only if article completion is below 10%; improves efficiency
-# of dupe par scan mode.
+# nzbget_cfg_dupe_check requires delete, park, or none. If
+# nzbget_cfg_par_scan=dupe park performed only if article completion is below
+# 10%; improves efficiency of dupe par scan mode.
 #
 # Values:
-#   delete: delete NZB file from queue also delete already downloaded files
-#     park: move NZB file to history, keep already downloaded files (default)
-#    pause: pause NZB file
-#     none: do nothing (continue download)
+#   delete: Delete NZB file from queue also delete already downloaded files.
+#     park: Move NZB file to history, keep already downloaded files (default).
+#    pause: Pause NZB file.
+#     none: Do nothing (continue download).
 #
 # Default: 'park'.
-nzbget_health_check: 'park'
+nzbget_cfg_health_check: 'park'
 
 # Maximum allowed time for PAR repair (minutes).
 #
 # Cancel PAR repair if estimated value exceeds limit.
 #
 # Special Case:
-#   =>5: checked after first 5 minutes when estimated time is more accurate
-#    <5: checked after first minute
-#     0: unlimited time (default)
+#   =>5: Checked after first 5 minutes when estimated time is more accurate.
+#    <5: Checked after first minute.
+#     0: Unlimited time (default).
 #
 # Default: 0 (unlimited).
-nzbget_par_time_limit: 0
+nzbget_cfg_par_time_limit: 0
 
 # Pause download queue during check/repair?
 #
 # Speed up check/repair for slow CPU's with a fast connection. Temporarily
-# unpauses if additional PAR files are required. See nzbget_script_pause_queue
-# and nzbget_unpack_pause_queue.
+# unpauses if additional PAR files are required. See
+# nzbget_cfg_script_pause_queue and nzbget_cfg_unpack_pause_queue.
 #
 # Default: False.
-nzbget_par_pause_queue: false
+nzbget_cfg_par_pause_queue: false

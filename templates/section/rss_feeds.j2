@@ -1,0 +1,14 @@
+{% if section.value.raw | length > 0 %}
+{% for feed in section.value.raw %}
+Feed{{ feed.id }}.Name={{ feed.name }}
+Feed{{ feed.id }}.URL={{ feed.url }}
+Feed{{ feed.id }}.filter={{ feed.filter | join('%') }}
+Feed{{ feed.id }}.interval={{ feed.interval }}
+Feed{{ feed.id }}.backlog={{ 'yes' if feed.backlog else 'no' }}
+Feed{{ feed.id }}.pause_nzb={{ 'yes' if feed.pause_nzb else 'no' }}
+Feed{{ feed.id }}.category={{ feed.category }}
+Feed{{ feed.id }}.priority={{ feed.priority }}
+Feed{{ feed.id }}.extensions={{ feed.extensions | join(',') }}
+
+{% endfor %}
+{% endif %}

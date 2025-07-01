@@ -1,0 +1,117 @@
+---
+###############################################################################
+# Logging
+###############################################################################
+
+# Log file write mode.
+#
+# Values:
+#     none: Do not write into log file.
+#   append: Append to the existing log file or create it (default).
+#    reset: Delete existing log file on program start and create a new one.
+#   rotate: Create new log file each day, delete old files, see
+#           nzbget_cfg_rotate_log.
+#
+# Default: 'append'.
+nzbget_cfg_wite_log: 'append'
+
+# Log file rotation period (days). Default: 3.
+nzbget_cfg_rotate_log: 3
+
+# Error message reporting.
+#
+# Values:
+#   screen: Report to console.
+#      log: Report to log file.
+#     both: Report to console and log file (default).
+#     none: No reporting.
+#
+# Default: 'both'.
+nzbget_cfg_error_target: 'both'
+
+# Warning message reporting.
+#
+# Values:
+#   screen: Report to console.
+#      log: Report to log file.
+#     both: Report to console and log file (default).
+#     none: No reporting.
+#
+# Default: 'both'.
+nzbget_cfg_warning_target: 'both'
+
+# Info message reporting.
+#
+# Values:
+#   screen: Report to console.
+#      log: Report to log file.
+#     both: Report to console and log file (default).
+#     none: No reporting.
+#
+# Default: 'both'.
+nzbget_cfg_info_target: 'both'
+
+# Detail message reporting.
+#
+# Values:
+#   screen: Report to console.
+#      log: Report to log file.
+#     both: Report to console and log file (default).
+#     none: No reporting.
+#
+# Default: 'both'.
+nzbget_cfg_detail_target: 'log'
+
+# Debug message reporting.
+#
+# Requires binary built with --enable-debug.
+#
+# Values:
+#   screen: Report to console.
+#      log: Report to log file.
+#     both: Report to console and log file (default).
+#     none: No reporting.
+#
+# Default: 'both'.
+nzbget_cfg_debug_target: 'log'
+
+# Number of messages stored in screen buffer. Default: 1000.
+nzbget_cfg_log_buffer: 1000
+
+# Create log for each downloaded NZB file?
+#
+# Each download log saved separately and can be viewed in download details or
+# history details.
+#
+# Default: True.
+nzbget_cfg_nzb_log: true
+
+# Write stack trace to log on program crash?
+#
+# Requires binary built with --enable-debug.
+#
+# Default: True.
+nzbget_cfg_crash_trace: true
+
+# Write memory dump to disk on program crash?
+#
+# Requires binary built with --enable-debug.
+#
+# Contains sensitive data like login and password.
+#
+# Default: False.
+nzbget_cfg_crash_dump: false
+
+# Local time correction.
+#
+# Used for writing messages to log file and 'TaskX.Time' in scheduler. Converts
+# from system time to local time and vice versa. Usually not needed if time
+# zone is set up correctly.
+#
+# Values:
+#     -24 to 24: Interpreted as hours.
+#             0: Disabled (default).
+#   <-24 or >24: Interpreted as minutes.
+#
+# Default: 0 (disabled).
+nzbget_cfg_time_correction: 0

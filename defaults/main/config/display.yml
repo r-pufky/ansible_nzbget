@@ -1,0 +1,39 @@
+---
+###############################################################################
+# Display (Terminal)
+###############################################################################
+
+# Screen output mode.
+#
+# Values:
+#   loggable: Only messages will be printed to standard output.
+#    colored: Prints messages (color for categories) and download progress info
+#             uses escape-sequences to move cursor.
+#     curses: Advanced interactive interface with the ability to edit download
+#             queue and various output option. (default).
+#
+# Default: 'curses'.
+nzbget_cfg_output_mode: 'curses'
+
+# Show NZB filename in file list for nzbget_cfg_output_mode=curses?
+#
+# Default: True.
+nzbget_cfg_curses_nzb_name: true
+
+# Show NZB files in groups on queue list for nzbget_cfg_output_mode=curses?
+#
+# Default: False.
+nzbget_cfg_curses_group: false
+
+# Show timestamps in message list for nzbget_cfg_output_mode=curses?
+#
+# Default: False.
+nzbget_cfg_curses_time: false
+
+# Frontend update interval in console or remote client mode (MS).
+#
+# Special Case:
+#   25+: Minimum value 25; bigger values reduce CPU/Network usage.
+#
+# Default: 200.
+nzbget_cfg_update_interval: 200

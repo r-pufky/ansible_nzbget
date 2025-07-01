@@ -1,0 +1,10 @@
+{% if section.value.raw | length > 0 %}
+{% for category in section.value.raw %}
+Category{{ category.id }}.Name={{ category.name }}
+Category{{ category.id }}.DestDir={{ category.dest_dir }}
+Category{{ category.id }}.Unpack={{ 'yes' if category.unpack else 'no' }}
+Category{{ category.id }}.Extensions={{ category.extensions | join(',') }}
+Category{{ category.id }}.Aliases={{ category.aliases | join(',') }}
+
+{% endfor %}
+{% endif %}

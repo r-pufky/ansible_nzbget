@@ -1,0 +1,12 @@
+---
+- name: 'Prepare'
+  hosts: 'nzbget-debian-12-user_data'
+  gather_facts: false
+  tasks:
+    - name: 'Prepare | simulate user media restriction'
+      ansible.builtin.file:
+        path: '/data'
+        owner: 5555
+        group: 5555
+        mode: '0755'
+        state: 'directory'

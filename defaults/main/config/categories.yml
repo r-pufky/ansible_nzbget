@@ -2,34 +2,33 @@
 ###############################################################################
 # Categories
 ###############################################################################
-# PascalCase: dest_dir > DestDir.
 
 # Available categories for WebUI.
 #
-# nzbget_categories:
+# nzbget_cfg_categories:
 #     list of dict - NZB category definitions
-#   - id: int - category ID starting at 1; categories must be defined sequently
+#   - id: int - Category ID starting at 1; categories must be defined sequently
 #           without holes otherwise NZBGet will not properly read config.
-#     name: str - category name; passed to post-processing script and can be
+#     name: str - Category name; passed to post-processing script and can be
 #           used by it to perform category specific processing.
-#     dest_dir: str - destination directory; if empty nzbget_dest_dir is used,
-#           if nzbget_append_category_dir=true a subdirectory with category
-#           name within destination directory is created.
-#         Default: '' (use nzbget_dest_dir).
-#     unpack: bool - unpack downloaded NZB files; see nzbget_unpack
+#     dest_dir: str - Destination directory; if empty nzbget_cfg_dest_dir is
+#           used, if nzbget_cfg_append_category_dir=true a subdirectory with
+#           category name within destination directory is created.
+#         Default: '' (use nzbget_cfg_dest_dir).
+#     unpack: bool - Unpack downloaded NZB files; see nzbget_cfg_unpack
 #         Default: True.
-#     extensions: list of str - list of extension scripts for this category,
-#           located in nzbget_script_dir. See nzbget_extensions.
+#     extensions: list of str - List of extension scripts for this category,
+#           located in nzbget_cfg_script_dir. See nzbget_cfg_extensions.
 #
 #           Reference:
 #           * https://nzbget.com/documentation/extension-scripts/.
 #         Default: [] (no extensions).
-#     aliases: list of str - match NZB site categories to your own#
+#     aliases: list of str - Match NZB site categories to your own#
 #          Special Case:
-#            *?: wildcard and pattern matching allowed
+#            *?: Wildcard and pattern matching allowed.
 #         Default: [] (no aliases).
 #
-# nzbget_categories:
+# nzbget_cfg_categories:
 #   - id: 1
 #     name: 'Movies'
 #     dest_dir: ''
@@ -48,7 +47,7 @@
 #     name: 'Music'
 #   - id: 4
 #     name: 'Software'
-nzbget_categories:
+nzbget_cfg_categories:
   - id: 1
     name: 'Movies'
   - id: 2

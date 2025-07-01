@@ -1,0 +1,20 @@
+---
+###############################################################################
+# Validate
+###############################################################################
+# Start NZBGet services and confirm they are active and running.
+
+- name: 'Validate | start services'
+  notify: 'Handlers | restart NZBGet'
+  ansible.builtin.meta: 'flush_handlers'
+
+- name: 'Validate | query service status'
+  ansible.builtin.service_facts:
+
+- name: 'Validate | assert services running'
+  ansible.builtin.assert:
+    quiet: true
+    that: ansible_facts.services[item].state == 'running'
+    fail_msg: '✘ {{ item }} should be running.'
+  loop:
+    - 'nzbget.service'

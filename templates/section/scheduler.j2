@@ -1,0 +1,14 @@
+{% if section.value.raw | length > 0 %}
+{% for task in section.value.raw %}
+Task{{ task.id }}.Time={{ task.time | join(',') }}
+Task{{ task.id }}.WeekDays={{ task.week_days | join(',') }}
+Task{{ task.id }}.Command={{ task.command }}
+{%   if task.command != 'Process' %}
+Task{{ task.id }}.Param={{ task.param | join(',') }}
+{%   else %}
+{# process parameters must be wrapped in single quotes #}
+Task{{ task.id }}.Param={{ ["'"] | product(task.param) | map('join') | list | product(["'"]) | map('join') | list | join(' ') }}
+{%   endif %}
+
+{% endfor %}
+{% endif %}

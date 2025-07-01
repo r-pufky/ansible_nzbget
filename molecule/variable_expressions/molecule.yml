@@ -26,29 +26,27 @@ provisioner:
   inventory:
     group_vars:
       all:
-        nzbget_service_scripts_source: 'files/scripts'
-        nzbget_required_dir:
+        nzbget_srv_scripts_source: 'files/scripts'
+        nzbget_cfg_required_dir:
           - '{{ nzbget_main_dir }}'
           - '{{ nzbget_script_dir }}'
-        nzbget_extensions:
+        nzbget_cfg_extensions:
           - 'scan'
           - 'post_processing'
-        nzbget_script_order:
+        nzbget_cfg_script_order:
           - 'post_processing'
           - 'scan'
-        nzbget_shell_override:
-          - ext: '.py'
+        nzbget_cfg_shell_override:
+          - ext: ['.py']
             shell: '/usr/bin/python2'
-          - ext: '.py3'
+          - ext: ['.py3']
             shell: '/usr/bin/python3'
-          - ext: '.sh'
+          - ext: ['.sh']
             shell: '/usr/bin/bash'
-        nzbget_settings_extensions:
-          InfoTarget: 'log'
-        nzbget_authorized_ip:
+        nzbget_cfg_authorized_ip:
           - '0.0.0.0'
           - '127.0.0.1'
-        nzbget_news_servers:
+        nzbget_cfg_news_servers:
           - id: 1
             name: 'activate_1'
           - id: 2
@@ -57,7 +55,7 @@ provisioner:
             name: 'deactivate_1'
           - id: 4
             name: 'deactivate_2'
-        nzbget_categories:
+        nzbget_cfg_categories:
           - id: 1
             name: 'Alt-Movies'
             dest_dir: ''
@@ -66,7 +64,7 @@ provisioner:
             aliases: ['TV - HD', 'TV*']
           - id: 2
             name: 'Alt-Series'
-        nzbget_rss_feeds:
+        nzbget_cfg_rss_feeds:
           - id: 1
             name: 'my feed'
             url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
@@ -80,7 +78,7 @@ provisioner:
           - id: 2
             name: 'second feed'
             url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
-        nzbget_tasks:
+        nzbget_cfg_tasks:
           - id: 1
             time: ['00:00', '06:00', '12:00', '18:00']
             week_days: [1, 3, 5, '6-7']

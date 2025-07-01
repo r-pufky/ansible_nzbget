@@ -1,0 +1,86 @@
+---
+###############################################################################
+# Unpack
+###############################################################################
+
+# Unpack downloaded NZB files?
+#
+# nzbget_cfg_categories unpack settings have precedence. nzget_par_check=auto
+# results in unpacking and running PAR check/repair if failed.
+#
+# Default: True.
+nzbget_cfg_unpack: true
+
+# Directly unpack files during downloading?
+#
+# Requires nzbget_cfg_unpack=true, recommend nzbget_cfg_direct_rename=true and
+# nzbget_cfg_reorder_files=true.
+#
+# Healthy downloads are unpacked during download. Unhealthy downloads are
+# unpacked normally.
+#
+# Default: True.
+nzbget_cfg_direct_unpack: true
+
+# Pause download queue during unpack? Default: False.
+nzbget_cfg_unpack_pause_queue: false
+
+# Delete archive files after successful unpacking? Default: True.
+nzbget_cfg_unpack_cleanup_disk: true
+
+# Absolue path to unrar executable with options.
+#
+# Special Case (NZBGet options):
+#            x: Added if x or e not defined in nzbget_cfg_unrar_cmd.
+#          -o+: Added if -o+ or -o- not defined in nzbget_cfg_unrar_cmd.
+#           -y: Automatically added.
+#          -p-: Automatically added; replaced with -ppassword if password set.
+#        *.rar: Automatically added.
+#   ./_unpack/: Automatically added.
+#
+# nzbget_cfg_unrar_cmd: '/usr/bin/unrar x -ai'  # ignore file attributes
+# nzbget_cfg_unrar_cmd: 'nice -n 19 unrar'  # decrease unrar priority
+#
+# Default: 'unrar'.
+nzbget_cfg_unrar_cmd: '/usr/bin/unrar'
+
+# Absolute path to 7-Zip executable with options. Default: '/usr/bin/7zz'.
+nzbget_cfg_seven_zip_cmd: '/usr/bin/7zz'
+
+# Files to delete after successful download.
+#
+# Special Case:
+#   * Cleanup not performed when unpack or PAR check fail.
+#   * Cleanup performed if 100% health, doesn't contain archives or PAR files.
+#   * Cleanup not performen when nzbget_cfg_unpack=false or
+#     nzbget_cfg_categories unpack=false.
+#
+# File extensions, file names or file masks.
+#
+# Special Case:
+#       *?: Wildcard and pattern matching allowed.
+#   .{EXT}: File extension.
+#   {FILE}: File.
+#
+# Default: ['.sfv', '.nzb', '.nfo']
+nzbget_cfg_ext_cleanup_disk: ['.par2', '.sfv']
+
+# Files to ignore during unpack.
+#
+# List of file extensions to ignore when unpacking archives or renaming
+# obfuscated archive files. During nzbget_cfg_rar_rename listed files here will
+# not be renamed. During unpack files listed here will not be unpacked and
+# considered a success.
+#
+# Default: ['.cbr'].
+nzbget_cfg_unpack_ignore_ext: ['.cbr']
+
+# Absolute path to file containing unpack passwords.
+#
+# Defined passwords in post-processing settings have precedence over password
+# file usage.
+#
+# One password per line. All passwords tried until success or all fail.
+#
+# Default: '' (disabled).
+nzbget_cfg_unpack_pass_file: ''

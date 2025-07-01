@@ -2,7 +2,8 @@
 ###############################################################################
 # Default
 ###############################################################################
-# Default role is applied correctly.
+# Default role is applied correctly. Configuration should succeed with and
+# without nzbget_srv_user_data_manage_enable.
 #
 # Tests:
 # * alternative user created.
@@ -22,8 +23,30 @@ provisioner:
       callback_whitelist: 'profile_tasks, timer, yaml'
     ssh_connection:
       pipelining: false
+  inventory:
+    group_vars:
+      all:
+        nzbget_cfg_shell_override:
+          - ext: [".py", ".py2"]
+            shell: "/usr/bin/python2"
+          - ext: [".py3"]
+            shell: "/usr/bin/python3"
+          - ext: [".sh"]
+            shell: "/usr/bin/bash"
+    host_vars:
+      nzbget-debian-12-user_data:
+        nzbget_srv_user_data_manage_enable: true
 platforms:
   - name: 'nzbget-debian-12-default'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+    published_ports:
+      - '6789/tcp'
+  - name: 'nzbget-debian-12-user_data'
     image: 'ghcr.io/hifis-net/debian-systemd:12'
     systemd: 'always'
     volumes:

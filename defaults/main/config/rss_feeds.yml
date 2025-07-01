@@ -2,54 +2,53 @@
 ###############################################################################
 # RSS Feeds
 ###############################################################################
-# PascalCase: pause_nzb > PauseNzb.
 
 # RSS Feeds
 #
-# nzbget_rss_feeds:
-#     list of dict - RSS Feed definitions
-#   - id: int - feed ID starting at 1; feeds must be defined sequently
+# nzbget_cfg_rss_feeds:
+#     list of dict - RSS Feed definitions.
+#   - id: int - Feed ID starting at 1; feeds must be defined sequently
 #           without holes otherwise NZBGet will not properly read config.
-#     name: str - feed name used in WebUI and logging
-#     url: str - URL of RSS Feed
-#     filter: list of str - filter rules for items; see documentation
+#     name: str - Feed name used in WebUI and logging.
+#     url: str - URL of RSS Feed.
+#     filter: list of str - Filter rules for items; see documentation.
 #
 #           Reference:
 #           * https://nzbget.com/documentation/rss/
 #         Default: [] (no filters).
-#     interval: int - interval to check for new items (minutes)
+#     interval: int - Interval to check for new items (minutes).
 #         Default: 0 (disabled).
-#     backlog: bool - treat all items on first fetch as backlog
+#     backlog: bool - Treat all items on first fetch as backlog.
 #         Values:
-#            True: feeds fetched for the very first time or after changing URL
+#            True: Feeds fetched for the very first time or after changing URL
 #                  or filter; all existing items are ignored (marked backlog).
 #                  Subsequent fetches are processed. (default)
-#           False: all items are processed
+#           False: All items are processed.
 #         Default: False.
-#     pause_nzb: bool - add NZB files as paused
+#     pause_nzb: bool - Add NZB files as paused.
 #         Default: False.
-#     category: str - category for added NZB files
+#     category: str - Category for added NZB files.
 #         Default: '' (use providers category).
-#     priority: int - download priority for NZB files; any integer value
+#     priority: int - Download priority for NZB files; any integer value
 #           Downloads with priorities equal to or greater than 900 are
 #           downloaded and post-processed even if the program is in paused
 #           state (force mode).
 #         Values:
-#           -100: very low priority
-#            -50: low priority
-#              0: normal priority (default)
-#             50: high priority
-#            100: very high priority
-#           900+: force priority
+#           -100: Very low priority.
+#            -50: Low priority.
+#              0: Normal priority (default).
+#             50: High priority.
+#            100: Very high priority.
+#           900+: Force priority.
 #         Default: 0 (normal priority).
-#     extensions: list of str - list of extension scripts for this category,
-#           located in nzbget_script_dir. See nzbget_extensions.
+#     extensions: list of str - List of extension scripts for this category,
+#           located in nzbget_cfg_script_dir. See nzbget_cfg_extensions.
 #
 #           Reference:
 #           * https://nzbget.com/documentation/extension-scripts/.
 #         Default: [] (no extensions).
 #
-# nzbget_rss_feeds:
+# nzbget_cfg_rss_feeds:
 #   - id: 1
 #     name: 'my feed'
 #     url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
@@ -65,4 +64,4 @@
 #     url: 'https://example.com'
 #
 # Default: []
-nzbget_rss_feeds: []
+nzbget_cfg_rss_feeds: []

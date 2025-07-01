@@ -2,7 +2,6 @@
 ###############################################################################
 # Security
 ###############################################################################
-# PascalCase: nzbget_control_port > ControlPort.
 
 # NZBGet server listen IP.
 #
@@ -16,22 +15,23 @@
 #   127.0.0.1: Connect only from computer running NZBGet.
 #
 # Default: '0.0.0.0' (all interfaces).
-nzbget_control_ip: '0.0.0.0'
+nzbget_cfg_control_ip: '0.0.0.0'
 
 # NZBGet unencrypted (HTTP) server port.
 #
-# See nzbget_secure_port for encrypted ports.
+# See nzbget_cfg_secure_port for encrypted ports.
 #
 # Default: 6789.
-nzbget_control_port: 6789
+nzbget_cfg_control_port: 6789
 
 # Server (admin control) username.
 #
 # Special Case:
-#   '': Disables username check; check password if nzbget_control_password set.
+#   '': Disables username check; check password if nzbget_cfg_control_password
+#       set.
 #
 # Default: 'nzbget'.
-nzbget_control_username: 'nzbget'
+nzbget_cfg_control_username: 'nzbget'
 
 # Server (admin control) password.
 #
@@ -39,22 +39,22 @@ nzbget_control_username: 'nzbget'
 #   '': Disables password check.
 #
 # Default: 'tegbzn6789'.
-nzbget_control_password: 'tegbzn6789'
+nzbget_cfg_control_password: 'tegbzn6789'
 
 # Restricted username.
 #
 # Use this user to connect to NZBGet from other programs and websites.
 #
 # WebUI:
-#   * cannot change program settings
-#   * cannot view security related options
-#   * cannot view options provided by extension scripts
+#   * Cannot change program settings.
+#   * Cannot view security related options.
+#   * Cannot view options provided by extension scripts.
 #
 # RPC-API:
 #   * methods 'config' and 'saveconfig' return string '***'
 #
 # Default: '' (disabled).
-nzbget_restricted_username: ''
+nzbget_cfg_restricted_username: ''
 
 # Restricted password.
 #
@@ -62,19 +62,19 @@ nzbget_restricted_username: ''
 #   '': Disables password check.
 #
 # Default: '' (disabled).
-nzbget_restricted_password: ''
+nzbget_cfg_restricted_password: ''
 
 # RPC-API add downloads username.
 #
 # RPC-API:
-#   * add new downloads using RPC-method 'append'
-#   * check program version using RPC-method 'version'
+#   * Add new downloads using RPC-method 'append'.
+#   * Check program version using RPC-method 'version'.
 #
 # Special Case:
 #   '': Disables RPC-API add downloads user.
 #
 # Default: '' (disabled).
-nzbget_add_username: ''
+nzbget_cfg_add_username: ''
 
 # RPC-API add downloads password.
 #
@@ -82,38 +82,39 @@ nzbget_add_username: ''
 #   '': Disables password check.
 #
 # Default: '' (disabled).
-nzbget_add_password: ''
+nzbget_cfg_add_password: ''
 
 # Authenticate using web form?
 #
 # Use web forms for authentication instead of browser dialogs.
 #
 # Default: False.
-nzbget_form_auth: false
+nzbget_cfg_form_auth: false
 
 # Use HTTPS?
 #
-# Both WebUI and RPC-API. Provide nzbget_secure_cert and nzbget_secure_key.
+# Both WebUI and RPC-API. Provide nzbget_cfg_secure_cert and
+# nzbget_cfg_secure_key.
 #
 # Default: False.
-nzbget_secure_control: false
+nzbget_cfg_secure_control: false
 
 # NZBGet encrypted (HTTPS) server port. Default: 6791.
-nzbget_secure_port: 6791
+nzbget_cfg_secure_port: 6791
 
 # Absolute path to certificate file for encrypted communication.
 #
 # Use fullchain.pem for Let's Encrypt certificates. Managed outside role.
 #
 # Default: '' (no cert).
-nzbget_secure_cert: ''
+nzbget_cfg_secure_cert: ''
 
 # Absolute path to key file for encrypted communication.
 #
 # Use privkey.pem for Let's Encrypt certificates. Managed outside role.
 #
 # Default: '' (no key).
-nzbget_secure_key: ''
+nzbget_cfg_secure_key: ''
 
 # List of IP addresses allowed to connect without authorization.
 #
@@ -127,7 +128,7 @@ nzbget_secure_key: ''
 #   *?: Wildcard and pattern matching allowed.
 #
 # Default: ['127.0.0.1'].
-nzbget_authorized_ip: ['127.0.0.1']
+nzbget_cfg_authorized_ip: ['127.0.0.1']
 
 # Use TLS certificate verification?
 #
@@ -142,13 +143,13 @@ nzbget_authorized_ip: ['127.0.0.1']
 # awareness.
 #
 # Certificate verification requires a list of trusted root certificates, which
-# must be configured using nzbget_cert_store.
+# must be configured using nzbget_cfg_cert_store.
 #
 # Default: True.
 #
 # Reference:
 # * https://nzbget.com/documentation/certificate-verification/.
-nzbget_cert_check: true
+nzbget_cfg_cert_check: true
 
 # Automatically check for new releases.
 #
@@ -158,23 +159,23 @@ nzbget_cert_check: true
 #   testing: Show notifications about new testing releases.
 #
 # Default:
-nzbget_update_check: 'none'
+nzbget_cfg_update_check: 'none'
 
 # User name for daemon-mode.
 #
-# Set the user that the daemon normally runs at. Set nzbget_main_dir with an
+# Set the user that the daemon normally runs at. Set nzbget_cfg_main_dir with an
 # absolute path to be sure where it will write. This allows NZBGet daemon to be
 # launched in rc.local (at boot), and download items as a specific user ID.
 #
 # Special Case:
-#   *: If nzbget_daemon_username is not root and doesn't exist the daemon will
-#      not start.
-#   *: If daemon is running as root (superuser) and nzbget_daemon_username
+#   *: If nzbget_cfg_daemon_username is not root and doesn't exist the daemon
+#      will not start.
+#   *: If daemon is running as root (superuser) and nzbget_cfg_daemon_username
 #      exists, NZBGet will drop root privileges to the user specified by
-#      nzbget_daemon_username.
+#      nzbget_cfg_daemon_username.
 #
 # Default: 'root'.
-nzbget_daemon_username: 'root'
+nzbget_cfg_daemon_username: 'root'
 
 # Octal default umask.
 #
@@ -191,4 +192,4 @@ nzbget_daemon_username: 'root'
 #
 # Reference:
 # * http://en.wikipedia.org/wiki/Umask
-nzbget_u_mask: '0002'
+nzbget_cfg_u_mask: '0002'

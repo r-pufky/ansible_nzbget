@@ -2,71 +2,70 @@
 ###############################################################################
 # Connection
 ###############################################################################
-# PascalCase: nzbget_article_retries > ArticleRetries.
 
 # Max article download retries before error.
 #
-# CRC errors will retry the same server up to nzbget_article_retries; then
+# CRC errors will retry the same server up to nzbget_cfg_article_retries; then
 # tries another news server.
 #
 # Failures due to 'article or group not found error' immediately failover to
 # another news server without retrying.
 #
 # Default: 3.
-nzbget_article_retries: 3
+nzbget_cfg_article_retries: 3
 
 # Article retry interval (seconds).
 #
 # Failures due to interrupted connections temporary block server until
-# nzbget_article_interval expires.
+# nzbget_cfg_article_interval expires.
 #
 # Default: 10.
-nzbget_article_interval: 10
+nzbget_cfg_article_interval: 10
 
 # Connection timeout for article downloading (seconds). Default: 60.
-nzbget_article_timeout: 60
+nzbget_cfg_article_timeout: 60
 
 # Chunk size when reading data from the news server (KB). Default: 4.
-nzbget_article_read_chunk_size: 4
+nzbget_cfg_article_read_chunk_size: 4
 
 # Max number of download attempts for URL/RSS fetching.
 #
-# Wait nzbget_url_interval before retrying.
+# Wait nzbget_cfg_url_interval before retrying.
 #
 # Default: 3.
-nzbget_url_retries: 3
+nzbget_cfg_url_retries: 3
 
 # URL/RSS fetching retry interval (seconds). Default: 10.
-nzbget_url_interval: 10
+nzbget_cfg_url_interval: 10
 
 # Connection timeout for URL fetching (seconds). Default: 60.
-nzbget_url_timeout: 60
+nzbget_cfg_url_timeout: 60
 
 # Timeout for incoming WebUI/API client connections (seconds). Default: 90.
-nzbget_remote_timeout: 90
+nzbget_cfg_remote_timeout: 90
 
 # Max download rate on program start (KB/sec). Default: 0 (no limit).
-nzbget_download_rate: 0
+nzbget_cfg_download_rate: 0
 
 # Max number of simultaneous connections for NZB URL downloads.
 #
 # Applies only for URL's added at the same time, to retrieve NZB file.
 #
 # Default: 4.
-nzbget_url_connections: 4
+nzbget_cfg_url_connections: 4
 
 # Force URL downloads even if download queue is paused? Default: True.
-nzbget_url_force: true
+nzbget_cfg_url_force: true
 
 # Monthly download volume quota (MB).
 #
 # Downloads with force-priority are processed regardless of quota status.
 #
 # Default: 0 (disabled).
-nzbget_monthly_quota: 0
+nzbget_cfg_monthly_quota: 0
 
 # Day of month when the monthly quota starts (1-31). Default: 1.
-nzbget_quota_start_day: 1
+nzbget_cfg_quota_start_day: 1
 
 # Daily download volume quota (MB). Default: 0 (disabled).
-nzbget_daily_quota: 0
+nzbget_cfg_daily_quota: 0

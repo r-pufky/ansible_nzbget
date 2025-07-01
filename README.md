@@ -18,13 +18,13 @@ All ports and protocols have been defined for the role.
 
 ## Example Playbook
 Debian contrib, non-free APT sources are required and should be manually
-managed if `nzbget_service_auto_add_apt_sources_enable: false`. Directories
+managed if `nzbget_srv_auto_add_apt_sources_enable: false`. Directories
 will automatically be created and permissions set if needed.
 
 host_vars/plex.example.com/vars/plex.yml
 ``` yaml
 nzbget_main_dir: '/data/nzbget'
-nzbget_control_username: '{{ vault_nzbget_user }}'
+nzbget_control_username: '{{ vault_nzbget_srv_user }}'
 nzbget_control_password: '{{ vault_nzbget_pass }}'
 nzbget_authorized_ip:
   - '0.0.0.0'
@@ -34,8 +34,8 @@ nzbget_news_servers:
     name: 'example server'
     srv_hos: 'nzb.example.com'
     srv_port: 119
-    username:'{{ vault_nzbget_news_user }}'
-    password:'{{ vault_nzbget_news_pass }}'
+    username: '{{ vault_nzbget_news_user }}'
+    password: '{{ vault_nzbget_news_pass }}'
 ```
 
 Configure NZBGet server.
@@ -43,6 +43,11 @@ Configure NZBGet server.
 - name: 'Manage NZBGet'
   ansible.builtin.include_role:
     name: 'r_pufky.srv.nzbget'
+```
+
+Changes updating the configuration only can be done to speed role application:
+``` bash
+ansible-playbook site.yml --tags NZBGet -e 'nzbget_srv_force_config_only_enable=true'
 ```
 
 ### Issues

@@ -9,10 +9,10 @@
 # in nzbget_script_dir with correct permissions. Overwrites all existing
 # scripts.
 #
-# nzbget_service_scripts_source: 'host_vars/nzb.example.com/data/scripts'
+# nzbget_srv_scripts_source: 'host_vars/nzb.example.com/data/scripts'
 #
 # Default: '' (disabled).
-nzbget_service_scripts_source: ''
+nzbget_srv_scripts_source: ''
 
 # Automatically add Debian APT sources if required?
 #
@@ -23,7 +23,7 @@ nzbget_service_scripts_source: ''
 # Alternatively contrib, non-free must be manually added outside of this role.
 #
 # Default: True.
-nzbget_service_auto_add_apt_sources_enable: true
+nzbget_srv_auto_add_apt_sources_enable: true
 
 ###############################################################################
 # NZBGet User
@@ -31,21 +31,68 @@ nzbget_service_auto_add_apt_sources_enable: true
 
 # User that NZBGet will run under.
 #
-# Enable nzbget_create_user if this account is not externally managed.
+# Enable nzbget_srv_create_user if this account is not externally managed.
 #
 # Default: 'media'.
-nzbget_user: 'media'
+nzbget_srv_user: 'media'
 
 # Group that NZBGet will run under.
 #
-# Enable nzbget_create_user if this group is not externally managed.
+# Enable nzbget_srv_create_user if this group is not externally managed.
 #
 # Default: 'media'.
-nzbget_group: 'media'
+nzbget_srv_group: 'media'
 
-# Create nzbget_user, nzbget_group if not detected?
+# Create nzbget_srv_user, nzbget_srv_group if not detected?
 #
 # Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
 #
 # Default: True.
-nzbget_create_user: true
+nzbget_srv_create_user: true
+
+# Enable user management of data/media files?
+#
+# Use nzbget_srv_user to execute data/media management commands. Role
+# applies media permissions using 'root' by default. For mounted data locations
+# (NFS with squashed mounts, mapped container mounts, etc) the local root user
+# will not have sufficient privileges to modify these files.
+#
+# Applies to:
+# * nzbget_cfg_main_dir
+# * nzbget_cfg_nzb_dir
+# * nzbget_cfg_queue_dir
+# * nzbget_cfg_lock_file
+# * nzbget_cfg_log_file
+# * nzbget_cfg_dest_dir
+# * nzbget_cfg_inter_dir
+#
+# Default: False.
+nzbget_srv_user_data_manage_enable: false
+
+# Media folder permissions octal.
+#
+# Media folders affected by nzbget_srv_user_data_manage_enable will always be
+# recursively set using nzbget_srv_media_perms_folder, nzbget_srv_user, and
+# nzbget_srv_group.
+#
+# Default: '2755'.
+nzbget_srv_media_perms_folder: '2755'
+
+# Enable setting of media file permissions?
+#
+# Set file permissions affected by nzbget_srv_user_data_manage_enable using
+# nzbget_srv_media_perms_file, nzbget_srv_user, and nzbget_srv_group. Large
+# sets of files may be slow to set permissions.
+#
+# Useful when first configuring to ensure service has access to all specified
+# media locations. Suggest applying with extra options:
+#
+#   ansible-playbook site.yml
+#       --tags Deluge
+#       -e 'nzbget_srv_media_set_perms_file_enable=true'
+#
+# Default: False.
+nzbget_srv_media_set_perms_file_enable: false
+
+# Media file permissions octal. Default: '0644'.
+nzbget_srv_media_perms_file: '0644'

@@ -1,194 +1,22 @@
-# Configuration file for NZBGet
-# Paths
-MainDir={{ nzbget_main_dir | default('/var/lib/nzbget/downloads') }}
-DestDir={{ nzbget_dest_dir | default('/var/lib/nzbget/downloads/completed') }}
-InterDir={{ nzbget_inter_dir | default('/var/lib/nzbget/downloads/intermediate') }}
-NzbDir={{ nzbget_nzb_dir | default('/var/lib/nzbget/downloads/nzb') }}
-QueueDir={{ nzbget_queue_dir | default('/var/lib/nzbget/downloads/queue') }}
-TempDir={{ nzbget_temp_dir | default('/var/lib/nzbget/tmp') }}
-WebDir={{ nzbget_web_dir | default('/usr/share/nzbget/webui') }}
-ScriptDir={{ nzbget_script_dir | default('/var/lib/nzbget/scripts') }}
-LockFile={{ nzbget_lock_file | default('/var/lib/nzbget/downloads/nzbget.lock') }}
-LogFile={{ nzbget_log_file | default('/var/lib/nzbget/downloads/nzbget.log') }}
-ConfigTemplate={{ nzbget_config_template | default('/var/lib/nzbget/downloads/nzbget.log') }}
-RequiredDir={{ nzbget_required_dir | default([]) | join(',') }}
-CertStore={{ nzbget_cert_store | default('/usr/share/nzbget/cacert.pem') }}
-# News Servers
-{# _nzbget_news_servers pre-processed with all keys and default values #}
-{% if nzbget_news_servers is defined and nzbget_news_servers | length > 0 %}
-{% for server in _nzbget_news_servers %}
-Server{{ server.id }}.Active={{ 'yes' if server.active else 'no' }}
-Server{{ server.id }}.Name={{ server.name }}
-Server{{ server.id }}.Level={{ server.level }}
-Server{{ server.id }}.Optional={{ 'yes' if server.optional else 'no' }}
-Server{{ server.id }}.Group={{ server.group }}
-Server{{ server.id }}.Host={{ server.srv_host }}
-Server{{ server.id }}.Port={{ server.srv_port }}
-Server{{ server.id }}.Encryption={{ 'yes' if server.encryption else 'no' }}
-Server{{ server.id }}.Username={{ server.username }}
-Server{{ server.id }}.Password={{ server.password }}
-Server{{ server.id }}.JoinGroup={{ 'yes' if server.join_group else 'no' }}
-Server{{ server.id }}.Cipher={{ server.cipher }}
-Server{{ server.id }}.Connections={{ server.connections }}
-Server{{ server.id }}.Retention={{ server.retention }}
-Server{{ server.id }}.CertVerification={{ server.cert_verification }}
-Server{{ server.id }}.IpVersion={{ server.ip_version }}
-Server{{ server.id }}.Notes={{ server.notes }}
-
+{% for header in _nzbget_order %}
+# {{ header }}
+{%   for section in _nzbget_map | selectattr("value.section", "match", header) | sort(attribute="value.order") %}
+{%     if not section.value.deprecated %}
+{%       if section.value.section == 'News Servers' %}
+{%         include 'section/news_servers.j2' with context %}
+{%       elif section.value.section == 'Categories' %}
+{%         include 'section/categories.j2' with context %}
+{%       elif section.value.section == 'RSS Feeds' %}
+{%         include 'section/rss_feeds.j2' with context %}
+{%       elif section.value.section == 'Scheduler' %}
+{%         include 'section/scheduler.j2' with context %}
+{%       elif section.value.hint == 'bool' %}
+{{ section.value.key }}={{ 'yes' if section.value.raw else 'no' }}
+{%       elif section.value.hint == 'list of str' or section.value.key == 'ShellOverride' %}
+{{ section.value.key }}={{ section.value.parsed }}
+{%       else %}
+{{ section.value.key }}={{ section.value.raw }}
+{%       endif %}
+{%     endif %}
+{%   endfor %}
 {% endfor %}
-{% endif %}
-# Security
-ControlIP={{ nzbget_control_ip | default('0.0.0.0') }}
-ControlPort={{ nzbget_control_port | default(6789) }}
-ControlUsername={{ nzbget_control_username | default('nzbget') }}
-ControlPassword={{ nzbget_control_password | default('tegbzn6789') }}
-RestrictedUsername={{ nzbget_restricted_username | default('') }}
-RestrictedPassword={{ nzbget_restricted_password | default('') }}
-AddUsername={{ nzbget_add_username | default('') }}
-AddPassword={{ nzbget_add_password | default('') }}
-FormAuth={{ 'yes' if nzbget_form_auth | default(false) | bool else 'no' }}
-SecureControl={{ 'yes' if nzbget_secure_control | default(false) | bool else 'no' }}
-SecurePort={{ nzbget_secure_port | default(6791) }}
-SecureCert={{ nzbget_secure_cert | default('') }}
-SecureKey={{ nzbget_secure_key | default('') }}
-AuthorizedIP={{ nzbget_authorized_ip | default(['127.0.0.1']) | join(',') }}
-CertCheck={{ 'yes' if nzbget_cert_check | default(true) | bool else 'no' }}
-UpdateCheck={{ nzbget_update_check | default('none') }}
-DaemonUsername={{ nzbget_daemon_username | default('root') }}
-UMask={{ nzbget_u_mask | default('0002') }}
-# Categories
-{# _nzbget_categories pre-processed with all keys and default values #}
-{% if nzbget_categories is defined and nzbget_categories | length > 0 %}
-{% for category in _nzbget_categories %}
-Category{{ category.id }}.Name={{ category.name }}
-Category{{ category.id }}.DestDir={{ category.dest_dir }}
-Category{{ category.id }}.Unpack={{ 'yes' if category.unpack else 'no' }}
-Category{{ category.id }}.Extensions={{ category.extensions | join(',') }}
-Category{{ category.id }}.Aliases={{ category.aliases | join(',') }}
-
-{% endfor %}
-{% endif %}
-# RSS Feeds
-{# _nzbget_categories pre-processed with all keys and default values #}
-{% if nzbget_rss_feeds is defined and nzbget_rss_feeds | length > 0%}
-{% for feed in _nzbget_rss_feeds %}
-Feed{{ feed.id }}.Name={{ feed.name }}
-Feed{{ feed.id }}.URL={{ feed.url }}
-Feed{{ feed.id }}.filter={{ feed.filter | join('%') }}
-Feed{{ feed.id }}.interval={{ feed.interval }}
-Feed{{ feed.id }}.backlog={{ 'yes' if feed.backlog else 'no' }}
-Feed{{ feed.id }}.pause_nzb={{ 'yes' if feed.pause_nzb else 'no' }}
-Feed{{ feed.id }}.category={{ feed.category }}
-Feed{{ feed.id }}.priority={{ feed.priority }}
-Feed{{ feed.id }}.extensions={{ feed.extensions | join(',') }}
-
-{% endfor %}
-{% endif %}
-# Incoming NZBs
-AppendCategoryDir={{ 'yes' if nzbget_append_category_dir | default(true) | bool else 'no' }}
-NzbDirInterval={{ nzbget_nzb_dir_interval | default(5) }}
-NzbDirFileAge={{ nzbget_nzb_dir_file_age | default(60) }}
-DupeCheck={{ 'yes' if nzbget_dupe_check | default(true) | bool else 'no' }}
-# Download Queue
-FlushQueue={{ 'yes' if nzbget_flush_queue | default(true) | bool else 'no' }}
-ContinuePartial={{ 'yes' if nzbget_continue_partial | default(true) | bool else 'no' }}
-PropagationDelay={{ nzbget_propagation_delay | default(0) }}
-ArticleCache={{ nzbget_article_cache | default(100) }}
-DirectWrite={{ 'yes' if nzbget_direct_write | default(true) | bool else 'no' }}
-WriteBuffer={{ nzbget_write_buffer | default(1024) }}
-FileNaming={{ nzbget_file_naming | default('auto') }}
-ReorderFiles={{ 'yes' if nzbget_reorder_files | default(true) | bool else 'no' }}
-PostStrategy={{ nzbget_post_strategy | default('balanced') }}
-DiskSpace={{ nzbget_disk_space | default(250) }}
-NzbCleanupDisk={{ 'yes' if nzbget_nzb_cleanup_disk | default(true) | bool else 'no' }}
-KeepHistory={{ nzbget_keep_history | default(30) }}
-FeedHistory={{ nzbget_feed_history | default(7) }}
-SkipWrite={{ 'yes' if nzbget_skip_write | default(false) | bool else 'no' }}
-RawArticle={{ 'yes' if nzbget_raw_article | default(false) | bool else 'no' }}
-# Connection
-ArticleRetries={{ nzbget_article_retries | default(3) }}
-ArticleInterval={{ nzbget_article_interval | default(10) }}
-ArticleTimeout={{ nzbget_article_timeout | default(60) }}
-ArticleReadChunkSize={{ nzbget_article_read_chunk_size | default(4) }}
-UrlRetries={{ nzbget_url_retries | default(3) }}
-UrlInterval={{ nzbget_url_interval | default(10) }}
-UrlTimeout={{ nzbget_url_timeout | default(60) }}
-RemoteTimeout={{ nzbget_remote_timeout | default(90) }}
-DownloadRate={{ nzbget_download_rate | default(0) }}
-UrlConnections={{ nzbget_url_connections | default(4) }}
-UrlForce={{ 'yes' if nzbget_url_force | default(true) | bool else 'no' }}
-MonthlyQuota={{ nzbget_monthly_quota | default(0) }}
-QuotaStartDay={{ nzbget_quota_start_day | default(1) }}
-DailyQuota={{ nzbget_daily_quota | default(0) }}
-# Logging
-WriteLog={{ nzbget_write_log | default('append') }}
-RotateLog={{ nzbget_rotate_log | default(3) }}
-ErrorTarget={{ nzbget_error_target | default('both') }}
-WarningTarget={{ nzbget_warning_target | default('both') }}
-InfoTarget={{ nzbget_info_target | default('both') }}
-DetailTarget={{ nzbget_detail_target | default('log') }}
-DebugTarget={{ nzbget_debug_target | default('log') }}
-LogBuffer={{ nzbget_log_buffer | default(1000) }}
-NzbLog={{ 'yes' if nzbget_nzb_log | default(true) | bool else 'no' }}
-CrashTrace={{ 'yes' if nzbget_crash_trace | default(true) | bool else 'no' }}
-CrashDump={{ 'yes' if nzbget_crash_dump | default(false) | bool else 'no' }}
-TimeCorrection={{ nzbget_time_correction | default(0) }}
-# Display (Terminal)
-OutputMode={{ nzbget_output_mode | default('curses') }}
-CursesNzbName={{ 'yes' if nzbget_curses_nzb_name | default(true) | bool else 'no' }}
-CursesGroup={{ 'yes' if nzbget_curses_group | default(false) | bool else 'no' }}
-CursesTime={{ 'yes' if nzbget_curses_time | default(false) | bool else 'no' }}
-UpdateInterval={{ nzbget_update_interval | default(200) }}
-
-# Scheduler
-{# _nzbget_categories pre-processed with all keys and default values #}
-{% if nzbget_tasks is defined and nzbget_tasks|length %}
-{% for task in nzbget_tasks %}
-Task{{ task.id }}.Time={{ task.time | join(',') }}
-Task{{ task.id }}.WeekDays={{ task.week_days | join(',') }}
-Task{{ task.id }}.Command={{ task.command }}
-{% if task.command != 'Process' %}
-Task{{ task.id }}.Param={{ task.param | join(',') }}
-{% else %}
-{# process parameters must be wrapped in single quotes #}
-Task{{ task.id }}.Param={{ ["'"] | product(task.param) | map('join') | list | product(["'"]) | map('join') | list | join(' ') }}
-{% endif %}
-
-{% endfor %}
-{% endif %}
-# Check and Repair
-CrcCheck={{ 'yes' if nzbget_crc_check | default(true) | bool else 'no' }}
-ParCheck={{ nzbget_par_check | default('auto') }}
-ParRepair={{ 'yes' if nzbget_par_repair | default(true) | bool else 'no' }}
-ParScan={{ nzbget_par_scan | default('extended') }}
-ParQuick={{ 'yes' if nzbget_par_quick | default(true) | bool else 'no' }}
-ParBuffer={{ nzbget_par_buffer | default(100) }}
-ParThreads={{ nzbget_par_threads | default(0) }}
-ParIgnoreExt={{ nzbget_par_ignore_ext | default(['.sfv', '.nzb', '.nfo']) | join(',') }}
-ParRename={{ 'yes' if nzbget_par_rename | default(true) | bool else 'no' }}
-RarRename={{ 'yes' if nzbget_rar_rename | default(true) | bool else 'no' }}
-DirectRename={{ 'yes' if nzbget_direct_rename | default(true) | bool else 'no' }}
-HealthCheck={{ nzbget_health_check | default('park') }}
-ParTimeLimit={{ nzbget_par_time_limit | default(0) }}
-ParPauseQueue={{ 'yes' if nzbget_par_pause_queue | default(true) | bool else 'no' }}
-# Unpack
-Unpack={{ 'yes' if nzbget_unpack | default(true) | bool else 'no' }}
-DirectUnpack={{ 'yes' if nzbget_direct_unpack | default(true) | bool else 'no' }}
-UnpackPauseQueue={{ 'yes' if nzbget_unpack_pause_queue | default(false) | bool else 'no' }}
-UnpackCleanupDisk={{ 'yes' if nzbget_unpack_cleanup_disk | default(true) | bool else 'no' }}
-UnrarCmd={{ nzbget_unrar_cmd | default('/usr/bin/unrar') }}
-SevenZipCmd={{ nzbget_seven_zip_cmd | default('/usr/bin/7zz') }}
-ExtCleanupDisk={{ nzbget_ext_cleanup_disk | default(['.par2', '.sfv']) | join(',') }}
-UnpackIgnoreExt={{ nzbget_unpack_ignore_ext | default(['.cbr']) | join(',') }}
-UnpackPassFile={{ nzbget_unpack_pass_file | default('') }}
-# Extension Scripts
-Extensions={{ nzbget_extensions | default([]) | join(',') }}
-ScriptOrder={{ nzbget_script_order | default([]) | join(',') }}
-ScriptPauseQueue={{ 'yes' if nzbget_script_pause_queue | default(true) | bool else 'no' }}
-ShellOverride={% for override in nzbget_shell_override %}{{ override.values() | list | join(',') }}{% if not loop.last %},{% endif %}{% endfor +%}
-EventInterval={{ nzbget_event_interval | default(0) }}
-{% if nzbget_settings_extensions is defined and nzbget_settings_extensions | length > 0 %}
-{% for key, value in nzbget_settings_extensions.items() %}
-{{ key }}={{ value }}
-{% endfor %}
-{% endif %}

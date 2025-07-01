@@ -2,6 +2,23 @@
 ###############################################################################
 # NZBGet Role Options
 ###############################################################################
+#
+# Updates:
+# * New MAJOR, MINOR releases should hard branch at version before starting
+#   (e.g. 3.0.x branch).
+# * Debian OS version is irrelevant (tied to APT package version).
+# * Keep a separate change log as changes are made, you will not remember all
+#   of them.
+# * Use debian docs to validate package/process changes. Reference source docs
+#   if needed.
+# * Update role defaults (includes updating defaults, tasks):
+#   * Use configuration docs to add new variables.
+#   * Use defaults/ to remove any changed/deprecated variables.
+# * Update tests for any changes.
+# * Standard role validation testing (yamllint, ansible-lint, todo, noqa).
+# * Tag with MAJOR.MINOR.PATCH[ROLE] version, with PATCH representing role
+#   change - e.g. Debian: 24.5 -> Role: 24.5.1  (1 role release).
+#
 # Reference:
 # * https://nzbget.com/
 # * https://github.com/nzbgetcom/nzbget
@@ -13,7 +30,8 @@ nzbget_role_validate_release: 'bookworm'
 nzbget_role_validate_version: 'v24.5'
 
 # Debian nzbget.conf location.
-nzbget_role_config: '/var/lib/nzbget/nzbget.conf'
+nzbget_role_install_dir: '/var/lib/nzbget'
+nzbget_role_config: '{{ nzbget_role_install_dir ~ "/nzbget.conf" }}'
 
 ###############################################################################
 # APT Packages

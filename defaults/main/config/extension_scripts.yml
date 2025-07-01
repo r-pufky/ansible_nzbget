@@ -2,56 +2,55 @@
 ###############################################################################
 # Extension Scripts
 ###############################################################################
-# PascalCase: nzbget_script_order > ScriptOrder.
 
 # List of active extension scripts for new downloads.
 #
-# Changes do not affect downloads already in queue; nzbget_categories
+# Changes do not affect downloads already in queue; nzbget_cfg_categories
 # extensions have precedence. Global extensions are activated once and cannot
 # be overridden per category or per NZB. All scripts must be stored in
-# nzbget_script_dir.
+# nzbget_cfg_script_dir.
 #
-# Execution order controlled by nzbget_script_order, not list order.
+# Execution order controlled by nzbget_cfg_script_order, not list order.
 #
-# nzbget_extensions: ['Cleanup.sh', 'Move.sh', 'EMail.py']
+# nzbget_cfg_extensions: ['Cleanup.sh', 'Move.sh', 'EMail.py']
 #
 # Default: [] (no extensions).
 #
 # Reference:
 # * https://nzbget.com/documentation/extension-scripts/
-nzbget_extensions: []
+nzbget_cfg_extensions: []
 
 # Execution order for extension scripts.
 #
-# All scripts must be stored in nzbget_script_dir.
+# All scripts must be stored in nzbget_cfg_script_dir.
 #
 # Default: [] (no order).
-nzbget_script_order: []
+nzbget_cfg_script_order: []
 
 # Pause download queue during executing of postprocess script?
 #
-# See nzbget_par_pause_queue and nzbget_unpack_pause_queue.
+# See nzbget_cfg_par_pause_queue and nzbget_cfg_unpack_pause_queue.
 #
 # Default: False.
-nzbget_script_pause_queue: false
+nzbget_cfg_script_pause_queue: false
 
 # Dict of shell overrides for script interpreters.
 #
-# nzbget_shell_override:
-#     list of dict - shell override definitions
-#   - ext: str - file extension to override
-#     shell: str - absolute path to interpreter to use
+# nzbget_cfg_shell_override:
+#     list of dict - Shell override definitions.
+#   - ext: list of str - File extensions to override.
+#     shell: str - Absolute path to interpreter to use.
 #
-# nzbget_shell_override:
-#   - ext: '.py'
+# nzbget_cfg_shell_override:
+#   - ext: ['.py','.py2']
 #     shell: '/usr/bin/python2'
-#   - ext: '.py3'
+#   - ext: ['.py3']
 #     shell: '/usr/bin/python3'
-#   - ext: '.sh'
+#   - ext: ['.sh']
 #     shell: '/usr/bin/bash'
 #
 # default: [].
-nzbget_shell_override: []
+nzbget_cfg_shell_override: []
 
 # Minimum interval between queue events (seconds).
 #
@@ -59,8 +58,8 @@ nzbget_shell_override: []
 # file) were performed within interval.
 #
 # Values:
-#   -1: disables file-downloaded events
-#    0: no minimum interval (default)
+#   -1: Disables file-downloaded events.
+#    0: No minimum interval (default).
 #
 # Default: 0 (no minimum interval).
-nzbget_event_interval: 0
+nzbget_cfg_event_interval: 0

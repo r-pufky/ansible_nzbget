@@ -1,89 +1,72 @@
 ---
 ###############################################################################
-# Prep NZBGet
+# Prep
 ###############################################################################
 # NZBGet install from deb packages are categorically broken. There are no
 # debconf options.
 #
-# Prepare system for install by creating user/group for service, add drop-in
-# for user/group service override, and sanitize (standardize with default
-# values if not set) NZBGet configuration.
+# Prepare system for install by creating user/group for service.
 #
 # Do not remove the default (NZBGet) user as this will put APT in a broken
 # state. Instead ensure the account is fully locked.
 #
-# Generates:
-#   _nzbget_news_servers: list of dict - Sanitized nzbget_news_servers.
-#   _nzbget_categories: list of dict - Sanitized nzbget_categories.
-#   _nzbget_rss_feeds:  list of dict - Sanitized nzbget_rss_feeds.
-#   _nzbget_tasks: list of dict - Sanitized nzbget_tasks.
-#   _nzbget_uid: int - NZBGet user UID.
-#   _nzbget_gid: int - NZBGet user GID.
-#
 # Reference:
 # * https://nzbget.com
 
+- name: 'Prep | assert data locations are not in install paths'
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - not _nzbget_cfg_main_dir.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_nzb_dir.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_queue_dir.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_lock_file.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_log_file.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_dest_dir.raw.startswith(
+        nzbget_role_install_dir)
+      - not _nzbget_cfg_inter_dir.raw.startswith(
+        nzbget_role_install_dir)
+    fail_msg: |
+      ✘ Data storage should not be in the same location as install.
+
+      Installs: '{{ nzbget_role_install_dir }}'
+
+       nzbget_cfg_main_dir: '{{ _nzbget_cfg_main_dir.raw }}'
+        nzbget_cfg_nzb_dir: '{{ _nzbget_cfg_nzb_dir.raw }}'
+      nzbget_cfg_queue_dir: '{{ _nzbget_cfg_queue_dir.raw }}'
+      nzbget_cfg_lock_file: '{{ _nzbget_cfg_lock_file.raw }}'
+       nzbget_cfg_log_file: '{{ _nzbget_cfg_log_file.raw }}'
+       nzbget_cfg_dest_dir: '{{ _nzbget_cfg_dest_dir.raw }}'
+      nzbget_cfg_inter_dir: '{{ _nzbget_cfg_inter_dir.raw }}'
+
 - name: 'Prep | manage users'
-  when: nzbget_create_user
+  when: _nzbget_srv_create_user.raw
   ansible.builtin.include_role:
     name: 'r_pufky.deb.users'
     tasks_from: 'role_account_add.yml'
   vars:
-    users_role_group: '{{ nzbget_role_group }}'
     users_role_user: '{{ nzbget_role_user }}'
+    users_role_group: '{{ nzbget_role_group }}'
 
-- name: 'Prep | enumerate system user {{ nzbget_user }}'
+- name: 'Prep | enumerate system user {{ _nzbget_srv_user.raw }}'
   ansible.builtin.user:
-    name: '{{ nzbget_user }}'
+    name: '{{ _nzbget_srv_user.raw }}'
   check_mode: true
   changed_when: false
-  register: _nzbget_user_query
+  register: _nzbget_srv_user_query
 
 - name: 'Prep | parse system user UID/GID'
   ansible.builtin.set_fact:
-    _nzbget_uid: '{{ _nzbget_user_query.uid }}'
-    _nzbget_gid: '{{ _nzbget_user_query.group }}'
-
-- name: 'Prep | sanitize nzbget_news_servers'
-  when: nzbget_news_servers | length > 0
-  ansible.builtin.set_fact:
-    _nzbget_news_servers: '{{
-        _nzbget_news_servers | default([]) +
-        [nzbget_role_template_news_servers | combine(item)]
+    _nzbget_srv_user: '{{
+        _nzbget_srv_user |
+        combine({"parsed": _nzbget_srv_user_query.uid})
       }}'
-  loop: '{{ nzbget_news_servers }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Prep | sanitize nzbget_categories'
-  when: nzbget_categories | length > 0
-  ansible.builtin.set_fact:
-    _nzbget_categories: '{{
-        _nzbget_categories | default([]) +
-        [nzbget_role_template_categories | combine(item)]
+    _nzbget_srv_group: '{{
+        _nzbget_srv_group |
+        combine({"parsed": _nzbget_srv_user_query.group})
       }}'
-  loop: '{{ nzbget_categories }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Prep | sanitize nzbget_rss_feeds'
-  when: nzbget_rss_feeds | length > 0
-  ansible.builtin.set_fact:
-    _nzbget_rss_feeds: '{{
-        _nzbget_rss_feeds | default([]) +
-        [nzbget_role_template_rss_feeds | combine(item)]
-      }}'
-  loop: '{{ nzbget_rss_feeds }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Prep | sanitize nzbget_tasks'
-  when: nzbget_tasks | length > 0
-  ansible.builtin.set_fact:
-    _nzbget_tasks: '{{
-        _nzbget_tasks | default([]) +
-        [nzbget_role_template_tasks | combine(item)]
-      }}'
-  loop: '{{ nzbget_tasks }}'
-  loop_control:
-    label: '{{ item.id }}'

@@ -1,0 +1,22 @@
+{% if section.value.raw | length > 0 %}
+{% for server in section.value.raw %}
+Server{{ server.id }}.Active={{ 'yes' if server.active else 'no' }}
+Server{{ server.id }}.Name={{ server.name }}
+Server{{ server.id }}.Level={{ server.level }}
+Server{{ server.id }}.Optional={{ 'yes' if server.optional else 'no' }}
+Server{{ server.id }}.Group={{ server.group }}
+Server{{ server.id }}.Host={{ server.srv_host }}
+Server{{ server.id }}.Port={{ server.srv_port }}
+Server{{ server.id }}.Encryption={{ 'yes' if server.encryption else 'no' }}
+Server{{ server.id }}.Username={{ server.username }}
+Server{{ server.id }}.Password={{ server.password }}
+Server{{ server.id }}.JoinGroup={{ 'yes' if server.join_group else 'no' }}
+Server{{ server.id }}.Cipher={{ server.cipher }}
+Server{{ server.id }}.Connections={{ server.connections }}
+Server{{ server.id }}.Retention={{ server.retention }}
+Server{{ server.id }}.CertVerification={{ server.cert_verification }}
+Server{{ server.id }}.IpVersion={{ server.ip_version }}
+Server{{ server.id }}.Notes={{ server.notes }}
+
+{% endfor %}
+{% endif %}
