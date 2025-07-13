@@ -2,6 +2,12 @@
 ###############################################################################
 # NZBGet Service Configuration
 ###############################################################################
+# Install size: ~11MB
+#      nzbget: 2.7MB.
+#        rsync: 780kB.
+#        unrar: 333kB.
+#         7zip: 2.6MB.
+#   p7zip-full: 4.6MB.
 
 # Source location of NZBGet extension scripts.
 #
