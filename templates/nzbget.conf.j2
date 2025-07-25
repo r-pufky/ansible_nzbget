@@ -1,6 +1,6 @@
 {% for header in _nzbget_order %}
 # {{ header }}
-{%   for section in _nzbget_map | selectattr("value.section", "match", header) | sort(attribute="value.order") %}
+{%   for section in _nzbget_map | selectattr('value.section', '==', header) | sort(attribute='value.order') %}
 {%     if not section.value.deprecated %}
 {%       if section.value.section == 'News Servers' %}
 {%         include 'section/news_servers.j2' with context %}

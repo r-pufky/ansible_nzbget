@@ -17,8 +17,6 @@
   ansible.builtin.assert:
     quiet: true
     that:
-      - not _nzbget_cfg_main_dir.raw.startswith(
-        nzbget_role_install_dir)
       - not _nzbget_cfg_nzb_dir.raw.startswith(
         nzbget_role_install_dir)
       - not _nzbget_cfg_queue_dir.raw.startswith(
@@ -36,7 +34,6 @@
 
       Installs: '{{ nzbget_role_install_dir }}'
 
-       nzbget_cfg_main_dir: '{{ _nzbget_cfg_main_dir.raw }}'
         nzbget_cfg_nzb_dir: '{{ _nzbget_cfg_nzb_dir.raw }}'
       nzbget_cfg_queue_dir: '{{ _nzbget_cfg_queue_dir.raw }}'
       nzbget_cfg_lock_file: '{{ _nzbget_cfg_lock_file.raw }}'
