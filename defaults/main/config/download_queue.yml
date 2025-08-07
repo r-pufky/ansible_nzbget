@@ -65,7 +65,8 @@ nzbget_cfg_article_cache: 100
 #          articles directly to this file without creating of any temporary
 #          files. If nzbget_cfg_article_cache=true articles saved into cache
 #          first and written to destination file when the cache flushes (90%
-#          full) or all articles downloaded.
+#          full) or all articles downloaded. Post-processing still occurs in
+#          nzbget_cfg_inter_dir.
 #
 # Default: True.
 nzbget_cfg_direct_write: true

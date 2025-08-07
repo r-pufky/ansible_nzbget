@@ -21,15 +21,15 @@ Debian contrib, non-free APT sources are required and should be manually
 managed if `nzbget_srv_auto_add_apt_sources_enable: false`. Directories
 will automatically be created and permissions set if needed.
 
-host_vars/plex.example.com/vars/plex.yml
+host_vars/nzbget.example.com/vars/nzbget.yml
 ``` yaml
-nzbget_main_dir: '/data/nzbget'
-nzbget_control_username: '{{ vault_nzbget_srv_user }}'
-nzbget_control_password: '{{ vault_nzbget_pass }}'
-nzbget_authorized_ip:
+nzbget_cfg_main_dir: '/data/nzbget'
+nzbget_cfg_control_username: '{{ vault_nzbget_srv_user }}'
+nzbget_cfg_control_password: '{{ vault_nzbget_pass }}'
+nzbget_cfg_authorized_ip:
   - '0.0.0.0'
   - '127.0.0.1'
-nzbget_news_servers:
+nzbget_cfg_news_servers:
   - id: 1
     name: 'example server'
     srv_hos: 'nzb.example.com'

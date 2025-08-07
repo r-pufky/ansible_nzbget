@@ -13,7 +13,7 @@
 {%       elif section.value.hint == 'bool' %}
 {{ section.value.key }}={{ 'yes' if section.value.raw else 'no' }}
 {%       elif section.value.hint == 'list of str' or section.value.key == 'ShellOverride' %}
-{{ section.value.key }}={{ section.value.parsed }}
+{{ section.value.key }}={{ section.value.data }}
 {%       else %}
 {{ section.value.key }}={{ section.value.raw }}
 {%       endif %}

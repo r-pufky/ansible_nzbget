@@ -1,5 +1,5 @@
-{% if section.value.raw | length > 0 %}
-{% for feed in section.value.raw %}
+{% if section.value.data | length > 0 %}
+{% for feed in section.value.data %}
 Feed{{ feed.id }}.Name={{ feed.name }}
 Feed{{ feed.id }}.URL={{ feed.url }}
 Feed{{ feed.id }}.filter={{ feed.filter | join('%') }}

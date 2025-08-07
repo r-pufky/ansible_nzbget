@@ -11,20 +11,21 @@
 # * Simplified role updates for variable changes.
 # * All data touched by user is in a standard, expected format.
 #
-# Annotated Defaults:
+# Annotated Defaults (2.0):
 # _{VAR}: dict - Annotated and sanitized default variable.
 #   section: str - Section name.
 #   key: str - Config file key.
-#   raw: any - Raw config file value (set from defaults > role defaults).
-#   parsed: any - Processed raw config file value. Optional.
-#   role: any - Role specific config usage. Optional.
+#   raw: any - Raw value from user, defaults, or role defaults.
+#   data: any - Processed raw value for use in rendering. Optional.
+#   default: any - Role default (testing for changed defaults).
 #   hint: str - Value rendering type hint (docstring types).
+#   role_*: any - Role specific usage. Optional.
 #   added: str - Release version variable added.
 #       Special Case:
 #         0.0.0: Unknown or since role inception.
 #   sensitive: bool - True for PII/SPII data that should not be logged.
 #   deprecated: bool - True if no longer used in current role release.
-#   order: int - Order item should appear in rendered files.
+#   order: int - Order item should appear in templated files.
 #
 # Generates:
 #   _nzbget_map: list of dict - Annotated config map.
@@ -48,59 +49,15 @@
       nzbget_service_* -> nzbget_srv_*
       nzbget_* -> nzbget_srv_*
 
-- name: 'Annotate | merge template nzbget_cfg_news_servers'
-  ansible.builtin.set_fact:
-    _nzbget_cfg_news_servers: '{{
-        _nzbget_cfg_news_servers | default([]) +
-        [nzbget_role_template_news_servers | combine(item)]
-      }}'
-  loop: '{{ nzbget_cfg_news_servers }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Annotate | merge template nzbget_cfg_categories'
-  ansible.builtin.set_fact:
-    _nzbget_cfg_categories: '{{
-        _nzbget_cfg_categories | default([]) +
-        [nzbget_role_template_categories | combine(item)]
-      }}'
-  loop: '{{ nzbget_cfg_categories }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Annotate | merge template nzbget_cfg_rss_feeds'
-  ansible.builtin.set_fact:
-    _nzbget_cfg_rss_feeds: '{{
-        _nzbget_cfg_rss_feeds | default([]) +
-        [nzbget_role_template_rss_feeds | combine(item)]
-      }}'
-  loop: '{{ nzbget_cfg_rss_feeds }}'
-  loop_control:
-    label: '{{ item.name }}'
-
-- name: 'Annotate | merge template nzbget_cfg_tasks'
-  ansible.builtin.set_fact:
-    _nzbget_cfg_tasks: '{{
-        _nzbget_cfg_tasks | default([]) +
-        [nzbget_role_template_tasks | combine(item)]
-      }}'
-  loop: '{{ nzbget_cfg_tasks }}'
-  loop_control:
-    label: '{{ item.id }}'
-
 - name: 'Annotate | sanitize & annotate service defaults'
   ansible.builtin.set_fact:
     _nzbget_srv_scripts_source: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_scripts_source | default("") }}',
-      parsed: '{{
-        nzbget_srv_scripts_source | default("")
-        if
-        (nzbget_srv_scripts_source | default("")).endswith("/")
-        else
-        nzbget_srv_scripts_source | default("") ~ "/"
-      }}',
+      raw: '{{ nzbget_srv_scripts_source }}',
+      default: '',
+      role_src:
+        "{{ nzbget_srv_scripts_source | regex_replace('\\/$', '') ~ '/' }}",
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -110,7 +67,8 @@
     _nzbget_srv_auto_add_apt_sources_enable: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_auto_add_apt_sources_enable | default(true) }}',
+      raw: '{{ nzbget_srv_auto_add_apt_sources_enable }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -120,8 +78,9 @@
     _nzbget_srv_user: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_user | default("media") }}',
-      parsed: '',  # Updated with UID when determined in prep.
+      raw: '{{ nzbget_srv_user }}',
+      default: 'media',
+      role_uid: '',  # (str) UID.
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -131,8 +90,9 @@
     _nzbget_srv_group: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_group | default("media") }}',
-      parsed: '',  # Updated with GID when determined in prep.
+      raw: '{{ nzbget_srv_group }}',
+      default: 'media',
+      role_gid: '',  # (str) GID.
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -142,7 +102,8 @@
     _nzbget_srv_create_user: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_create_user | default(true) }}',
+      raw: '{{ nzbget_srv_create_user }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -152,7 +113,8 @@
     _nzbget_srv_user_data_manage_enable: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_user_data_manage_enable | default(false) }}',
+      raw: '{{ nzbget_srv_user_data_manage_enable }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -162,7 +124,8 @@
     _nzbget_srv_media_perms_folder: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_media_perms_folder | default("2755") }}',
+      raw: '{{ nzbget_srv_media_perms_folder }}',
+      default: '2755',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -172,7 +135,8 @@
     _nzbget_srv_media_set_perms_file_enable: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_media_set_perms_file_enable | default(false) }}',
+      raw: '{{ nzbget_srv_media_set_perms_file_enable }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -182,7 +146,8 @@
     _nzbget_srv_media_perms_file: {
       section: '',
       key: '',
-      raw: '{{ nzbget_srv_media_perms_file | default("0644") }}',
+      raw: '{{ nzbget_srv_media_perms_file }}',
+      default: '0644',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -195,7 +160,8 @@
     _nzbget_cfg_main_dir: {
       section: 'Paths',
       key: 'MainDir',
-      raw: '{{ nzbget_cfg_main_dir | default("/data/downloads") }}',
+      raw: '{{ nzbget_cfg_main_dir }}',
+      default: '/var/lib/nzbget',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -205,9 +171,8 @@
     _nzbget_cfg_dest_dir: {
       section: 'Paths',
       key: 'DestDir',
-      raw: '{{
-        nzbget_cfg_dest_dir | default("/data/downloads/completed")
-      }}',
+      raw: '{{ nzbget_cfg_dest_dir }}',
+      default: '/data/downloads/completed',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -217,10 +182,8 @@
     _nzbget_cfg_inter_dir: {
       section: 'Paths',
       key: 'InterDir',
-      raw: '{{
-        nzbget_cfg_inter_dir |
-        default("/data/downloads/intermediate")
-      }}',
+      raw: '{{ nzbget_cfg_inter_dir }}',
+      default: '/var/lib/nzbget/downloads/intermediate',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -230,8 +193,8 @@
     _nzbget_cfg_nzb_dir: {
       section: 'Paths',
       key: 'NzbDir',
-      raw:
-        '{{ nzbget_cfg_nzb_dir | default("/data/downloads/nzb") }}',
+      raw: '{{ nzbget_cfg_nzb_dir }}',
+      default: '/var/lib/nzbget/downloads/nzb',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -241,9 +204,8 @@
     _nzbget_cfg_queue_dir: {
       section: 'Paths',
       key: 'QueueDir',
-      raw: '{{
-        nzbget_cfg_queue_dir | default("/data/downloads/queue")
-      }}',
+      raw: '{{ nzbget_cfg_queue_dir }}',
+      default: '/var/lib/nzbget/downloads/queue',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -253,7 +215,8 @@
     _nzbget_cfg_temp_dir: {
       section: 'Paths',
       key: 'TempDir',
-      raw: '{{ nzbget_cfg_temp_dir | default("/var/lib/nzbget/tmp") }}',
+      raw: '{{ nzbget_cfg_temp_dir }}',
+      default: '/var/lib/nzbget/tmp',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -263,7 +226,8 @@
     _nzbget_cfg_web_dir: {
       section: 'Paths',
       key: 'WebDir',
-      raw: '{{ nzbget_cfg_web_dir | default("/usr/share/nzbget/webui") }}',
+      raw: '{{ nzbget_cfg_web_dir }}',
+      default: '/usr/share/nzbget/webui',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -273,7 +237,8 @@
     _nzbget_cfg_script_dir: {
       section: 'Paths',
       key: 'ScriptDir',
-      raw: '{{ nzbget_cfg_script_dir | default("/var/lib/nzbget/scripts") }}',
+      raw: '{{ nzbget_cfg_script_dir }}',
+      default: '/var/lib/nzbget/scripts',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -283,15 +248,10 @@
     _nzbget_cfg_lock_file: {
       section: 'Paths',
       key: 'LockFile',
-      raw: '{{
-        nzbget_cfg_lock_file | default("/data/downloads/nzbget.lock")
-      }}',
-      parsed: '{{
-        nzbget_cfg_lock_file |
-        default("/data/downloads/nzbget.lock") |
-        basename
-      }}',
-      role: '',  # Updated after initial set.
+      raw: '{{ nzbget_cfg_lock_file }}',
+      default: '/var/lib/nzbget/downloads/nzbget.lock',
+      role_file: '{{ nzbget_cfg_lock_file | basename }}',
+      role_dest: '{{ nzbget_cfg_lock_file | dirname }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -301,15 +261,10 @@
     _nzbget_cfg_log_file: {
       section: 'Paths',
       key: 'LogFile',
-      raw: '{{
-        nzbget_cfg_log_file | default("/data/downloads/nzbget.log")
-      }}',
-      parsed: '{{
-        nzbget_cfg_log_file |
-        default("/data/downloads/nzbget.log") |
-        basename
-      }}',
-      role: '',  # Updated after initial set.
+      raw: '{{ nzbget_cfg_log_file }}',
+      default: '/var/lib/nzbget/downloads/nzbget.log',
+      role_file: '{{ nzbget_cfg_log_file | basename }}',
+      role_dest: '{{ nzbget_cfg_log_file | dirname }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -319,14 +274,10 @@
     _nzbget_cfg_config_template: {
       section: 'Paths',
       key: 'ConfigTemplate',
-      raw: '{{
-        nzbget_cfg_config_template | default("/usr/share/nzbget/nzbget.conf")
-      }}',
-      parsed: '{{
-        nzbget_cfg_config_template |
-        default("/usr/share/nzbget/nzbget.conf") |
-        basename
-      }}',
+      raw: '{{ nzbget_cfg_config_template }}',
+      default: '/usr/share/nzbget/nzbget.conf',
+      role_file: '{{ nzbget_cfg_config_template | basename }}',
+      role_dest: '{{ nzbget_cfg_config_template | dirname }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -336,8 +287,9 @@
     _nzbget_cfg_required_dir: {
       section: 'Paths',
       key: 'RequiredDir',
-      raw: '{{ nzbget_cfg_required_dir | default([]) }}',
-      parsed: '{{ nzbget_cfg_required_dir | default([]) | join(",") }}',
+      raw: '{{ nzbget_cfg_required_dir }}',
+      data: '{{ nzbget_cfg_required_dir | join(",") }}',
+      default: [],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -347,14 +299,9 @@
     _nzbget_cfg_cert_store: {
       section: 'Paths',
       key: 'CertStore',
-      raw: '{{
-        nzbget_cfg_cert_store | default("/usr/share/nzbget/cacert.pem")
-      }}',
-      parsed: '{{
-        nzbget_cfg_cert_store |
-        default("/usr/share/nzbget/cacert.pem") |
-        basename
-      }}',
+      raw: '{{ nzbget_cfg_cert_store }}',
+      role_file: '{{ nzbget_cfg_cert_store | basename }}',
+      role_dest: '{{ nzbget_cfg_cert_store | dirname }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -364,7 +311,9 @@
     _nzbget_cfg_news_servers: {
       section: 'News Servers',
       key: 'Server',
-      raw: '{{ _nzbget_cfg_news_servers | default([]) }}',
+      raw: '{{ nzbget_cfg_news_servers }}',
+      data: [],  # (list of dict) templated.
+      default: [],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -374,7 +323,8 @@
     _nzbget_cfg_control_ip: {
       section: 'Security',
       key: 'ControlIP',
-      raw: '{{ nzbget_cfg_control_ip | default("0.0.0.0") }}',
+      raw: '{{ nzbget_cfg_control_ip }}',
+      default: '0.0.0.0',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -384,7 +334,8 @@
     _nzbget_cfg_control_port: {
       section: 'Security',
       key: 'ControlPort',
-      raw: '{{ nzbget_cfg_control_port | default(6789) }}',
+      raw: '{{ nzbget_cfg_control_port }}',
+      default: 6789,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -394,7 +345,8 @@
     _nzbget_cfg_control_username: {
       section: 'Security',
       key: 'ControlUsername',
-      raw: '{{ nzbget_cfg_control_username | default("nzbget") }}',
+      raw: '{{ nzbget_cfg_control_username }}',
+      default: 'nzbget',
       hint: 'str',
       added: '0.0.0',
       sensitive: true,
@@ -404,7 +356,8 @@
     _nzbget_cfg_control_password: {
       section: 'Security',
       key: 'ControlPassword',
-      raw: '{{ nzbget_cfg_control_password | default("tegbzn6789") }}',
+      raw: '{{ nzbget_cfg_control_password }}',
+      default: 'tegbzn6789',
       hint: 'str',
       added: '0.0.0',
       sensitive: true,
@@ -414,7 +367,8 @@
     _nzbget_cfg_restricted_username: {
       section: 'Security',
       key: 'RestrictedUsername',
-      raw: '{{ nzbget_cfg_restricted_username | default("") }}',
+      raw: '{{ nzbget_cfg_restricted_username }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: true,
@@ -424,7 +378,8 @@
     _nzbget_cfg_restricted_password: {
       section: 'Security',
       key: 'RestrictedPassword',
-      raw: '{{ nzbget_cfg_restricted_password | default("") }}',
+      raw: '{{ nzbget_cfg_restricted_password }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -434,7 +389,8 @@
     _nzbget_cfg_add_username: {
       section: 'Security',
       key: 'AddUsername',
-      raw: '{{ nzbget_cfg_add_username | default("") }}',
+      raw: '{{ nzbget_cfg_add_username }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: true,
@@ -444,7 +400,8 @@
     _nzbget_cfg_add_password: {
       section: 'Security',
       key: 'AddPassword',
-      raw: '{{ nzbget_cfg_add_password | default("") }}',
+      raw: '{{ nzbget_cfg_add_password }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: true,
@@ -454,7 +411,8 @@
     _nzbget_cfg_form_auth: {
       section: 'Security',
       key: 'FormAuth',
-      raw: '{{ nzbget_cfg_form_auth | default(false) }}',
+      raw: '{{ nzbget_cfg_form_auth }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -464,7 +422,8 @@
     _nzbget_cfg_secure_control: {
       section: 'Security',
       key: 'SecureControl',
-      raw: '{{ nzbget_cfg_secure_control | default(false) }}',
+      raw: '{{ nzbget_cfg_secure_control }}',
+      default: '',
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -474,7 +433,8 @@
     _nzbget_cfg_secure_port: {
       section: 'Security',
       key: 'SecurePort',
-      raw: '{{ nzbget_cfg_secure_port | default(6791) }}',
+      raw: '{{ nzbget_cfg_secure_port }}',
+      default: 6791,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -484,7 +444,8 @@
     _nzbget_cfg_secure_cert: {
       section: 'Security',
       key: 'SecureCert',
-      raw: '{{ nzbget_cfg_secure_cert | default("") }}',
+      raw: '{{ nzbget_cfg_secure_cert }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -494,7 +455,8 @@
     _nzbget_cfg_secure_key: {
       section: 'Security',
       key: 'SecureKey',
-      raw: '{{ nzbget_cfg_secure_key | default("") }}',
+      raw: '{{ nzbget_cfg_secure_key }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -504,9 +466,9 @@
     _nzbget_cfg_authorized_ip: {
       section: 'Security',
       key: 'AuthorizedIP',
-      raw: '{{ nzbget_cfg_authorized_ip | default(["127.0.0.1"]) }}',
-      parsed:
-        '{{ nzbget_cfg_authorized_ip | default(["127.0.0.1"]) | join(",") }}',
+      raw: '{{ nzbget_cfg_authorized_ip }}',
+      data: '{{ nzbget_cfg_authorized_ip | join(",") }}',
+      default: ['127.0.0.1'],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -516,7 +478,8 @@
     _nzbget_cfg_cert_check: {
       section: 'Security',
       key: 'CertCheck',
-      raw: '{{ nzbget_cfg_cert_check | default(true) }}',
+      raw: '{{ nzbget_cfg_cert_check }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -526,7 +489,8 @@
     _nzbget_cfg_update_check: {
       section: 'Security',
       key: 'UpdateCheck',
-      raw: '{{ nzbget_cfg_update_check | default("none") }}',
+      raw: '{{ nzbget_cfg_update_check }}',
+      default: 'none',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -536,7 +500,8 @@
     _nzbget_cfg_daemon_username: {
       section: 'Security',
       key: 'DaemonUsername',
-      raw: '{{ nzbget_cfg_daemon_username | default("root") }}',
+      raw: '{{ nzbget_cfg_daemon_username }}',
+      default: 'root',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -546,7 +511,8 @@
     _nzbget_cfg_u_mask: {
       section: 'Security',
       key: 'UMask',
-      raw: '{{ nzbget_cfg_u_mask | default("0002") }}',
+      raw: '{{ nzbget_cfg_u_mask }}',
+      default: '0002',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -556,13 +522,12 @@
     _nzbget_cfg_categories: {
       section: 'Categories',
       key: 'Category',
-      raw: '{{
-        _nzbget_cfg_categories |
-        default([{"id": 1, "name": "Movies"},
-                 {"id": 2, "name": "Series"},
-                 {"id": 3, "name": "Music"},
-                 {"id": 4, "name": "Software"}])
-      }}',
+      raw: '{{ nzbget_cfg_categories }}',
+      data: [],  # (list of dict) templated.
+      default: [{'id': 1, 'name': 'Movies'},
+                {'id': 2, 'name': 'Series'},
+                {'id': 3, 'name': 'Music'},
+                {'id': 4, 'name': 'Software'}],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -572,7 +537,9 @@
     _nzbget_cfg_rss_feeds: {
       section: 'RSS Feeds',
       key: 'Feed',
-      raw: '{{ _nzbget_cfg_rss_feeds | default([]) }}',
+      raw: '{{ nzbget_cfg_rss_feeds }}',
+      data: [],  # (list of dict) templated.
+      default: [],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -582,7 +549,8 @@
     _nzbget_cfg_append_category_dir: {
       section: 'Incoming NZBs',
       key: 'AppendCategoryDir',
-      raw: '{{ nzbget_cfg_append_category_dir | default(true) }}',
+      raw: '{{ nzbget_cfg_append_category_dir }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -592,7 +560,8 @@
     _nzbget_cfg_nzb_dir_interval: {
       section: 'Incoming NZBs',
       key: 'NzbDirInterval',
-      raw: '{{ nzbget_cfg_nzb_dir_interval | default(5) }}',
+      raw: '{{ nzbget_cfg_nzb_dir_interval }}',
+      default: 5,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -602,7 +571,8 @@
     _nzbget_cfg_nzb_dir_file_age: {
       section: 'Incoming NZBs',
       key: 'NzbDirFileAge',
-      raw: '{{ nzbget_cfg_nzb_dir_file_age | default(60) }}',
+      raw: '{{ nzbget_cfg_nzb_dir_file_age }}',
+      default: 60,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -612,7 +582,8 @@
     _nzbget_cfg_dupe_check: {
       section: 'Incoming NZBs',
       key: 'DupeCheck',
-      raw: '{{ nzbget_cfg_dupe_check | default(true) }}',
+      raw: '{{ nzbget_cfg_dupe_check }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -622,7 +593,8 @@
     _nzbget_cfg_flush_queue: {
       section: 'Download Queue',
       key: 'FlushQueue',
-      raw: '{{ nzbget_cfg_flush_queue | default(true) }}',
+      raw: '{{ nzbget_cfg_flush_queue }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -632,7 +604,8 @@
     _nzbget_cfg_continue_partial: {
       section: 'Download Queue',
       key: 'ContinuePartial',
-      raw: '{{ nzbget_cfg_continue_partial | default(true) }}',
+      raw: '{{ nzbget_cfg_continue_partial }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -642,7 +615,8 @@
     _nzbget_cfg_propagation_delay: {
       section: 'Download Queue',
       key: 'PropagationDelay',
-      raw: '{{ nzbget_cfg_propagation_delay | default(0) }}',
+      raw: '{{ nzbget_cfg_propagation_delay }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -652,7 +626,8 @@
     _nzbget_cfg_article_cache: {
       section: 'Download Queue',
       key: 'ArticleCache',
-      raw: '{{ nzbget_cfg_article_cache | default(100) }}',
+      raw: '{{ nzbget_cfg_article_cache }}',
+      default: 100,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -662,7 +637,8 @@
     _nzbget_cfg_direct_write: {
       section: 'Download Queue',
       key: 'DirectWrite',
-      raw: '{{ nzbget_cfg_direct_write | default(true) }}',
+      raw: '{{ nzbget_cfg_direct_write }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -672,7 +648,8 @@
     _nzbget_cfg_write_buffer: {
       section: 'Download Queue',
       key: 'WriteBuffer',
-      raw: '{{ nzbget_cfg_write_buffer | default(1024) }}',
+      raw: '{{ nzbget_cfg_write_buffer }}',
+      default: 1024,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -682,7 +659,8 @@
     _nzbget_cfg_file_naming: {
       section: 'Download Queue',
       key: 'FileNaming',
-      raw: '{{ nzbget_cfg_file_naming | default("auto") }}',
+      raw: '{{ nzbget_cfg_file_naming }}',
+      default: 'auto',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -692,7 +670,8 @@
     _nzbget_cfg_reorder_files: {
       section: 'Download Queue',
       key: 'ReorderFiles',
-      raw: '{{ nzbget_cfg_reorder_files | default(true) }}',
+      raw: '{{ nzbget_cfg_reorder_files }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -702,7 +681,8 @@
     _nzbget_cfg_post_strategy: {
       section: 'Download Queue',
       key: 'PostStrategy',
-      raw: '{{ nzbget_cfg_post_strategy | default("balanced") }}',
+      raw: '{{ nzbget_cfg_post_strategy }}',
+      default: 'balanced',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -712,7 +692,8 @@
     _nzbget_cfg_disk_space: {
       section: 'Download Queue',
       key: 'DiskSpace',
-      raw: '{{ nzbget_cfg_disk_space | default(250) }}',
+      raw: '{{ nzbget_cfg_disk_space }}',
+      default: 250,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -722,7 +703,8 @@
     _nzbget_cfg_nzb_cleanup_disk: {
       section: 'Download Queue',
       key: 'NzbCleanupDisk',
-      raw: '{{ nzbget_cfg_nzb_cleanup_disk | default(true) }}',
+      raw: '{{ nzbget_cfg_nzb_cleanup_disk }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -732,7 +714,8 @@
     _nzbget_cfg_keep_history: {
       section: 'Download Queue',
       key: 'KeepHistory',
-      raw: '{{ nzbget_cfg_keep_history | default(30) }}',
+      raw: '{{ nzbget_cfg_keep_history }}',
+      default: 30,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -742,7 +725,8 @@
     _nzbget_cfg_feed_history: {
       section: 'Download Queue',
       key: 'FeedHistory',
-      raw: '{{ nzbget_cfg_feed_history | default(7) }}',
+      raw: '{{ nzbget_cfg_feed_history }}',
+      default: 7,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -752,7 +736,8 @@
     _nzbget_cfg_skip_write: {
       section: 'Download Queue',
       key: 'SkipWrite',
-      raw: '{{ nzbget_cfg_skip_write | default(false) }}',
+      raw: '{{ nzbget_cfg_skip_write }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -762,7 +747,8 @@
     _nzbget_cfg_raw_article: {
       section: 'Download Queue',
       key: 'RawArticle',
-      raw: '{{ nzbget_cfg_raw_article | default(false) }}',
+      raw: '{{ nzbget_cfg_raw_article }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -772,7 +758,8 @@
     _nzbget_cfg_article_retries: {
       section: 'Connection',
       key: 'ArticleRetries',
-      raw: '{{ nzbget_cfg_article_retries | default(3) }}',
+      raw: '{{ nzbget_cfg_article_retries }}',
+      default: 3,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -782,7 +769,8 @@
     _nzbget_cfg_article_interval: {
       section: 'Connection',
       key: 'ArticleInterval',
-      raw: '{{ nzbget_cfg_article_interval | default(10) }}',
+      raw: '{{ nzbget_cfg_article_interval }}',
+      default: 10,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -792,7 +780,8 @@
     _nzbget_cfg_article_timeout: {
       section: 'Connection',
       key: 'ArticleTimeout',
-      raw: '{{ nzbget_cfg_article_timeout | default(60) }}',
+      raw: '{{ nzbget_cfg_article_timeout }}',
+      default: 60,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -802,7 +791,8 @@
     _nzbget_cfg_article_read_chunk_size: {
       section: 'Connection',
       key: 'ArticleReadChunkSize',
-      raw: '{{ nzbget_cfg_article_read_chunk_size | default(4) }}',
+      raw: '{{ nzbget_cfg_article_read_chunk_size }}',
+      default: 4,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -812,7 +802,8 @@
     _nzbget_cfg_url_retries: {
       section: 'Connection',
       key: 'UrlRetries',
-      raw: '{{ nzbget_cfg_url_retries | default(3) }}',
+      raw: '{{ nzbget_cfg_url_retries }}',
+      default: 3,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -822,7 +813,8 @@
     _nzbget_cfg_url_interval: {
       section: 'Connection',
       key: 'UrlInterval',
-      raw: '{{ nzbget_cfg_url_interval | default(10) }}',
+      raw: '{{ nzbget_cfg_url_interval }}',
+      default: 10,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -832,7 +824,8 @@
     _nzbget_cfg_url_timeout: {
       section: 'Connection',
       key: 'UrlTimeout',
-      raw: '{{ nzbget_cfg_url_timeout | default(60) }}',
+      raw: '{{ nzbget_cfg_url_timeout }}',
+      default: 60,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -842,7 +835,8 @@
     _nzbget_cfg_remote_timeout: {
       section: 'Connection',
       key: 'RemoteTimeout',
-      raw: '{{ nzbget_cfg_remote_timeout | default(90) }}',
+      raw: '{{ nzbget_cfg_remote_timeout }}',
+      default: 90,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -852,7 +846,8 @@
     _nzbget_cfg_download_rate: {
       section: 'Connection',
       key: 'DownloadRate',
-      raw: '{{ nzbget_cfg_download_rate | default(0) }}',
+      raw: '{{ nzbget_cfg_download_rate }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -862,7 +857,8 @@
     _nzbget_cfg_url_connections: {
       section: 'Connection',
       key: 'UrlConnections',
-      raw: '{{ nzbget_cfg_url_connections | default(4) }}',
+      raw: '{{ nzbget_cfg_url_connections }}',
+      default: 4,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -872,7 +868,8 @@
     _nzbget_cfg_url_force: {
       section: 'Connection',
       key: 'UrlForce',
-      raw: '{{ nzbget_cfg_url_force | default(true) }}',
+      raw: '{{ nzbget_cfg_url_force }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -882,7 +879,8 @@
     _nzbget_cfg_monthly_quota: {
       section: 'Connection',
       key: 'MonthlyQuota',
-      raw: '{{ nzbget_cfg_monthly_quota | default(0) }}',
+      raw: '{{ nzbget_cfg_monthly_quota }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -892,7 +890,8 @@
     _nzbget_cfg_quota_start_day: {
       section: 'Connection',
       key: 'QuotaStartDay',
-      raw: '{{ nzbget_cfg_quota_start_day | default(1) }}',
+      raw: '{{ nzbget_cfg_quota_start_day }}',
+      default: 1,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -902,7 +901,8 @@
     _nzbget_cfg_daily_quota: {
       section: 'Connection',
       key: 'DailyQuota',
-      raw: '{{ nzbget_cfg_daily_quota | default(0) }}',
+      raw: '{{ nzbget_cfg_daily_quota }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -912,7 +912,8 @@
     _nzbget_cfg_wite_log: {
       section: 'Logging',
       key: 'WriteLog',
-      raw: '{{ nzbget_cfg_wite_log | default("append") }}',
+      raw: '{{ nzbget_cfg_wite_log }}',
+      default: 'append',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -922,7 +923,8 @@
     _nzbget_cfg_rotate_log: {
       section: 'Logging',
       key: 'RotateLog',
-      raw: '{{ nzbget_cfg_rotate_log | default(3) }}',
+      raw: '{{ nzbget_cfg_rotate_log }}',
+      default: 3,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -932,7 +934,8 @@
     _nzbget_cfg_error_target: {
       section: 'Logging',
       key: 'ErrorTarget',
-      raw: '{{ nzbget_cfg_error_target | default("both") }}',
+      raw: '{{ nzbget_cfg_error_target }}',
+      default: 'both',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -942,7 +945,8 @@
     _nzbget_cfg_warning_target: {
       section: 'Logging',
       key: 'WarningTarget',
-      raw: '{{ nzbget_cfg_warning_target | default("both") }}',
+      raw: '{{ nzbget_cfg_warning_target }}',
+      default: 'both',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -952,7 +956,8 @@
     _nzbget_cfg_info_target: {
       section: 'Logging',
       key: 'InfoTarget',
-      raw: '{{ nzbget_cfg_info_target | default("both") }}',
+      raw: '{{ nzbget_cfg_info_target }}',
+      default: 'both',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -962,7 +967,8 @@
     _nzbget_cfg_detail_target: {
       section: 'Logging',
       key: 'DetailTarget',
-      raw: '{{ nzbget_cfg_detail_target | default("log") }}',
+      raw: '{{ nzbget_cfg_detail_target }}',
+      default: 'log',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -972,7 +978,8 @@
     _nzbget_cfg_debug_target: {
       section: 'Logging',
       key: 'DebugTarget',
-      raw: '{{ nzbget_cfg_debug_target | default("log") }}',
+      raw: '{{ nzbget_cfg_debug_target }}',
+      default: 'log',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -982,7 +989,8 @@
     _nzbget_cfg_log_buffer: {
       section: 'Logging',
       key: 'LogBuffer',
-      raw: '{{ nzbget_cfg_log_buffer | default(1000) }}',
+      raw: '{{ nzbget_cfg_log_buffer }}',
+      default: 1000,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -992,7 +1000,8 @@
     _nzbget_cfg_nzb_log: {
       section: 'Logging',
       key: 'NzbLog',
-      raw: '{{ nzbget_cfg_nzb_log | default(true) }}',
+      raw: '{{ nzbget_cfg_nzb_log }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1002,7 +1011,8 @@
     _nzbget_cfg_crash_trace: {
       section: 'Logging',
       key: 'CrashTrace',
-      raw: '{{ nzbget_cfg_crash_trace | default(true) }}',
+      raw: '{{ nzbget_cfg_crash_trace }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1012,7 +1022,8 @@
     _nzbget_cfg_crash_dump: {
       section: 'Logging',
       key: 'CrashDump',
-      raw: '{{ nzbget_cfg_crash_dump | default(false) }}',
+      raw: '{{ nzbget_cfg_crash_dump }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1022,7 +1033,8 @@
     _nzbget_cfg_time_correction: {
       section: 'Logging',
       key: 'TimeCorrection',
-      raw: '{{ nzbget_cfg_time_correction | default(0) }}',
+      raw: '{{ nzbget_cfg_time_correction }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -1032,7 +1044,8 @@
     _nzbget_cfg_output_mode: {
       section: 'Display',
       key: 'OutputMode',
-      raw: '{{ nzbget_cfg_output_mode | default("curses") }}',
+      raw: '{{ nzbget_cfg_output_mode }}',
+      default: 'curses',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1042,7 +1055,8 @@
     _nzbget_cfg_curses_nzb_name: {
       section: 'Display',
       key: 'CursesNzbName',
-      raw: '{{ nzbget_cfg_curses_nzb_name | default(true) }}',
+      raw: '{{ nzbget_cfg_curses_nzb_name }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1052,7 +1066,8 @@
     _nzbget_cfg_curses_group: {
       section: 'Display',
       key: 'CursesGroup',
-      raw: '{{ nzbget_cfg_curses_group | default(false) }}',
+      raw: '{{ nzbget_cfg_curses_group }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1062,7 +1077,8 @@
     _nzbget_cfg_curses_time: {
       section: 'Display',
       key: 'CursesTime',
-      raw: '{{ nzbget_cfg_curses_time | default(false) }}',
+      raw: '{{ nzbget_cfg_curses_time }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1072,7 +1088,8 @@
     _nzbget_cfg_update_interval: {
       section: 'Display',
       key: 'UpdateInterval',
-      raw: '{{ nzbget_cfg_update_interval | default(200) }}',
+      raw: '{{ nzbget_cfg_update_interval }}',
+      default: 200,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -1082,7 +1099,9 @@
     _nzbget_cfg_tasks: {
       section: 'Scheduler',
       key: 'Task',
-      raw: '{{ _nzbget_cfg_tasks | default([]) }}',
+      raw: '{{ nzbget_cfg_tasks }}',
+      data: [],  # (list of dict) templated.
+      default: [],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -1092,7 +1111,8 @@
     _nzbget_cfg_crc_check: {
       section: 'Check and Repair',
       key: 'CrcCheck',
-      raw: '{{ nzbget_cfg_crc_check | default(true) }}',
+      raw: '{{ nzbget_cfg_crc_check }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1102,7 +1122,8 @@
     _nzbget_cfg_par_check: {
       section: 'Check and Repair',
       key: 'ParCheck',
-      raw: '{{ nzbget_cfg_par_check | default("auto") }}',
+      raw: '{{ nzbget_cfg_par_check }}',
+      default: 'auto',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1112,7 +1133,8 @@
     _nzbget_cfg_par_repair: {
       section: 'Check and Repair',
       key: 'ParRepair',
-      raw: '{{ nzbget_cfg_par_repair | default(true) }}',
+      raw: '{{ nzbget_cfg_par_repair }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1122,7 +1144,8 @@
     _nzbget_cfg_par_scan: {
       section: 'Check and Repair',
       key: 'ParScan',
-      raw: '{{ nzbget_cfg_par_scan | default("extended") }}',
+      raw: '{{ nzbget_cfg_par_scan }}',
+      default: 'extended',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1132,7 +1155,8 @@
     _nzbget_cfg_par_quick: {
       section: 'Check and Repair',
       key: 'ParQuick',
-      raw: '{{ nzbget_cfg_par_quick | default(true) }}',
+      raw: '{{ nzbget_cfg_par_quick }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1142,7 +1166,8 @@
     _nzbget_cfg_par_buffer: {
       section: 'Check and Repair',
       key: 'ParBuffer',
-      raw: '{{ nzbget_cfg_par_buffer | default(100) }}',
+      raw: '{{ nzbget_cfg_par_buffer }}',
+      default: 100,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -1152,7 +1177,8 @@
     _nzbget_cfg_par_threads: {
       section: 'Check and Repair',
       key: 'ParThreads',
-      raw: '{{ nzbget_cfg_par_threads | default(0) }}',
+      raw: '{{ nzbget_cfg_par_threads }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -1162,13 +1188,9 @@
     _nzbget_cfg_par_ignore_ext: {
       section: 'Check and Repair',
       key: 'ParIgnoreExt',
-      raw:
-        '{{ nzbget_cfg_par_ignore_ext | default([".sfv", ".nzb", ".nfo"]) }}',
-      parsed: '{{
-        nzbget_cfg_par_ignore_ext |
-        default([".sfv", ".nzb", ".nfo"]) |
-        join(",")
-      }}',
+      raw: '{{ nzbget_cfg_par_ignore_ext }}',
+      data: '{{ nzbget_cfg_par_ignore_ext | join(",") }}',
+      default: ['.sfv', '.nzb', '.nfo'],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -1178,7 +1200,8 @@
     _nzbget_cfg_par_rename: {
       section: 'Check and Repair',
       key: 'ParRename',
-      raw: '{{ nzbget_cfg_par_rename | default(true) }}',
+      raw: '{{ nzbget_cfg_par_rename }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1188,7 +1211,8 @@
     _nzbget_cfg_rar_rename: {
       section: 'Check and Repair',
       key: 'RarRename',
-      raw: '{{ nzbget_cfg_rar_rename | default(true) }}',
+      raw: '{{ nzbget_cfg_rar_rename }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1198,7 +1222,8 @@
     _nzbget_cfg_direct_rename: {
       section: 'Check and Repair',
       key: 'DirectRename',
-      raw: '{{ nzbget_cfg_direct_rename | default(true) }}',
+      raw: '{{ nzbget_cfg_direct_rename }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1208,7 +1233,8 @@
     _nzbget_cfg_health_check: {
       section: 'Check and Repair',
       key: 'HealthCheck',
-      raw: '{{ nzbget_cfg_health_check | default("park") }}',
+      raw: '{{ nzbget_cfg_health_check }}',
+      default: 'park',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1218,7 +1244,8 @@
     _nzbget_cfg_par_time_limit: {
       section: 'Check and Repair',
       key: 'ParTimeLimit',
-      raw: '{{ nzbget_cfg_par_time_limit | default(0) }}',
+      raw: '{{ nzbget_cfg_par_time_limit }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
@@ -1228,7 +1255,8 @@
     _nzbget_cfg_par_pause_queue: {
       section: 'Check and Repair',
       key: 'ParPauseQueue',
-      raw: '{{ nzbget_cfg_par_pause_queue | default(false) }}',
+      raw: '{{ nzbget_cfg_par_pause_queue }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1238,7 +1266,8 @@
     _nzbget_cfg_unpack: {
       section: 'Unpack',
       key: 'Unpack',
-      raw: '{{ nzbget_cfg_unpack | default(true) }}',
+      raw: '{{ nzbget_cfg_unpack }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1248,7 +1277,8 @@
     _nzbget_cfg_direct_unpack: {
       section: 'Unpack',
       key: 'DirectUnpack',
-      raw: '{{ nzbget_cfg_direct_unpack | default(true) }}',
+      raw: '{{ nzbget_cfg_direct_unpack }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1258,7 +1288,8 @@
     _nzbget_cfg_unpack_pause_queue: {
       section: 'Unpack',
       key: 'UnpackPauseQueue',
-      raw: '{{ nzbget_cfg_unpack_pause_queue | default(false) }}',
+      raw: '{{ nzbget_cfg_unpack_pause_queue }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1268,7 +1299,8 @@
     _nzbget_cfg_unpack_cleanup_disk: {
       section: 'Unpack',
       key: 'UnpackCleanupDisk',
-      raw: '{{ nzbget_cfg_unpack_cleanup_disk | default(true) }}',
+      raw: '{{ nzbget_cfg_unpack_cleanup_disk }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1278,7 +1310,8 @@
     _nzbget_cfg_unrar_cmd: {
       section: 'Unpack',
       key: 'UnrarCmd',
-      raw: '{{ nzbget_cfg_unrar_cmd | default("/usr/bin/unrar") }}',
+      raw: '{{ nzbget_cfg_unrar_cmd }}',
+      default: '/usr/bin/unrar',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1288,7 +1321,8 @@
     _nzbget_cfg_seven_zip_cmd: {
       section: 'Unpack',
       key: 'SevenZipCmd',
-      raw: '{{ nzbget_cfg_seven_zip_cmd | default("/usr/bin/7zz") }}',
+      raw: '{{ nzbget_cfg_seven_zip_cmd }}',
+      default: '/usr/bin/7zz',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1298,12 +1332,9 @@
     _nzbget_cfg_ext_cleanup_disk: {
       section: 'Unpack',
       key: 'ExtCleanupDisk',
-      raw: '{{ nzbget_cfg_ext_cleanup_disk | default([".par2", ".sfv"]) }}',
-      parsed: '{{
-        nzbget_cfg_ext_cleanup_disk |
-        default([".par2", ".sfv"]) |
-        join(",")
-      }}',
+      raw: '{{ nzbget_cfg_ext_cleanup_disk }}',
+      data: '{{ nzbget_cfg_ext_cleanup_disk | join(",") }}',
+      default: ['.par2', '.sfv'],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -1313,12 +1344,9 @@
     _nzbget_cfg_unpack_ignore_ext: {
       section: 'Unpack',
       key: 'UnpackIgnoreExt',
-      raw: '{{ nzbget_cfg_unpack_ignore_ext | default([".cbr"]) }}',
-      parsed: '{{
-        nzbget_cfg_unpack_ignore_ext |
-        default([".cbr"]) |
-        join(",")
-      }}',
+      raw: '{{ nzbget_cfg_unpack_ignore_ext }}',
+      data: '{{ nzbget_cfg_unpack_ignore_ext | join(",") }}',
+      default: ['.cbr'],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -1328,7 +1356,8 @@
     _nzbget_cfg_unpack_pass_file: {
       section: 'Unpack',
       key: 'UnpackPassFile',
-      raw: '{{ nzbget_cfg_unpack_pass_file | default("") }}',
+      raw: '{{ nzbget_cfg_unpack_pass_file }}',
+      default: '',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -1338,8 +1367,9 @@
     _nzbget_cfg_extensions: {
       section: 'Extension Scripts',
       key: 'Extensions',
-      raw: '{{ nzbget_cfg_extensions | default([]) }}',
-      parsed: '{{ nzbget_cfg_extensions | default([]) | join(",") }}',
+      raw: '{{ nzbget_cfg_extensions }}',
+      data: '{{ nzbget_cfg_extensions | join(",") }}',
+      default: [],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -1349,8 +1379,9 @@
     _nzbget_cfg_script_order: {
       section: 'Extension Scripts',
       key: 'ScriptOrder',
-      raw: '{{ nzbget_cfg_script_order | default([]) }}',
-      parsed: '{{ nzbget_cfg_script_order | default([]) | join(",") }}',
+      raw: '{{ nzbget_cfg_script_order }}',
+      data: '{{ nzbget_cfg_script_order | join(",") }}',
+      default: [],
       hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
@@ -1360,7 +1391,8 @@
     _nzbget_cfg_script_pause_queue: {
       section: 'Extension Scripts',
       key: 'ScriptPauseQueue',
-      raw: '{{ nzbget_cfg_script_pause_queue | default(false) }}',
+      raw: '{{ nzbget_cfg_script_pause_queue }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -1370,8 +1402,9 @@
     _nzbget_cfg_shell_override: {
       section: 'Extension Scripts',
       key: 'ShellOverride',
-      raw: '{{ nzbget_cfg_shell_override | default([]) }}',
-      parsed: '',  # Updated with complex loop below.
+      raw: '{{ nzbget_cfg_shell_override }}',
+      data: '',  # (str) list(;) of lists(,).
+      default: [],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -1381,13 +1414,59 @@
     _nzbget_cfg_event_interval: {
       section: 'Extension Scripts',
       key: 'EventInterval',
-      raw: '{{ nzbget_cfg_event_interval | default(0) }}',
+      raw: '{{ nzbget_cfg_event_interval }}',
+      default: 0,
       hint: 'int',
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
       order: 5,
     }
+
+
+- name: 'Annotate | merge template nzbget_cfg_news_servers'
+  ansible.builtin.set_fact:
+    _nzbget_cfg_news_servers: '{{
+        _nzbget_cfg_news_servers |
+        combine({"data": _nzbget_cfg_news_servers.data | default([]) +
+                [nzbget_role_template_news_servers | combine(item)]})
+      }}'
+  loop: '{{ _nzbget_cfg_news_servers.raw }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: 'Annotate | merge template nzbget_cfg_categories'
+  ansible.builtin.set_fact:
+    _nzbget_cfg_categories: '{{
+        _nzbget_cfg_categories |
+        combine({"data": _nzbget_cfg_categories.data | default([]) +
+                [nzbget_role_template_categories | combine(item)]})
+      }}'
+  loop: '{{ _nzbget_cfg_categories.raw }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: 'Annotate | merge template nzbget_cfg_rss_feeds'
+  ansible.builtin.set_fact:
+    _nzbget_cfg_rss_feeds: '{{
+        _nzbget_cfg_rss_feeds |
+        combine({"data": _nzbget_cfg_rss_feeds.data | default([]) +
+                [nzbget_role_template_rss_feeds | combine(item)]})
+      }}'
+  loop: '{{ _nzbget_cfg_rss_feeds.raw }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: 'Annotate | merge template nzbget_cfg_tasks'
+  ansible.builtin.set_fact:
+    _nzbget_cfg_tasks: '{{
+        _nzbget_cfg_tasks |
+        combine({"data": _nzbget_cfg_tasks.data | default([]) +
+                [nzbget_role_template_tasks | combine(item)]})
+      }}'
+  loop: '{{ _nzbget_cfg_tasks.raw }}'
+  loop_control:
+    label: '{{ item.id }}'
 
 - name: 'Annotate | generate shell override extension map'
   ansible.builtin.set_fact:  # noqa jinja[spacing] prefer 80 char to spacing.
@@ -1401,15 +1480,7 @@
   ansible.builtin.set_fact:
     _nzbget_cfg_shell_override: '{{
         _nzbget_cfg_shell_override |
-        combine({"parsed": _nzbget_shell_override})
-      }}'
-    _nzbget_cfg_lock_file: '{{
-        _nzbget_cfg_lock_file |
-        combine({"role": _nzbget_cfg_lock_file.raw | dirname})
-      }}'
-    _nzbget_cfg_log_file: '{{
-        _nzbget_cfg_log_file |
-        combine({"role": _nzbget_cfg_log_file.raw | dirname})
+        combine({"data": _nzbget_shell_override})
       }}'
 
 - name: 'Annotate | generate config map'

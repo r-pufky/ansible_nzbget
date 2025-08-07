@@ -1,5 +1,5 @@
-{% if section.value.raw | length > 0 %}
-{% for task in section.value.raw %}
+{% if section.value.data | length > 0 %}
+{% for task in section.value.data %}
 Task{{ task.id }}.Time={{ task.time | join(',') }}
 Task{{ task.id }}.WeekDays={{ task.week_days | join(',') }}
 Task{{ task.id }}.Command={{ task.command }}

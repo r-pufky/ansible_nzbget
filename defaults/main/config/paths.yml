@@ -2,10 +2,36 @@
 ###############################################################################
 # Paths
 ###############################################################################
-# Do NOT use NZBGet config variable interpretation.
+# Special Case:
+#   * Use full paths. Do NOT use NZBGet variable interpretation '$MainDir'.
+#
+# Store all folders on fast, local drives (avoid network shares for
+# nzbget_cfg_queue_dir or nzbget_cfg_inter_dir).
+#
+# NZB Import Process:
+# 1. NZBs added to nzbget_cfg_nzb_dir or API are picked up and queued.
+# 2. Queue info is moved to nzbget_cfg_queue_dir.
+# 3. Articles are downloaded to the nzbget_cfg_inter_dir, then combined and
+#    verified (using PAR2 if needed).
+# 4. RAR or 7z files are unpacked in the same directory (nzbget_cfg_inter_dir)
+#    after verification.
+# 5. Once unpacking is complete, files are moved to nzbget_cfg_dest_dir —
+#    finished download location.
+# 6. If enabled, scripts from nzbget_cfg_script_dir run after completion (e.g.,
+#    renaming, sorting, uploading).
+#
+# Reference:
+# * https://nzbget.com/documentation/nzbget-path-and-folder-structure-guide
 
-# Root directory for all tasks. Default: '/data/downloads'.
-nzbget_cfg_main_dir: '/data/downloads'
+# Root directory for all operations.
+#
+# Default path for undefined paths. Always define all NZBGet paths using
+# absolute paths (no variable interpretation).
+#
+# Use local disk.
+#
+# Default: '/var/lib/nzbget'.
+nzbget_cfg_main_dir: '/var/lib/nzbget'
 
 # Destination directory for downloaded files.
 #
@@ -17,21 +43,28 @@ nzbget_cfg_dest_dir: '/data/downloads/completed'
 
 # Directory to store intermediate files.
 #
-# If set files are downloaded into this directory first. After successful
-# download of nzb-file (possibly after par-repair) files are moved to
-# nzbget_cfg_dest_dir. Failed download or unpacked files remain in intermediate
-# directory.
+# Temporary working directory where all download processing, like repairs and
+# unpacking, takes place. After a job succeeds, the final files are moved to
+# the destination folder (nzbget_cfg_dest_dir), and the temporary files in
+# nzbget_cfg_inter_dir are deleted. nzbget_cfg_direct_write uses this folder
+# for post-processing.
 #
-# Using of intermediate directory can significantly improve unpack performance
-# if you can put nzbget_cfg_inter_dir and nzbget_cfg_dest_dir on separate
-# physical hard drives.
+# Place nzbget_cfg_inter_dir on a fast disk (preferably SSD), and keep it
+# separate from both nzbget_cfg_dest_dir and the directory where Sonarr/Radarr
+# transfers articles.
+#
+# When you use a fast disk for nzbget_cfg_inter_dir, you eliminate disk writing
+# speed bottlenecks. By placing nzbget_cfg_inter_dir and nzbget_cfg_dest_dir on
+# separate physical hard drives, you also reduce disk wear.
+#
+# Use local disk.
 #
 # Values:
 #       '': Downloaded files are put directly to nzbget_cfg_dest_dir.
 #   {PATH}: Absolute path to intermediate directory.
 #
-# Default: '/data/downloads/intermediate'
-nzbget_cfg_inter_dir: '/data/downloads/intermediate'
+# Default: '/var/lib/nzbget/downloads/intermediate'
+nzbget_cfg_inter_dir: '/var/lib/nzbget/downloads/intermediate'
 
 # Directory for incoming nzb-files.
 #
@@ -43,16 +76,18 @@ nzbget_cfg_inter_dir: '/data/downloads/intermediate'
 # queued from a subdirectory is automatically assigned to category with
 # sub-directory-name.
 #
-# Default: '/data/downloads/nzb'
-nzbget_cfg_nzb_dir: '/data/downloads/nzb'
+# Default: '/var/lib/nzbget/downloads/nzb'
+nzbget_cfg_nzb_dir: '/var/lib/nzbget/downloads/nzb'
 
 # Directory to store program state.
 #
 # Directory to save download queue, history, information about fetched RSS
 # feeds, statistics, etc.
 #
-# Default: '/data/downloads/queue'
-nzbget_cfg_queue_dir: '/data/downloads/queue'
+# Use local disk.
+#
+# Default: '/var/lib/nzbget/downloads/queue'
+nzbget_cfg_queue_dir: '/var/lib/nzbget/downloads/queue'
 
 # Directory to store temporary files. Default: '/var/lib/nzbget/tmp'.
 nzbget_cfg_temp_dir: '/var/lib/nzbget/tmp'
@@ -80,11 +115,11 @@ nzbget_cfg_script_dir: '/var/lib/nzbget/scripts'
 #       '': Disable lock file & check for running instances (not recommended).
 #   {PATH}: Absolute path to lock file.
 #
-# Default: '/data/downloads/nzbget.lock'
-nzbget_cfg_lock_file: '/data/downloads/nzbget.lock'
+# Default: '/var/lib/nzbget/downloads/nzbget.lock'
+nzbget_cfg_lock_file: '/var/lib/nzbget/downloads/nzbget.lock'
 
-# Logfile location. Default: '/data/downloads/nzbget.log'.
-nzbget_cfg_log_file: '/data/downloads/nzbget.log'
+# Log file location. Default: '/data/downloads/nzbget.log'.
+nzbget_cfg_log_file: '/var/lib/nzbget/downloads/nzbget.log'
 
 # Configuration file template.
 #

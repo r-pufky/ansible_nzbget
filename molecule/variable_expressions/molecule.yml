@@ -28,8 +28,8 @@ provisioner:
       all:
         nzbget_srv_scripts_source: 'files/scripts'
         nzbget_cfg_required_dir:
-          - '{{ nzbget_main_dir }}'
-          - '{{ nzbget_script_dir }}'
+          - '{{ nzbget_cfg_main_dir }}'
+          - '{{ nzbget_cfg_script_dir }}'
         nzbget_cfg_extensions:
           - 'scan'
           - 'post_processing'

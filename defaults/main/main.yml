@@ -61,13 +61,7 @@ nzbget_srv_create_user: true
 # will not have sufficient privileges to modify these files.
 #
 # Applies to:
-# * nzbget_cfg_main_dir
-# * nzbget_cfg_nzb_dir
-# * nzbget_cfg_queue_dir
-# * nzbget_cfg_lock_file
-# * nzbget_cfg_log_file
 # * nzbget_cfg_dest_dir
-# * nzbget_cfg_inter_dir
 #
 # Default: False.
 nzbget_srv_user_data_manage_enable: false

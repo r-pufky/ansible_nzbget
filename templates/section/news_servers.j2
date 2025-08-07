@@ -1,5 +1,5 @@
-{% if section.value.raw | length > 0 %}
-{% for server in section.value.raw %}
+{% if section.value.data | length > 0 %}
+{% for server in section.value.data %}
 Server{{ server.id }}.Active={{ 'yes' if server.active else 'no' }}
 Server{{ server.id }}.Name={{ server.name }}
 Server{{ server.id }}.Level={{ server.level }}

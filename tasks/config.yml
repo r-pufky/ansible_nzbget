@@ -41,8 +41,8 @@
 - name: 'Config | manage config directories'
   ansible.builtin.file:
     path: '{{ item.path }}'
-    owner: '{{ _nzbget_srv_user.raw }}'
-    group: '{{ _nzbget_srv_group.raw }}'
+    owner: '{{ _nzbget_srv_user.role_uid }}'
+    group: '{{ _nzbget_srv_group.role_gid }}'
     mode: '{{ item.mode }}'
     recurse: false
     state: 'directory'
@@ -51,15 +51,27 @@
   loop:
     - path: '{{ nzbget_role_install_dir }}'
       mode: '2750'
+    - path: '{{ _nzbget_cfg_main_dir.raw }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+    - path: '{{ _nzbget_cfg_inter_dir.raw }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+    - path: '{{ _nzbget_cfg_nzb_dir.raw }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+    - path: '{{ _nzbget_cfg_queue_dir.raw }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
     - path: '{{ _nzbget_cfg_temp_dir.raw }}'
-      mode: '0755'
-    - path: '{{ _nzbget_cfg_script_dir.raw }}'
       mode: '0755'
     - path: '{{ _nzbget_cfg_web_dir.raw }}'
       mode: '0755'
-    - path: '{{ _nzbget_cfg_cert_store.parsed }}'
+    - path: '{{ _nzbget_cfg_script_dir.raw }}'
       mode: '0755'
-    - path: '{{ _nzbget_cfg_config_template.parsed }}'
+    - path: '{{ _nzbget_cfg_lock_file.role_dest }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+    - path: '{{ _nzbget_cfg_log_file.role_dest }}'
+      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+    - path: '{{ _nzbget_cfg_config_template.role_dest }}'
+      mode: '0755'
+    - path: '{{ _nzbget_cfg_cert_store.role_dest }}'
       mode: '0755'
   loop_control:
     label: '{{ item.path }}'
@@ -67,41 +79,35 @@
 - name: 'Config | manage media directories'
   ansible.builtin.file:
     path: '{{ item }}'
-    owner: '{{ _nzbget_srv_user.parsed }}'
-    group: '{{ _nzbget_srv_group.parsed }}'
+    owner: '{{ _nzbget_srv_user.role_uid }}'
+    group: '{{ _nzbget_srv_group.role_gid }}'
     mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
     recurse: true
     state: 'directory'
-  become:
-    '{{ true if _nzbget_srv_user_data_manage_enable.raw else omit }}'
+  become: true
   become_user: '{{
       _nzbget_srv_user.raw
       if _nzbget_srv_user_data_manage_enable.raw else
-      omit
+      "root"
     }}'
   loop:
-    - '{{ _nzbget_cfg_main_dir.raw }}'
-    - '{{ _nzbget_cfg_nzb_dir.raw }}'
-    - '{{ _nzbget_cfg_queue_dir.raw }}'
-    - '{{ _nzbget_cfg_lock_file.role }}'
-    - '{{ _nzbget_cfg_log_file.role }}'
     - '{{ _nzbget_cfg_dest_dir.raw }}'
-    - '{{ _nzbget_cfg_inter_dir.raw }}'
 
+# yamllint disable rule:line-length
 - name: 'Config | set media file permissions'
   when: _nzbget_srv_media_set_perms_file_enable.raw
   ansible.builtin.shell: >-
     find '{{ item }}'
     -type f
     -exec chmod {{ _nzbget_srv_media_perms_file.raw }} {};
-      chown {{ _nzbget_srv_user.parsed }}:{{ _nzbget_srv_group.parsed }} {} \;
+      chown {{ _nzbget_srv_user.role_uid }}:{{ _nzbget_srv_group.role_gid }} {} \;
   changed_when: false
   loop:
     - '{{ _nzbget_cfg_main_dir.raw }}'
     - '{{ _nzbget_cfg_nzb_dir.raw }}'
     - '{{ _nzbget_cfg_queue_dir.raw }}'
-    - '{{ _nzbget_cfg_lock_file.parsed }}'
-    - '{{ _nzbget_cfg_log_file.parsed }}'
+    - '{{ _nzbget_cfg_lock_file.role_file }}'
+    - '{{ _nzbget_cfg_log_file.role_file }}'
     - '{{ _nzbget_cfg_dest_dir.raw }}'
     - '{{ _nzbget_cfg_inter_dir.raw }}'
 
@@ -110,7 +116,7 @@
   block:
     - name: 'Config | extension scripts | copy'
       ansible.posix.synchronize:
-        src: '{{ _nzbget_srv_scripts_source.parsed }}'
+        src: '{{ _nzbget_srv_scripts_source.role_src }}'
         dest: '{{ _nzbget_cfg_script_dir.raw }}'
         delete: true
         recursive: true
@@ -120,7 +126,7 @@
     # yamllint disable rule:line-length
     - name: 'Config | extension scripts | set permissions'
       ansible.builtin.shell: |
-        chown -R {{ _nzbget_srv_user.parsed }}:{{ _nzbget_srv_group.parsed }} '{{ _nzbget_cfg_script_dir.raw }}' &&
+        chown -R {{ _nzbget_srv_user.role_uid }}:{{ _nzbget_srv_group.role_gid }} '{{ _nzbget_cfg_script_dir.raw }}' &&
         find '{{ _nzbget_cfg_script_dir.raw }}' -type d -exec chmod 2750 {} \; &&
         find '{{ _nzbget_cfg_script_dir.raw }}' -type f -exec chmod 0755 {} \;
       changed_when: false
@@ -129,6 +135,6 @@
   ansible.builtin.template:
     src: 'nzbget.conf.j2'
     dest: '{{ nzbget_role_config }}'
-    owner: '{{ _nzbget_srv_user.parsed }}'
-    group: '{{ _nzbget_srv_group.parsed }}'
+    owner: '{{ _nzbget_srv_user.role_uid }}'
+    group: '{{ _nzbget_srv_group.role_gid }}'
     mode: '0640'

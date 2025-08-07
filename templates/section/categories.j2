@@ -1,5 +1,5 @@
-{% if section.value.raw | length > 0 %}
-{% for category in section.value.raw %}
+{% if section.value.data | length > 0 %}
+{% for category in section.value.data %}
 Category{{ category.id }}.Name={{ category.name }}
 Category{{ category.id }}.DestDir={{ category.dest_dir }}
 Category{{ category.id }}.Unpack={{ 'yes' if category.unpack else 'no' }}

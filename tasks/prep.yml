@@ -17,29 +17,14 @@
   ansible.builtin.assert:
     quiet: true
     that:
-      - not _nzbget_cfg_nzb_dir.raw.startswith(
-        nzbget_role_install_dir)
-      - not _nzbget_cfg_queue_dir.raw.startswith(
-        nzbget_role_install_dir)
-      - not _nzbget_cfg_lock_file.raw.startswith(
-        nzbget_role_install_dir)
-      - not _nzbget_cfg_log_file.raw.startswith(
-        nzbget_role_install_dir)
       - not _nzbget_cfg_dest_dir.raw.startswith(
-        nzbget_role_install_dir)
-      - not _nzbget_cfg_inter_dir.raw.startswith(
         nzbget_role_install_dir)
     fail_msg: |
       ✘ Data storage should not be in the same location as install.
 
       Installs: '{{ nzbget_role_install_dir }}'
 
-        nzbget_cfg_nzb_dir: '{{ _nzbget_cfg_nzb_dir.raw }}'
-      nzbget_cfg_queue_dir: '{{ _nzbget_cfg_queue_dir.raw }}'
-      nzbget_cfg_lock_file: '{{ _nzbget_cfg_lock_file.raw }}'
-       nzbget_cfg_log_file: '{{ _nzbget_cfg_log_file.raw }}'
        nzbget_cfg_dest_dir: '{{ _nzbget_cfg_dest_dir.raw }}'
-      nzbget_cfg_inter_dir: '{{ _nzbget_cfg_inter_dir.raw }}'
 
 - name: 'Prep | manage users'
   when: _nzbget_srv_create_user.raw
@@ -61,9 +46,9 @@
   ansible.builtin.set_fact:
     _nzbget_srv_user: '{{
         _nzbget_srv_user |
-        combine({"parsed": _nzbget_srv_user_query.uid})
+        combine({"role_uid": _nzbget_srv_user_query.uid})
       }}'
     _nzbget_srv_group: '{{
         _nzbget_srv_group |
-        combine({"parsed": _nzbget_srv_user_query.group})
+        combine({"role_gid": _nzbget_srv_user_query.group})
       }}'
