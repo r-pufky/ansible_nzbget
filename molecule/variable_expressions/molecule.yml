@@ -68,7 +68,7 @@ provisioner:
           - id: 1
             name: 'my feed'
             url: 'https://example.com/api?apikey=3544&t=search&q=stuff'
-            filter: ['debian bookworm', 'iso', 'netinstall']
+            filter: ['debian trixie', 'iso', 'netinstall']
             interval: 15
             backlog: true
             pause_nzb: true
@@ -110,8 +110,8 @@ provisioner:
             command: 'FetchFeed'
             param: ['my feed', 'second feed']
 platforms:
-  - name: 'nzbget-debian-12-variable_expressions'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'nzbget-debian-13-variable_expressions'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

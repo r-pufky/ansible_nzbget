@@ -15,21 +15,6 @@
 # * https://nzbgetcom.github.io/#debian-repository
 # * https://nzbget.com
 
-- name: 'Prep | set NZBGet service drop-in'
-  when: _nzbget_srv_user.raw != 'nzbget' or _nzbget_srv_group.raw != 'nzbget'
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.systemd'
-  vars:
-    systemd_daemon_reload_enable: true
-    systemd_services:
-      - name: 'nzbget'
-        state: 'present'
-        drop_in: true
-        service: {}
-        exec:
-          user: '{{ _nzbget_srv_user.raw }}'
-          group: '{{ _nzbget_srv_group.raw }}'
-
 - name: 'Config | lock NZBGet package user'
   when: _nzbget_srv_user.raw != 'nzbget'
   ansible.builtin.user:
@@ -138,3 +123,21 @@
     owner: '{{ _nzbget_srv_user.role_uid }}'
     group: '{{ _nzbget_srv_group.role_gid }}'
     mode: '0640'
+
+- name: 'Prep | set NZBGet service drop-in'
+  when: _nzbget_srv_user.raw != 'nzbget' or _nzbget_srv_group.raw != 'nzbget'
+  ansible.builtin.include_role:
+    name: 'r_pufky.deb.systemd'
+  vars:
+    systemd_daemon_reload_enable: true
+    systemd_services:
+      - name: 'nzbget'
+        state: 'present'
+        drop_in: true
+        service: {}
+        exec:
+          user: '{{ _nzbget_srv_user.raw }}'
+          group: '{{ _nzbget_srv_group.raw }}'
+
+- name: 'Config | flush handlers'
+  ansible.builtin.meta: 'flush_handlers'

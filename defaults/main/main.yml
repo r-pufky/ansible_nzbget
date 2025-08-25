@@ -21,7 +21,7 @@ nzbget_srv_scripts_source: ''
 #
 # Additional APT components (contrib, non-free) are required for NZBGet
 # installation. If package install fails, automatically add APT configuration
-# enabling all components for bookworm to ensure role is applied successfully.
+# enabling all components to ensure role is applied successfully.
 #
 # Alternatively contrib, non-free must be manually added outside of this role.
 #

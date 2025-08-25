@@ -20,11 +20,14 @@
       - not _nzbget_cfg_dest_dir.raw.startswith(
         nzbget_role_install_dir)
     fail_msg: |
-      ✘ Data storage should not be in the same location as install.
-
-      Installs: '{{ nzbget_role_install_dir }}'
-
-       nzbget_cfg_dest_dir: '{{ _nzbget_cfg_dest_dir.raw }}'
+      ╭───────────────────────────────────────────────────────────────────╮
+      │                                                                   │
+      │    Data storage should not be in the same location as install.    │
+      │                                                                   │
+      ├───────────────────────────────────────────────────────────────────╯
+      │ Install: {{ nzbget_role_install_dir }}
+      │
+      │ nzbget_cfg_dest_dir: {{ _nzbget_cfg_dest_dir.raw }}
 
 - name: 'Prep | manage users'
   when: _nzbget_srv_create_user.raw

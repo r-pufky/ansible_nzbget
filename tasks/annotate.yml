@@ -34,21 +34,6 @@
 # Reference:
 # * https://nzbget.com
 
-# TODO(2.0.4): Remove variable renaming check on next major nzbget release.
-- name: 'Annotate | check deprecated variable usage'
-  when: >
-    hostvars[inventory_hostname] | dict2items |
-    selectattr("key", "match", "nzbget_config_*") | length > 0 or
-    hostvars[inventory_hostname] | dict2items |
-    selectattr("key", "match", "nzbget_service_*") | length > 0
-  ansible.builtin.fail:
-    msg: |
-      ✘ Role variables have migrated. Read defaults and update.
-
-      nzbget_config_* -> nzbget_cfg_*
-      nzbget_service_* -> nzbget_srv_*
-      nzbget_* -> nzbget_srv_*
-
 - name: 'Annotate | sanitize & annotate service defaults'
   ansible.builtin.set_fact:
     _nzbget_srv_scripts_source: {
@@ -667,6 +652,29 @@
       deprecated: false,
       order: 7,
     }
+    _nzbget_cfg_rename_after_unpack: {
+      section: 'Download Queue',
+      key: 'RenameAfterUnpack',
+      raw: '{{ nzbget_cfg_rename_after_unpack }}',
+      default: true,
+      hint: 'bool',
+      added: '0.0.0',
+      sensitive: false,
+      deprecated: false,
+      order: 8,
+    }
+    _nzbget_cfg_rename_ignore_ext: {
+      section: 'Download Queue',
+      key: 'RenameIgnoreExt',
+      raw: '{{ nzbget_cfg_rename_ignore_ext }}',
+      data: '{{ nzbget_cfg_rename_ignore_ext | join(",") }}',
+      default: ['.zip', '.7z', '.rar', '.par2'],
+      hint: 'list of str',
+      added: '0.0.0',
+      sensitive: false,
+      deprecated: false,
+      order: 9,
+    }
     _nzbget_cfg_reorder_files: {
       section: 'Download Queue',
       key: 'ReorderFiles',
@@ -676,7 +684,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 8,
+      order: 10,
     }
     _nzbget_cfg_post_strategy: {
       section: 'Download Queue',
@@ -687,7 +695,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 9,
+      order: 11,
     }
     _nzbget_cfg_disk_space: {
       section: 'Download Queue',
@@ -698,7 +706,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 10,
+      order: 12,
     }
     _nzbget_cfg_nzb_cleanup_disk: {
       section: 'Download Queue',
@@ -709,7 +717,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 11,
+      order: 13,
     }
     _nzbget_cfg_keep_history: {
       section: 'Download Queue',
@@ -720,7 +728,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 12,
+      order: 14,
     }
     _nzbget_cfg_feed_history: {
       section: 'Download Queue',
@@ -731,7 +739,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 13,
+      order: 15,
     }
     _nzbget_cfg_skip_write: {
       section: 'Download Queue',
@@ -742,7 +750,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 14,
+      order: 16,
     }
     _nzbget_cfg_raw_article: {
       section: 'Download Queue',
@@ -753,7 +761,7 @@
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
-      order: 15,
+      order: 17,
     }
     _nzbget_cfg_article_retries: {
       section: 'Connection',

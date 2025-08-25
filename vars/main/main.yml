@@ -25,9 +25,9 @@
 # * https://nzbgetcom.github.io/#debian-repository
 
 # Last time NZBGet options were validated against a default configuration.
-nzbget_role_validate_date: '2025-02-01'
-nzbget_role_validate_release: 'bookworm'
-nzbget_role_validate_version: 'v24.5'
+nzbget_role_validate_date: '2025-08-25'
+nzbget_role_validate_release: 'trixie'
+nzbget_role_validate_version: 'v25.2'
 
 # Debian nzbget.conf location.
 nzbget_role_install_dir: '/var/lib/nzbget'
@@ -39,10 +39,10 @@ nzbget_role_config: '{{ nzbget_role_install_dir ~ "/nzbget.conf" }}'
 
 nzbget_role_packages:
   - 'nzbget'
-  - 'unrar'  # requires: contrib, non-free
-  - '7zip'  # provides: 7zz
-  - 'p7zip-full'  # provides: 7za
-  - 'rsync'  # ansible.posix.synchronize (script files)
+  - 'unrar'  # Requires: contrib, non-free.
+  - '7zip'  # Provides: 7zz.
+  - 'p7zip-full'  # Provides: 7za.
+  - 'rsync'  # ansible.posix.synchronize (script files).
 
 nzbget_role_apt_sources:
   - name: 'nzbget'
@@ -63,9 +63,9 @@ nzbget_role_apt_debian_all:
       - 'deb-src'
     uris: 'http://deb.debian.org/debian'
     suites:
-      - 'bookworm'
-      - 'bookworm-updates'
-      - 'bookworm-backports'
+      - 'trixie'
+      - 'trixie-updates'
+      - 'trixie-backports'
     components:
       - 'main'
       - 'contrib'
@@ -78,7 +78,7 @@ nzbget_role_apt_debian_all:
       - 'deb-src'
     uris: 'http://deb.debian.org/debian-security'
     suites:
-      - 'bookworm-security'
+      - 'trixie-security'
     components:
       - 'main'
       - 'contrib'

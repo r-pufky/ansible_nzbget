@@ -100,6 +100,18 @@ nzbget_cfg_write_buffer: 1024
 # Default: 'auto'.
 nzbget_cfg_file_naming: 'auto'
 
+# Rename downloaded files after unpack? (yes, no).
+#
+# This option renames extracted and obfuscated files using NZB filename.
+#
+# Default: True.
+nzbget_cfg_rename_after_unpack: true
+
+# File extensions to ignore during renaming after unpack.
+#
+# Default: ['.zip', '.7z', '.rar', '.par2'].
+nzbget_cfg_rename_ignore_ext: ['.zip', '.7z', '.rar', '.par2']
+
 # Reorder files within NZB for optimal download order?
 #
 # Sorts files alphabetically to ensure download of archive parts in correct

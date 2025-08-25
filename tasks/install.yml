@@ -23,28 +23,34 @@
       when: not _nzbget_srv_auto_add_apt_sources_enable.raw
       ansible.builtin.fail:
         msg: |
-          ✘ Required packages could not be installed.
-
-          NZBGet requires APT Debian components:
-          * contrib
-          * non-free
-
-          Enable nzbget_srv_auto_add_apt_sources_enable or manage APT
-          outside of this role.
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │             Required packages could not be installed.             │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ NZBGet requires APT Debian components:
+          │ * contrib
+          │ * non-free
+          │
+          │ Enable nzbget_srv_auto_add_apt_sources_enable or manage APT
+          │ outside of this role.|
 
     - name: 'Install | APT SOURCE REQUIRED ⚠'
       when: _nzbget_srv_auto_add_apt_sources_enable.raw
       ansible.builtin.fail:
         msg: |
-          ⚠ Required packages could not be installed.
-
-          NZBGet requires APT Debian components:
-          * contrib
-          * non-free
-
-          nzbget_srv_auto_add_apt_sources_enable=true
-
-          Automatically adding required Debian components ...
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │             Required packages could not be installed.             │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ NZBGet requires APT Debian components:
+          │ * contrib
+          │ * non-free
+          │
+          │ nzbget_srv_auto_add_apt_sources_enable=true
+          │
+          │ Automatically adding required Debian components ...
 
     - name: 'Install | packages (modify APT debian repository)'
       when: _nzbget_srv_auto_add_apt_sources_enable.raw

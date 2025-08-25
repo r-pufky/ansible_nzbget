@@ -16,7 +16,12 @@
         quiet: true
         that:
           - _test_nzbget_skel.files | length == 2
-        fail_msg: '✘ /var/lib/nzbget/scripts{scan,post_processing} not found.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │     /var/lib/nzbget/scripts{scan,post_processing} not found.      │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
 - name: 'Verify | expressions'
   hosts: 'all'
@@ -38,31 +43,57 @@
         quiet: true
         that:
           - _test_nzbget_config is search('Extensions=scan,post_processing')
-        fail_msg: >
-          ✘ nzbget_extensions should be (Extensions=scan,post_processing).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                nzbget_extensions format incorrect.                │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Extensions=scan,post_processing
 
     - name: 'Verify | expressions | assert nzbget_script_order'
       ansible.builtin.assert:
         quiet: true
         that:
-          - _test_nzbget_config is search('ScriptOrder=post_processing,scan')  # yamllint disable-line rule:line-length
-        fail_msg: >
-          ✘ nzbget_script_order should be (ScriptOrder=post_processing,scan).
+          - _test_nzbget_config is search('ScriptOrder=post_processing,scan')
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │               nzbget_script_order format incorrect.               │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   ScriptOrder=post_processing,scan
 
     - name: 'Verify | expressions | assert nzbget_shell_override'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash')  # yamllint disable-line rule:line-length
-        fail_msg: '✘ nzbget_shell_override should be (ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash).'  # yamllint disable-line rule:line-length
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │              nzbget_shell_override format incorrect.              │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash
+
 
     - name: 'Verify | expressions | assert nzbget_authorized_ip'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('AuthorizedIP=0.0.0.0,127.0.0.1')
-        fail_msg: >
-          ✘ nzbget_authorized_ip should be (AuthorizedIP=0.0.0.0,127.0.0.1).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                  nzbget_authorized_ip incorrect.                  │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   AuthorizedIP=0.0.0.0,127.0.0.1
 
     - name: 'Verify | expressions | assert nzbget_categories'
       ansible.builtin.assert:
@@ -70,23 +101,31 @@
         that:
           - _test_nzbget_config is search('Category1.Extensions=scan,post_processing')  # yamllint disable-line rule:line-length
           - _test_nzbget_config is search('Category1.Aliases=TV - HD,TV*')
-        fail_msg: >
-          ✘ nzbget_categories should include:
-
-          Category1.Extensions=scan,post_processing
-          Category1.Aliases=TV - HD,TV*
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_categories incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Category1.Extensions=scan,post_processing
+          │   Category1.Aliases=TV - HD,TV*
 
     - name: 'Verify | expressions | assert nzbget_rss_feeds'
       ansible.builtin.assert:
         quiet: true
         that:
-          - _test_nzbget_config is search('Feed1.filter=debian bookworm%iso%netinstall')  # yamllint disable-line rule:line-length
+          - _test_nzbget_config is search('Feed1.filter=debian trixie%iso%netinstall')  # yamllint disable-line rule:line-length
           - _test_nzbget_config is search('Feed1.extensions=post_processing,scan')  # yamllint disable-line rule:line-length
-        fail_msg: >
-          ✘ nzbget_rss_feeds should include:
-
-          Feed1.filter=debian bookworm%iso%netinstall
-          Feed1.extensions=post_processing,scan
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                    nzbget_rss_feeds incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Feed1.filter=debian trixie%iso%netinstall
+          │   Feed1.extensions=post_processing,scan
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=1'
       ansible.builtin.assert:
@@ -95,59 +134,83 @@
           - _test_nzbget_config is search('Task1.Time=00:00,06:00,12:00,18:00')
           - _test_nzbget_config is search('Task1.WeekDays=1,3,5,6-7')
           - _test_nzbget_config is search('Task1.Param=1000')
-        fail_msg: >
-          ✘ nzbget_tasks.id=1 should include:
-
-          Task1.Time=00:00,06:00,12:00,18:00
-          Task1.WeekDays=1,3,5,6-7
-          Task1.Param=1000
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=1 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task1.Time=00:00,06:00,12:00,18:00
+          │   Task1.WeekDays=1,3,5,6-7
+          │   Task1.Param=1000
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=2'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search("Task2.Param='/home/user/task process.sh' 'world''s fun'")  # yamllint disable-line rule:line-length
-        fail_msg: >
-          ✘ nzbget_tasks.id=2 should include:
-
-          Task2.Param='/home/user/task process.sh' 'world''s fun'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=2 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task2.Param='/home/user/task process.sh' 'world''s fun'
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=3'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('Task3.Param=scan,post_processing')
-        fail_msg: >
-          ✘ nzbget_tasks.id=3 should include:
-
-          Task3.Param=scan,post_processing
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=3 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task3.Param=scan,post_processing
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=4'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('Task4.Param=activate_1,activate_2')
-        fail_msg: >
-          ✘ nzbget_tasks.id=4 should include:
-
-          Task4.Param=activate_1,activate_2
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=4 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task4.Param=activate_1,activate_2
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=5'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('Task5.Param=deactivate_1,deactivate_2')  # yamllint disable-line rule:line-length
-        fail_msg: >
-          ✘ nzbget_tasks.id=5 should include:
-
-          Task5.Param=deactivate_1,deactivate_2
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=5 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task5.Param=deactivate_1,deactivate_2
 
     - name: 'Verify | expressions | assert nzbget_tasks.id=6'
       ansible.builtin.assert:
         quiet: true
         that:
           - _test_nzbget_config is search('Task6.Param=my feed,second feed')
-        fail_msg: >
-          ✘ nzbget_tasks.id=6 should include:
-
-          Task6.Param=my feed,second feed
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   nzbget_tasks.id=6 incorrect.                    │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   Task6.Param=my feed,second feed

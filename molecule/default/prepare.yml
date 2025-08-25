@@ -1,6 +1,6 @@
 ---
 - name: 'Prepare'
-  hosts: 'nzbget-debian-12-user_data'
+  hosts: 'nzbget-debian-13-user_data'
   gather_facts: false
   tasks:
     - name: 'Prepare | simulate user media restriction'
