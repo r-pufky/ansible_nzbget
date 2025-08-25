@@ -66,11 +66,12 @@
           │ Expected:
           │   ScriptOrder=post_processing,scan
 
+    # yamllint disable rule:line-length
     - name: 'Verify | expressions | assert nzbget_shell_override'
       ansible.builtin.assert:
         quiet: true
         that:
-          - _test_nzbget_config is search('ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash')  # yamllint disable-line rule:line-length
+          - _test_nzbget_config is search('ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash')
         fail_msg: |
           ╭───────────────────────────────────────────────────────────────────╮
           │                                                                   │
@@ -79,7 +80,7 @@
           ├───────────────────────────────────────────────────────────────────╯
           │ Expected:
           │   ShellOverride=.py=/usr/bin/python2;.py3=/usr/bin/python3;.sh=/usr/bin/bash
-
+    # yamllint enable rule:line-length
 
     - name: 'Verify | expressions | assert nzbget_authorized_ip'
       ansible.builtin.assert:
