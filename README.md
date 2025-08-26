@@ -59,8 +59,17 @@ molecule test --all
 ```
 
 ### Releases
-Major release versions track NZBGet release versions. Branch label tracks
-Debian OS release.
+Release format: **{OS}-{SERVICE}-{ROLE}**
+
+Each type inherits the versioning system used; defaulting to schematic
+versioning.
+
+`12.0.0-2.0.3-1.0.0`
+* 12.0.0 - Debian 12 (bookworm).
+* 2.0.3 - Service/app version.
+* 1.0.0 - Role version.
+
+Releases are branched on Debian releases:
 
 * **[13.x.x](https://github.com/r-pufky/ansible_nzbget)**: 13 Trixie.
 * **[12.x.x](https://github.com/r-pufky/ansible_nzbget/tree/12.x)**: 12 Bookworm.
