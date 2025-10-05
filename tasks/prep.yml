@@ -49,9 +49,9 @@
   ansible.builtin.set_fact:
     _nzbget_srv_user: '{{
         _nzbget_srv_user |
-        combine({"role_uid": _nzbget_srv_user_query.uid})
+        combine({"_uid": _nzbget_srv_user_query.uid})
       }}'
     _nzbget_srv_group: '{{
         _nzbget_srv_group |
-        combine({"role_gid": _nzbget_srv_user_query.group})
+        combine({"_gid": _nzbget_srv_user_query.group})
       }}'
