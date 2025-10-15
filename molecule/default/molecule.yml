@@ -45,7 +45,7 @@ platforms:
     command: '/lib/systemd/systemd'
     pre_build_image: true
     published_ports:
-      - '6789/tcp'
+      - '6789:6789/tcp'
   - name: 'nzbget-debian-13-user_data'
     image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
