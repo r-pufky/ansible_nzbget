@@ -47,7 +47,8 @@ Configure NZBGet server.
 
 Changes updating the configuration only can be done to speed role application:
 ``` bash
-ansible-playbook site.yml --tags NZBGet -e 'nzbget_srv_force_config_only_enable=true'
+ansible-playbook site.yml --tags NZBGet \
+  -e '{"nzbget_srv_force_config_only_enable": true}'
 ```
 
 ## Development

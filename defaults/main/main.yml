@@ -86,7 +86,7 @@ nzbget_srv_media_perms_folder: '2755'
 #
 #   ansible-playbook site.yml
 #       --tags Deluge
-#       -e 'nzbget_srv_media_set_perms_file_enable=true'
+#       -e '{"nzbget_srv_media_set_perms_file_enable": true}'
 #
 # Default: False.
 nzbget_srv_media_set_perms_file_enable: false
