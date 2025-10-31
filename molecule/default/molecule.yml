@@ -61,15 +61,10 @@ lint: |
   ansible-lint .
 scenario:
   test_sequence:
-    # - 'dependency'
-    # - 'cleanup'
     - 'destroy'
     - 'syntax'
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # drop-ins always created
-    # - 'side_effect'
     - 'verify'
-    # - 'cleanup'
     - 'destroy'

@@ -17,5 +17,6 @@ galaxy_info:
     - 'nzbget'
     - 'usenet'
     - 'media'
+    - 'arr'
 
 dependencies: []

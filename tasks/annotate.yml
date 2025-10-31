@@ -1199,7 +1199,7 @@
     label: '{{ item.id }}'
 
 - name: 'Annotate | generate shell override extension map'
-  ansible.builtin.set_fact:  # noqa jinja[spacing] prefer 80 char to spacing.
+  ansible.builtin.set_fact:  # noqa jinja[spacing] readability.
     _nzbget_shell_override: >-
       {% for option in _nzbget_cfg_shell_override.raw | default([]) -%}
       {{- option.ext | list | join(',') }}={{ option.shell }}
