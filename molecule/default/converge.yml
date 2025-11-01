@@ -3,6 +3,6 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Converge | apply r_pufky.srv.nzbget'
+    - name: 'Converge | apply r_pufky.arr.nzbget'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.nzbget'
+        name: 'r_pufky.arr.nzbget'
