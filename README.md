@@ -21,6 +21,8 @@ Debian contrib, non-free APT sources are required and should be manually
 managed if `nzbget_srv_auto_add_apt_sources_enable: false`. Directories
 will automatically be created and permissions set if needed.
 
+[Additional documentation](http://r-pufky.github.io/r-pufky/docs/arr/nzbget).
+
 host_vars/nzbget.example.com/vars/nzbget.yml
 ``` yaml
 nzbget_cfg_main_dir: '/data/nzbget'
