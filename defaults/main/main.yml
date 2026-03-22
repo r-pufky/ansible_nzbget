@@ -82,7 +82,8 @@ nzbget_srv_group: 'media'
 # allowing for ansible variable interpretation). Overwrites existing
 # /etc/opt/nzbget/nzbget.conf.
 #
-# Use absolute paths for configuration file variables (Do not use ${}).
+# Use absolute paths (Do not use ${}). Paths will be parsed and directories
+# automatically created with correct permissions when nzbget_flg_perms=true.
 #
 # nzbget_cfg_file: 'host_vars/nzb.example.com/config/nzbget.conf'
 #

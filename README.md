@@ -64,8 +64,8 @@ Tasks are gated by feature flags and executed in the following order.
 ### Example Playbooks
 
 #### New Deployments
-A minimal config will be deployed if no configuration is specified. This will
-deploy a working NZBGet install.
+[A minimal config][m] will be deployed if no configuration is specified. This
+will deploy a working NZBGet install.
 
 ``` yaml
 # Main directory: /var/opt/nzbget.
@@ -76,9 +76,9 @@ deploy a working NZBGet install.
 
 #### Existing Deployments
 Configuration and extension scripts are deployed as templates, allowing for
-vault use of sensitive information. Additional, File permissions can be set
-based on the configured directories in nzbget.conf to ensure the service can
-manage the files.
+vault use of sensitive information. File permissions can be set based on the
+configured directories in **nzbget.conf** to ensure the service can manage the
+files.
 
 ``` yaml
 - name: 'Set custom config, extension scripts, and ensure file permissions set.'
@@ -134,3 +134,4 @@ PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 [j]: https://github.com/r-pufky/ansible_nzbget/tree/main/defaults/main/main.yml
 [k]: https://github.com/r-pufky/ansible_nzbget/blob/main/defaults/main/ports.yml
 [l]: https://nzbget.com/documentation/nzbget-path-and-folder-structure-guide
+[m]: https://github.com/r-pufky/ansible_nzbget/blob/main/files/default/nzbget.conf

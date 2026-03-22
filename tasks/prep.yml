@@ -114,7 +114,7 @@
         ),
       ) }}"
 
-- name: 'Perms | fact | parse directories'
+- name: 'Prep | fact | parse directories'
   ansible.builtin.set_fact:
     nzbget__srv: "{{ nzbget__srv | r_pufky.data.v3(
 

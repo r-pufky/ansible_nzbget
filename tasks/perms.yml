@@ -5,8 +5,6 @@
 # Parse nzbget.conf for configured directories and set permissions according to
 # the service user. Only parse absolute paths. Other files/paths are unmanaged.
 #
-# AWK returns the path or empty string. Extension scripts must be executable.
-#
 # Use a single task for speed-up instead of a task per directory.
 
 # yamllint disable rule:line-length
@@ -18,7 +16,7 @@
     find "{{ nzbget__srv._cfg_script_dir }}" -type f -exec chmod 0755 {} \;
   changed_when: false
 
-- name: 'Perms | cmd | set all other ownership and permissions'
+- name: 'Perms | cmd | set ownership and permissions'
   ansible.builtin.shell: >-
     mkdir -p {% for path in path_list %}"{{ path }}" {% endfor %} &&
     chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {% for path in path_list %}"{{ path }}" {% endfor %} &&
