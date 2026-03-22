@@ -1,4 +1,11 @@
 [Service]
+WorkingDirectory={{ nzbget___app._var_dir }}
+ExecStart=
+ExecStart=/usr/bin/nzbget -s -c {{ nzbget___app._cfg }} -o OutputMode=log -o WriteLog=none
+ExecReload=
+ExecReload=/usr/bin/nzbget -O -c {{ nzbget___app._cfg }}
+ExecReload=
+ExecStop=/usr/bin/nzbget -Q -c {{ nzbget___app._cfg }}
 User={{ nzbget__srv._user }}
 Group={{ nzbget__srv._group }}
 UMask=0002

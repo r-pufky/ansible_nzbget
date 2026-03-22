@@ -1,39 +1,38 @@
 ---
 ###############################################################################
-# Install Packages
+# Install
 ###############################################################################
-# NZBGet debian packaging does NOT follow Debian standards:
-# * Debian defaults, and DEBCONF options are not used.
+# Use custom service according to Linux FHS standards:
+#
+# Type    | Perms               | Path
+# --------|---------------------|-------
+# Runtime | 0750/0640 SRV:SRV   | /var/opt/nzbget
+# Config  | 0640 SRV:SRV        | /etc/opt/nzbget
+#
+# Installation notes:
+# * Package does not follow Debian standards (defaults, DEBCONF options).
 #     Resolution: Use overrides.conf only.
 # * NZBGet requires APT Debian components contrib, non-free to be enabled for
 #   all dependencies to be installed.
 #     Resolution: Flag for explicitly disabling sources.
-# * The 'NZBGet' user must exist regardless of use or the package breaks.
-#     Resolution: Disable nzbget user and prevent use with role.
-#
-# Do not remove the default (NZBGet) user as this will put APT in a broken
-# state. Instead ensure the account is fully locked. All NZBGet files are world
-# readable allowing for service user/group changes without resetting perms.
+# * Removing nzbget user breaks APT package.
+#     Resolution: Lock nzbget user and prevent use with role.
+# * Install places services in /var/lib/nzbget owned by nzbget. Changing the
+#   user/group for this location breaks package upgrades.
+#     Resolution: Create FHS standard locations and use service drop-ins.
 
-- name: '{{ "Install | filesystem | set " ~ nzbget__cfg._drop_in | dirname }}'
+- name: 'Install | filesystem | set system directories'
   ansible.builtin.file:
-    path: '{{ nzbget__cfg._drop_in | dirname }}'
-    owner: 'root'
-    group: 'root'
+    path: '{{ item }}'
+    owner: '{{ nzbget__srv._user }}'
+    group: '{{ nzbget__srv._group }}'
     mode: '0755'
     state: 'directory'
-
-- name: '{{ "Install | filesystem | set " ~ nzbget__cfg._drop_in }}'
-  ansible.builtin.template:
-    src: 'systemd/override.conf.j2'
-    dest: '{{ nzbget__cfg._drop_in }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  register: nzbget__override
+  loop:
+    - '{{ nzbget___app._etc_dir }}'
+    - '{{ nzbget___app._scripts_dir }}'  # scripts include var_dir.
 
 - name: 'Install | packages'
-  when: nzbget_flg_apt_sources
   ansible.builtin.include_role:
     name: 'r_pufky.deb.apt'
   vars:
@@ -43,7 +42,7 @@
 
         (
           nzbget___apt_sources +
-          nzbget___apt_debian_all if nzbget___apt_sources else []
+          nzbget___apt_debian_all if nzbget_flg_apt_sources else []
         ) | select ()
       }}'
     apt_srv_sources_list_disable: true
@@ -55,27 +54,34 @@
     state: 'stopped'
   failed_when: false
 
-- name: 'Install | account | lock NZBGet package user'
+- name: 'Install | account | lock nzbget'
   when: nzbget__srv._user != 'nzbget'
   ansible.builtin.user:
     name: 'nzbget'
     password: '!'
     password_lock: true
 
-- name: '{{ "Install | filesystem | set minimal " ~ nzbget__cfg._cfg_dest }}'
-  when: nzbget__cfg._cfg_file | length == 0
+- name: '{{ "Install | filesystem | set minimal " ~ nzbget___app._cfg }}'
+  when: nzbget__cfg._file | length == 0
   ansible.builtin.template:
     src: 'files/default/nzbget.conf'
-    dest: '{{ nzbget__cfg._cfg_dest }}'
+    dest: '{{ nzbget___app._cfg }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
     mode: '0640'  # Default 0644, passwords.
 
-# Update service permissions - detected change via override(user/group).
-- name: '{{ "Install | filesystem | update " ~ nzbget__cfg._var_dir }}'
-  when: nzbget__override.changed  # noqa no-handler immediately.
-  ansible.builtin.command: '{{
-      "chown -R " ~ nzbget__srv._user ~ ":" ~ nzbget__srv._group ~
-      " " ~ nzbget__cfg._var_dir
-    }}'
-  changed_when: true
+- name: '{{ "Install | filesystem | set " ~ nzbget___app._drop_in | dirname }}'
+  ansible.builtin.file:
+    path: '{{ nzbget___app._drop_in | dirname }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
+
+- name: '{{ "Install | filesystem | set " ~ nzbget___app._drop_in }}'
+  ansible.builtin.template:
+    src: 'systemd/override.conf.j2'
+    dest: '{{ nzbget___app._drop_in }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'

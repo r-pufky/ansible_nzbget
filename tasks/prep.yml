@@ -1,6 +1,6 @@
 ---
 ###############################################################################
-# Prep
+# Pre Execution Tasks
 ###############################################################################
 # Only use data annotations in role after merging role, defaults, runtime data.
 # Service may not exist if first install.
@@ -16,9 +16,9 @@
         _user=nzbget_srv_user,
         _group=nzbget_srv_group,
       ) }}"
-    nzbget__cfg: "{{ nzbget___app | r_pufky.data.v3(
+    nzbget__cfg: "{{ {} | r_pufky.data.v3(
 
-        _cfg_file=nzbget_cfg_file,
+        _file=nzbget_cfg_file,
         _scripts_dir=nzbget_cfg_scripts_dir | regex_replace('\\/$', ''),
       ) }}"
 
@@ -42,14 +42,14 @@
   ansible.builtin.assert:
     quiet: true
     that:
-      - nzbget__cfg._cfg_file | length > 0
+      - nzbget__cfg._file | length > 0
     fail_msg: |
 
       ✘ Config source not set.
       Config source enabled but no config source defined.
 
       nzbget_flg_config: {{ nzbget_flg_config }}
-      nzbget_cfg_file: {{ nzbget__cfg._cfg_file }}
+      nzbget_file: {{ nzbget__cfg._file }}
 
 - name: '{{ "Prep | account | query user " ~ nzbget__srv._user }}'
   ansible.builtin.command: '{{ "id " ~ nzbget__srv._user }}'
@@ -99,6 +99,65 @@
 
         _uid=nzbget__cfg_query.uid,
         _gid=nzbget__cfg_query.group,
+      ) }}"
+
+# Render configuration locally and resolve configured service paths.
+- name: 'Prep | fact | resolve nzbget.conf'
+  ansible.builtin.set_fact:
+    nzbget__srv: "{{ nzbget__srv | r_pufky.data.v3(
+
+        _tmpl_cfg=lookup(
+          'ansible.builtin.template',
+          nzbget__cfg._file
+          if nzbget__cfg._file | length > 0 else
+          'files/default/nzbget.conf'
+        ),
+      ) }}"
+
+- name: 'Perms | fact | parse directories'
+  ansible.builtin.set_fact:
+    nzbget__srv: "{{ nzbget__srv | r_pufky.data.v3(
+
+        _cfg_main_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^MainDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_dest_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^DestDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_inter_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^InterDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_nzb_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^NzbDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_queue_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^QueueDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_temp_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^TempDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_web_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^WebDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
+        _cfg_script_dir=(
+          nzbget__srv._tmpl_cfg |
+          regex_search('^ScriptDir=(.*)$', '\\1', multiline=True) |
+          default([''], true) | first
+        ),
       ) }}"
 
 - name: 'Prep | systemd | stop nzbget.service'

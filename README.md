@@ -7,7 +7,8 @@ Requires [r_pufky.arr][g] galaxy-ng collection. See
 
 Install size: ~11MB
 
-Use absolute paths for directories in nzbget.conf.
+Use absolute paths for directories in nzbget.conf. Default MainDir is
+**/var/opt/nzbget**.
 
 ## Role Variables
 Detailed variable use documented in defaults. See usage for role operation.
@@ -67,6 +68,7 @@ A minimal config will be deployed if no configuration is specified. This will
 deploy a working NZBGet install.
 
 ``` yaml
+# Main directory: /var/opt/nzbget.
 - name: 'NZBGet default install.'
   ansible.builtin.include_role:
     name: 'r_pufky.arr.nzbget'

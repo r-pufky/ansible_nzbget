@@ -32,7 +32,7 @@ nzbget_flg_config: false
 
 # 4. Set permissions?
 #
-# Recursively create & set correct permissions from locations in nzbget.conf:
+# Recursively create & set permissions for directories in nzbget.conf:
 # * MainDir
 # * DestDir
 # * InterDir
@@ -42,15 +42,15 @@ nzbget_flg_config: false
 # * WebDir
 # * ScriptDir
 #
-# Always use absolute paths (do not use ${} in path variables). Large file
-# trees may take a long time. Must be modifiable by root user (e.g. NFS
-# squashed mounts may fail). Locations in /var/lib/nzbget will always be set to
-# the specified service user).
+# Special Case:
+# * Always use absolute paths (do not use ${} in path variables).
+# * Must be modifiable by root user (e.g. NFS squashed mounts may fail).
+# * Locations in /var/opt/nzbget will always be set to specified service user.
 #
-# Disable to create & set permissions outside of role.
+# Disable to managed these directories outside of this role.
 #
 # Default: False.
-nzbget_flg_perms: false
+nzbget_flg_perms: true
 
 ###############################################################################
 # Service
@@ -80,26 +80,24 @@ nzbget_srv_group: 'media'
 #
 # Ansible controller path to source nzbget.conf (treated as a jinja2 template
 # allowing for ansible variable interpretation). Overwrites existing
-# /var/lib/nzbget/nzbget.conf.
+# /etc/opt/nzbget/nzbget.conf.
 #
-# Special Case:
-# * Use absolute paths for configuration file variables (Do not use ${}).
+# Use absolute paths for configuration file variables (Do not use ${}).
 #
 # nzbget_cfg_file: 'host_vars/nzb.example.com/config/nzbget.conf'
 #
-# Default: '' (use minimally configured default - files/default/nzbget.conf).
+# Default: '' (use minimally configured default).
 #
 # Reference:
 # * https://nzbget.com/documentation
+# * files/default/nzbget.conf
 nzbget_cfg_file: ''
 
 # NZBGet extension scripts to set.
 #
 # Ansible controller path to source script files (treated as a jinja2 templates
-# allowing for ansible variable interpretation). Overwrites existing
-# /var/lib/nzbget/scripts/* files.
-#
-# Files not sourced will be removed.
+# allowing for ansible variable interpretation). Overwrites existing scripts
+# set located in ScriptDir. Files not sourced will be removed.
 #
 # nzbget_script_dir: 'host_vars/nzb.example.com/config/scripts'
 #

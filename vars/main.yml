@@ -2,7 +2,8 @@
 ###############################################################################
 # NZBGet Role Options
 ###############################################################################
-# Use Debian package for installation.
+# Use Debian package for installation. Configure service using Linux FHS
+# standards instead of /var/lib (see install.yml).
 #
 # Updates:
 # * Version is determined by build version on release page (see all updates).
@@ -21,14 +22,15 @@ nzbget___release: "{{ {} | r_pufky.data.v3(
 
     _date='2026-03-21',
     _release='trixie',
-    _version='v25.2',
+    _app='v25.2',
   ) }}"
 
 nzbget___app: "{{ {} | r_pufky.data.v3(
 
-    _var_dir='/var/lib/nzbget',
-    _cfg_dest='/var/lib/nzbget/nzbget.conf',
-    _scripts_dest='/var/lib/nzbget/scripts',
+    _etc_dir='/etc/opt/nzbget',
+    _cfg='/etc/opt/nzbget/nzbget.conf',
+    _var_dir='/var/opt/nzbget',
+    _scripts_dir='/var/opt/nzbget/scripts',
     _drop_in='/etc/systemd/system/nzbget.service.d/override.conf',
   ) }}"
 

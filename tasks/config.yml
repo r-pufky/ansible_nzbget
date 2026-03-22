@@ -11,10 +11,10 @@
 # * https://nzbgetcom.github.io/#debian-repository
 # * https://nzbget.com
 
-- name: '{{ "Config | filesystem | set " ~ nzbget__cfg._cfg_dest }}'
+- name: '{{ "Config | filesystem | set " ~ nzbget___app._cfg }}'
   ansible.builtin.template:
-    src: '{{ nzbget__cfg._cfg_file }}'
-    dest: '{{ nzbget__cfg._cfg_dest }}'
+    src: '{{ nzbget__cfg._file }}'
+    dest: '{{ nzbget___app._cfg }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
     mode: '0640'  # Default 0644, passwords.
@@ -22,7 +22,7 @@
 - name: 'Config | filetree | deploy managed files'
   ansible.builtin.template:
     src: '{{ item.src }}'
-    dest: '{{ nzbget__cfg._scripts_dest ~ "/" ~ item.path }}'
+    dest: '{{ nzbget__srv._cfg_script_dir ~ "/" ~ item.path }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
     mode: '0755'
@@ -34,7 +34,7 @@
 
 - name: 'Config | filesystem | query remote files'
   ansible.builtin.find:
-    paths: '{{ nzbget__cfg._scripts_dest }}'
+    paths: '{{ nzbget__srv._cfg_script_dir }}'
     file_type: 'file'
     recurse: true
   register: nzbget__remote

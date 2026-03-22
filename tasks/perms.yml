@@ -9,101 +9,13 @@
 #
 # Use a single task for speed-up instead of a task per directory.
 
-- name: 'Perms | awk | MainDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^MainDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_main
-
-- name: 'Perms | awk | DestDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^DestDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_dest
-
-- name: 'Perms | awk | InterDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^InterDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_inter
-
-- name: 'Perms | awk | NzbDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^NzbDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_nzb
-
-- name: 'Perms | awk | QueueDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^QueueDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_queue
-
-- name: 'Perms | awk | TempDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^TempDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_temp
-
-- name: 'Perms | awk | WebDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^WebDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_web
-
-- name: 'Perms | awk | ScriptDir'
-  ansible.builtin.shell: >-
-    awk -F'[=#]' '/^ScriptDir=/{print $2}'
-    {{ nzbget__cfg._cfg_dest }}
-  args:
-    executable: '/bin/bash'
-  changed_when: false
-  register: nzbget__awk_script
-
-- name: 'Perms | fact | parse required values'
-  ansible.builtin.set_fact:
-    nzbget__cfg: "{{ nzbget__cfg | r_pufky.data.v3(
-
-        _perms_dirs=(
-          nzbget__awk_main.stdout,
-          nzbget__awk_dest.stdout,
-          nzbget__awk_inter.stdout,
-          nzbget__awk_nzb.stdout,
-          nzbget__awk_queue.stdout,
-          nzbget__awk_temp.stdout,
-          nzbget__awk_web.stdout,
-        ) | select ()
-      ) }}"
-
 # yamllint disable rule:line-length
 - name: 'Perms | cmd | set scripts ownership and permissions'
-  when: nzbget__awk_script.stdout | length > 0
   ansible.builtin.shell: >-
-    mkdir -p "{{ nzbget__awk_script.stdout }}" &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__awk_script.stdout }}" &&
-    find "{{ nzbget__awk_script.stdout }}" -type d -exec chmod 0755 {} \; &&
-    find "{{ nzbget__awk_script.stdout }}" -type f -exec chmod 0755 {} \;
+    mkdir -p "{{ nzbget__srv._cfg_script_dir }}" &&
+    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_dir }}" &&
+    find "{{ nzbget__srv._cfg_script_dir }}" -type d -exec chmod 0755 {} \; &&
+    find "{{ nzbget__srv._cfg_script_dir }}" -type f -exec chmod 0755 {} \;
   changed_when: false
 
 - name: 'Perms | cmd | set all other ownership and permissions'
@@ -114,4 +26,11 @@
     find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0644 {} \;
   changed_when: false
   vars:
-    path_list: '{{ nzbget__cfg._perms_dirs }}'
+    path_list:
+      - '{{ nzbget__srv._cfg_main_dir }}'
+      - '{{ nzbget__srv._cfg_dest_dir }}'
+      - '{{ nzbget__srv._cfg_inter_dir }}'
+      - '{{ nzbget__srv._cfg_nzb_dir }}'
+      - '{{ nzbget__srv._cfg_queue_dir }}'
+      - '{{ nzbget__srv._cfg_temp_dir }}'
+      - '{{ nzbget__srv._cfg_web_dir }}'
