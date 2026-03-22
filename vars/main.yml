@@ -5,43 +5,45 @@
 # Use Debian package for installation.
 #
 # Updates:
-# * Branch for new Debian releases.
+# * Version is determined by build version on release page (see all updates).
 # * KEEP a separate change log as changes are made.
-# * Use Debian docs to validate package/process changes.
-#   * Reference source docs if needed.
-# * Update role defaults (includes updating defaults, tasks):
-#   * Use configuration docs to add new variables.
-#   * Use defaults to remove any changed/deprecated variables.
+# * Use bare-metal docs to validate package/process changes.
+# * Update defaults.
 # * Update tests for any changes.
-# * Standard role validation testing (yamllint, ansible-lint, to-do, no-qa).
-# * Tag with OS-APP-ROLE version.
+# * Standard validation testing (yamllint, ansible-lint, to-do, no-qa).
 #
 # Reference:
 # * https://nzbget.com/
 # * https://github.com/nzbgetcom/nzbget
 # * https://nzbgetcom.github.io/#debian-repository
 
-# Last time NZBGet options were validated against a default configuration.
-nzbget_role_validate_date: '2025-08-25'
-nzbget_role_validate_release: 'trixie'
-nzbget_role_validate_version: 'v25.2'
+nzbget___release: "{{ {} | r_pufky.data.v3(
 
-# Debian nzbget.conf location.
-nzbget_role_install_dir: '/var/lib/nzbget'
-nzbget_role_config: '{{ nzbget_role_install_dir ~ "/nzbget.conf" }}'
+    _date='2026-03-21',
+    _release='trixie',
+    _version='v25.2',
+  ) }}"
+
+nzbget___app: "{{ {} | r_pufky.data.v3(
+
+    _var_dir='/var/lib/nzbget',
+    _cfg_dest='/var/lib/nzbget/nzbget.conf',
+    _scripts_dest='/var/lib/nzbget/scripts',
+    _drop_in='/etc/systemd/system/nzbget.service.d/override.conf',
+  ) }}"
 
 ###############################################################################
 # APT Packages
 ###############################################################################
 
-nzbget_role_packages:
+nzbget___packages:
   - 'nzbget'
   - 'unrar'  # Requires: contrib, non-free.
   - '7zip'  # Provides: 7zz.
   - 'p7zip-full'  # Provides: 7za.
   - 'rsync'  # ansible.posix.synchronize (script files).
 
-nzbget_role_apt_sources:
+nzbget___apt_sources:
   - name: 'nzbget'
     types:
       - 'deb'
@@ -53,7 +55,7 @@ nzbget_role_apt_sources:
     signed_by: 'https://nzbgetcom.github.io/nzbgetcom.asc'
 
 # Debian APT sources to use if package install fails.
-nzbget_role_apt_debian_all:
+nzbget___apt_debian_all:
   - name: 'debian'
     types:
       - 'deb'
@@ -87,11 +89,11 @@ nzbget_role_apt_debian_all:
 # Default NZBGet User/Group
 ###############################################################################
 
-nzbget_role_group:
+nzbget___group:
   name: 'media'
   gid: 5555
 
-nzbget_role_user:
+nzbget___user:
   name: 'media'
   group: 'media'
   uid: 5555

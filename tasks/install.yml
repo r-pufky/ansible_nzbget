@@ -2,70 +2,80 @@
 ###############################################################################
 # Install Packages
 ###############################################################################
-# NZBGet requires APT Debian components contrib, non-free to be enabled for all
-# dependencies to be installed.
+# NZBGet debian packaging does NOT follow Debian standards:
+# * Debian defaults, and DEBCONF options are not used.
+#     Resolution: Use overrides.conf only.
+# * NZBGet requires APT Debian components contrib, non-free to be enabled for
+#   all dependencies to be installed.
+#     Resolution: Flag for explicitly disabling sources.
+# * The 'NZBGet' user must exist regardless of use or the package breaks.
+#     Resolution: Disable nzbget user and prevent use with role.
 #
-# Attempt to install packages. If failed, install Debian repository components
-# and re-run install if enabled.
+# Do not remove the default (NZBGet) user as this will put APT in a broken
+# state. Instead ensure the account is fully locked. All NZBGet files are world
+# readable allowing for service user/group changes without resetting perms.
 
-- name: 'Install'
-  block:
-    - name: 'Install | packages'
-      ansible.builtin.include_role:
-        name: 'r_pufky.deb.apt'
-      vars:
-        apt_packages:
-          - '{{ nzbget_role_packages }}'
-        apt_sources: '{{ nzbget_role_apt_sources }}'
-        apt_package_update_cache: true
-  rescue:
-    - name: 'Install | APT SOURCE REQUIRED ⚠'
-      when: not _nzbget_srv_auto_add_apt_sources_enable.raw
-      ansible.builtin.fail:
-        msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │             Required packages could not be installed.             │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ NZBGet requires APT Debian components:
-          │ * contrib
-          │ * non-free
-          │
-          │ Enable nzbget_srv_auto_add_apt_sources_enable or manage APT
-          │ outside of this role.|
+- name: '{{ "Install | filesystem | set " ~ nzbget__cfg._drop_in | dirname }}'
+  ansible.builtin.file:
+    path: '{{ nzbget__cfg._drop_in | dirname }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
 
-    - name: 'Install | APT SOURCE REQUIRED ⚠'
-      when: _nzbget_srv_auto_add_apt_sources_enable.raw
-      ansible.builtin.fail:
-        msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │             Required packages could not be installed.             │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ NZBGet requires APT Debian components:
-          │ * contrib
-          │ * non-free
-          │
-          │ nzbget_srv_auto_add_apt_sources_enable=true
-          │
-          │ Automatically adding required Debian components ...
+- name: '{{ "Install | filesystem | set " ~ nzbget__cfg._drop_in }}'
+  ansible.builtin.template:
+    src: 'systemd/override.conf.j2'
+    dest: '{{ nzbget__cfg._drop_in }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  register: nzbget__override
 
-    - name: 'Install | packages (modify APT debian repository)'
-      when: _nzbget_srv_auto_add_apt_sources_enable.raw
-      ansible.builtin.include_role:
-        name: 'r_pufky.deb.apt'
-      vars:
-        apt_packages:
-          - '{{ nzbget_role_packages }}'
-        apt_sources: '{{ nzbget_role_apt_debian_all }}'
-        apt_package_update_cache: true
+- name: 'Install | packages'
+  when: nzbget_flg_apt_sources
+  ansible.builtin.include_role:
+    name: 'r_pufky.deb.apt'
+  vars:
+    apt_packages:
+      - '{{ nzbget___packages }}'
+    apt_sources: '{{
 
-- name: 'Install | stop services'
+        (
+          nzbget___apt_sources +
+          nzbget___apt_debian_all if nzbget___apt_sources else []
+        ) | select ()
+      }}'
+    apt_srv_sources_list_disable: true
+    apt_srv_package_update_cache: true
+
+- name: 'Install | systemd | stop nzbget.service'
   ansible.builtin.systemd:
-    name: '{{ item }}'
+    name: 'nzbget.service'
     state: 'stopped'
   failed_when: false
-  loop:
-    - 'nzbget.service'
+
+- name: 'Install | account | lock NZBGet package user'
+  when: nzbget__srv._user != 'nzbget'
+  ansible.builtin.user:
+    name: 'nzbget'
+    password: '!'
+    password_lock: true
+
+- name: '{{ "Install | filesystem | set minimal " ~ nzbget__cfg._cfg_dest }}'
+  when: nzbget__cfg._cfg_file | length == 0
+  ansible.builtin.template:
+    src: 'files/default/nzbget.conf'
+    dest: '{{ nzbget__cfg._cfg_dest }}'
+    owner: '{{ nzbget__srv._user }}'
+    group: '{{ nzbget__srv._group }}'
+    mode: '0640'  # Default 0644, passwords.
+
+# Update service permissions - detected change via override(user/group).
+- name: '{{ "Install | filesystem | update " ~ nzbget__cfg._var_dir }}'
+  when: nzbget__override.changed  # noqa no-handler immediately.
+  ansible.builtin.command: '{{
+      "chown -R " ~ nzbget__srv._user ~ ":" ~ nzbget__srv._group ~
+      " " ~ nzbget__cfg._var_dir
+    }}'
+  changed_when: true

@@ -2,14 +2,13 @@
 ###############################################################################
 # Default
 ###############################################################################
-# Default role is applied correctly. Configuration should succeed with and
-# without nzbget_srv_user_data_manage_enable.
+# Default role is applied correctly.
 #
 # Tests:
-# * alternative user created.
-# * nzbget user deleted.
-# * permissions propagated to all directories.
-# * service is active and running.
+# * nzbget.conf deployed.
+# * scripts/ sourced correctly.
+# * Permissions propagated to all directories.
+# * Service is active and running.
 
 dependency:
   name: 'galaxy'
@@ -26,39 +25,27 @@ provisioner:
   inventory:
     group_vars:
       all:
-        nzbget_cfg_shell_override:
-          - ext: [".py", ".py2"]
-            shell: "/usr/bin/python2"
-          - ext: [".py3"]
-            shell: "/usr/bin/python3"
-          - ext: [".sh"]
-            shell: "/usr/bin/bash"
-    host_vars:
-      nzbget-debian-13-user_data:
-        nzbget_srv_user_data_manage_enable: true
+        nzbget_flg_config: true
+        nzbget_flg_perms: true
+        nzbget_cfg_file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/files/default/nzbget.conf"
+          }}'
+        nzbget_cfg_scripts_dir: '{{
+            lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~ "/files"
+          }}'
 platforms:
-  - name: 'nzbget-debian-13-default'
+  - name: 'nzbget-default'
     image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
     command: '/lib/systemd/systemd'
-    pre_build_image: true
     published_ports:
       - '6789:6789/tcp'
-  - name: 'nzbget-debian-13-user_data'
-    image: 'ghcr.io/hifis-net/debian-systemd:13'
-    systemd: 'always'
-    volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    command: '/lib/systemd/systemd'
     pre_build_image: true
 verifier:
   name: 'ansible'
-lint: |
-  set -e
-  yamllint .
-  ansible-lint .
 scenario:
   test_sequence:
     - 'destroy'

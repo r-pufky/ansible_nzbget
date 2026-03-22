@@ -2,56 +2,107 @@
 ###############################################################################
 # Prep
 ###############################################################################
-# NZBGet install from deb packages are categorically broken. There are no
-# debconf options.
-#
-# Prepare system for install by creating user/group for service.
-#
-# Do not remove the default (NZBGet) user as this will put APT in a broken
-# state. Instead ensure the account is fully locked.
+# Only use data annotations in role after merging role, defaults, runtime data.
+# Service may not exist if first install.
 #
 # Reference:
 # * https://nzbget.com
 
-- name: 'Prep | assert data locations are not in install paths'
+- name: 'Prep | fact | record start time'
+  ansible.builtin.set_fact:
+    nzbget__srv: "{{ nzbget___release | r_pufky.data.v3(
+
+        _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
+        _user=nzbget_srv_user,
+        _group=nzbget_srv_group,
+      ) }}"
+    nzbget__cfg: "{{ nzbget___app | r_pufky.data.v3(
+
+        _cfg_file=nzbget_cfg_file,
+        _scripts_dir=nzbget_cfg_scripts_dir | regex_replace('\\/$', ''),
+      ) }}"
+
+- name: 'Prep | assert | service user is not nzbget'
   ansible.builtin.assert:
     quiet: true
     that:
-      - not _nzbget_cfg_dest_dir.raw.startswith(
-        nzbget_role_install_dir)
+      - nzbget__srv._user != 'nzbget'
+      - nzbget__srv._group != 'nzbget'
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │    Data storage should not be in the same location as install.    │
-      │                                                                   │
-      ├───────────────────────────────────────────────────────────────────╯
-      │ Install: {{ nzbget_role_install_dir }}
-      │
-      │ nzbget_cfg_dest_dir: {{ _nzbget_cfg_dest_dir.raw }}
 
-- name: 'Prep | manage users'
-  when: _nzbget_srv_create_user.raw
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.users'
-    tasks_from: 'role_account_add.yml'
-  vars:
-    users_role_user: '{{ nzbget_role_user }}'
-    users_role_group: '{{ nzbget_role_group }}'
+      ✘ NZBGet service user/group must NOT be 'nzbget'.
+      Create a custom user before executing this role or use 'media' to
+      automatically create a service user for NZBGet.
 
-- name: 'Prep | enumerate system user {{ _nzbget_srv_user.raw }}'
+      nzbget_srv_user: {{ nzbget__srv._user }}
+      nzbget_srv_group: {{ nzbget__srv._group }}
+
+- name: 'Prep | assert | config enabled and source defined'
+  when: nzbget_flg_config
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - nzbget__cfg._cfg_file | length > 0
+    fail_msg: |
+
+      ✘ Config source not set.
+      Config source enabled but no config source defined.
+
+      nzbget_flg_config: {{ nzbget_flg_config }}
+      nzbget_cfg_file: {{ nzbget__cfg._cfg_file }}
+
+- name: '{{ "Prep | account | query user " ~ nzbget__srv._user }}'
+  ansible.builtin.command: '{{ "id " ~ nzbget__srv._user }}'
+  failed_when: false
+  register: nzbget__cfg_check
+  changed_when: nzbget__cfg_check.rc > 0
+
+- name: '{{ "Prep | account | query group " ~ nzbget__srv._group }}'
+  ansible.builtin.command: '{{ "groups " ~ nzbget__srv._group }}'
+  failed_when: false
+  register: nzbget__group_check
+  changed_when: nzbget__group_check.rc > 0
+
+- name: '{{ "Prep | account | create group " ~ nzbget__srv._group }}'
+  when: nzbget__group_check.rc != 0
+  ansible.builtin.group:
+    gid: '{{ nzbget___group.gid }}'
+    name: '{{ nzbget___group.name }}'
+    state: 'present'
+
+- name: '{{ "Prep | account | create user " ~ nzbget__srv._user }}'
+  when: nzbget__cfg_check.rc != 0
   ansible.builtin.user:
-    name: '{{ _nzbget_srv_user.raw }}'
+    name: '{{ nzbget___user.name }}'
+    group: '{{ nzbget___user.group }}'
+    uid: '{{ nzbget___user.uid }}'
+    shell: '{{ nzbget___user.shell }}'
+    home: '{{ nzbget___user.home }}'
+    create_home: '{{ nzbget___user.create_home }}'
+    password: '{{ nzbget___user.password }}'
+    password_lock: '{{ nzbget___user.password_lock }}'
+    update_password: '{{ nzbget___user.update_password }}'
+    expires: '{{ nzbget___user.expires }}'
+    system: '{{ nzbget___user.system }}'
+
+# Pre-existing users may have a different UID/GID/Home.
+- name: '{{ "Prep | account | enumerate " ~ nzbget__srv._user }}'
+  ansible.builtin.user:
+    name: '{{ nzbget__srv._user }}'
   check_mode: true
   changed_when: false
-  register: _nzbget_srv_user_query
+  register: nzbget__cfg_query
 
-- name: 'Prep | parse system user UID/GID'
+- name: 'Prep | fact | parse service UID/GID'
   ansible.builtin.set_fact:
-    _nzbget_srv_user: '{{
-        _nzbget_srv_user |
-        combine({"_uid": _nzbget_srv_user_query.uid})
-      }}'
-    _nzbget_srv_group: '{{
-        _nzbget_srv_group |
-        combine({"_gid": _nzbget_srv_user_query.group})
-      }}'
+    nzbget__cfg: "{{ nzbget__cfg | r_pufky.data.v3(
+
+        _uid=nzbget__cfg_query.uid,
+        _gid=nzbget__cfg_query.group,
+      ) }}"
+
+- name: 'Prep | systemd | stop nzbget.service'
+  ansible.builtin.systemd:
+    name: 'nzbget.service'
+    state: 'stopped'
+  failed_when: false

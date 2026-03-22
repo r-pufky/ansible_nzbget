@@ -1,11 +1,18 @@
 ---
-- name: 'Annotate'
-  ansible.builtin.import_tasks: 'annotate.yml'
 - name: 'Prep'
   ansible.builtin.import_tasks: 'prep.yml'
+
 - name: 'Install'
+  when: nzbget_flg_install
   ansible.builtin.import_tasks: 'install.yml'
+
 - name: 'Config'
+  when: nzbget_flg_config
   ansible.builtin.import_tasks: 'config.yml'
-- name: 'Validate'
-  ansible.builtin.import_tasks: 'validate.yml'
+
+- name: 'Perms'
+  when: nzbget_flg_perms
+  ansible.builtin.import_tasks: 'perms.yml'
+
+- name: 'Start'
+  ansible.builtin.import_tasks: 'start.yml'

@@ -1,0 +1,30 @@
+---
+###############################################################################
+# Start
+###############################################################################
+# Start services and confirm they are active and running.
+
+- name: 'Start | systemd | nzbget.service'
+  ansible.builtin.systemd:
+    name: 'nzbget.service'
+    state: 'started'
+    enabled: true
+    daemon_reload: true
+  delay: 15
+  retries: 3
+  register: nzbget__service
+  until: nzbget__service.status.ActiveState == 'active'
+
+- name: 'Start | fact | query services'
+  ansible.builtin.service_facts:
+
+- name: 'Start | assert | services running'
+  ansible.builtin.assert:
+    quiet: true
+    that: ansible_facts.services[item].state == 'running'
+    fail_msg: |
+
+      ✘ Service failed to start.
+      {{ item }}
+  loop:
+    - 'nzbget.service'

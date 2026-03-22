@@ -1,95 +1,110 @@
 ---
 ###############################################################################
-# NZBGet Service Configuration
+# Feature Flags
 ###############################################################################
-# Install size: ~11MB
-#     NZBGet: ~2.7MB.
-#   Packages: ~8.3MB.
 
-# Source location of NZBGet extension scripts.
+# 1. Automatically add Debian APT sources?
 #
-# Sourced from ansible controller; automatically placed in the first directory
-# in nzbget_script_dir with correct permissions. Overwrites all existing
-# scripts.
+# Additional APT components (contrib, non-free, non-free-firmware) are required
+# for NZBGet installation. Original sources.list is disabled.
 #
-# nzbget_srv_scripts_source: 'host_vars/nzb.example.com/data/scripts'
-#
-# Default: '' (disabled).
-nzbget_srv_scripts_source: ''
-
-# Automatically add Debian APT sources if required?
-#
-# Additional APT components (contrib, non-free) are required for NZBGet
-# installation. If package install fails, automatically add APT configuration
-# enabling all components to ensure role is applied successfully.
-#
-# Alternatively contrib, non-free must be manually added outside of this role.
+# Alternatively all sources must be manually added outside of this role.
 #
 # Default: True.
-nzbget_srv_auto_add_apt_sources_enable: true
+nzbget_flg_apt_sources: true
+
+# 2. Install application?
+#
+# Creates required default directories, users, install packages, download
+# software, set minimal nzbget.conf if not specified, update and start
+# services.
+#
+# Default: True.
+nzbget_flg_install: true
+
+# 3. Set configuration files?
+#
+# Files set using nzbget_cfg_*. Stops service and deploys user configuration,
+# updates and starts services.
+#
+# Default: False.
+nzbget_flg_config: false
+
+# 4. Set permissions?
+#
+# Recursively create & set correct permissions from locations in nzbget.conf:
+# * MainDir
+# * DestDir
+# * InterDir
+# * NzbDir
+# * QueueDir
+# * TempDir
+# * WebDir
+# * ScriptDir
+#
+# Always use absolute paths (do not use ${} in path variables). Large file
+# trees may take a long time. Must be modifiable by root user (e.g. NFS
+# squashed mounts may fail). Locations in /var/lib/nzbget will always be set to
+# the specified service user).
+#
+# Disable to create & set permissions outside of role.
+#
+# Default: False.
+nzbget_flg_perms: false
 
 ###############################################################################
-# NZBGet User
+# Service
 ###############################################################################
 
 # User that NZBGet will run under.
 #
-# Enable nzbget_srv_create_user if this account is not externally managed.
+# 'media' will automatically be created using vars/main.yml if required.
+# All other accounts are checked for existence.
 #
 # Default: 'media'.
 nzbget_srv_user: 'media'
 
 # Group that NZBGet will run under.
 #
-# Enable nzbget_srv_create_user if this group is not externally managed.
+# 'media' will automatically be created using vars/main.yml if required.
+# All other accounts are checked for existence.
 #
 # Default: 'media'.
 nzbget_srv_group: 'media'
 
-# Create nzbget_srv_user, nzbget_srv_group if not detected?
-#
-# Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
-#
-# Default: True.
-nzbget_srv_create_user: true
+###############################################################################
+# Config
+###############################################################################
 
-# Enable user management of data/media files?
+# Set nzbget.conf.
 #
-# Use nzbget_srv_user to execute data/media management commands. Role
-# applies media permissions using 'root' by default. For mounted data locations
-# (NFS with squashed mounts, mapped container mounts, etc) the local root user
-# will not have sufficient privileges to modify these files.
+# Ansible controller path to source nzbget.conf (treated as a jinja2 template
+# allowing for ansible variable interpretation). Overwrites existing
+# /var/lib/nzbget/nzbget.conf.
 #
-# Applies to:
-# * nzbget_cfg_dest_dir
+# Special Case:
+# * Use absolute paths for configuration file variables (Do not use ${}).
 #
-# Default: False.
-nzbget_srv_user_data_manage_enable: false
+# nzbget_cfg_file: 'host_vars/nzb.example.com/config/nzbget.conf'
+#
+# Default: '' (use minimally configured default - files/default/nzbget.conf).
+#
+# Reference:
+# * https://nzbget.com/documentation
+nzbget_cfg_file: ''
 
-# Media folder permissions octal.
+# NZBGet extension scripts to set.
 #
-# Media folders affected by nzbget_srv_user_data_manage_enable will always be
-# recursively set using nzbget_srv_media_perms_folder, nzbget_srv_user, and
-# nzbget_srv_group.
+# Ansible controller path to source script files (treated as a jinja2 templates
+# allowing for ansible variable interpretation). Overwrites existing
+# /var/lib/nzbget/scripts/* files.
 #
-# Default: '2755'.
-nzbget_srv_media_perms_folder: '2755'
-
-# Enable setting of media file permissions?
+# Files not sourced will be removed.
 #
-# Set file permissions affected by nzbget_srv_user_data_manage_enable using
-# nzbget_srv_media_perms_file, nzbget_srv_user, and nzbget_srv_group. Large
-# sets of files may be slow to set permissions.
+# nzbget_script_dir: 'host_vars/nzb.example.com/config/scripts'
 #
-# Useful when first configuring to ensure service has access to all specified
-# media locations. Suggest applying with extra options:
+# Default: '' (disable).
 #
-#   ansible-playbook site.yml
-#       --tags Deluge
-#       -e '{"nzbget_srv_media_set_perms_file_enable": true}'
-#
-# Default: False.
-nzbget_srv_media_set_perms_file_enable: false
-
-# Media file permissions octal. Default: '0644'.
-nzbget_srv_media_perms_file: '0644'
+# Reference:
+# * https://nzbget.com/documentation
+nzbget_cfg_scripts_dir: ''

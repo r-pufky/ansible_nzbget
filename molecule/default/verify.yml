@@ -3,15 +3,42 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Verify | /var/lib/nzbget/nzbget.conf'
+    - name: 'Verify | import role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
+
+    - name: '{{ "Verify | test | " ~ nzbget___app._cfg_dest }}'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Verify | /var/lib/nzbget/nzbget.conf'
-        test_src: 'files/nzbget.conf'
-        test_file: '/var/lib/nzbget/nzbget.conf'
+        test_name: '{{ "Verify | test | " ~ nzbget___app._cfg_dest }}'
+        test_src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/files/default/nzbget.conf"
+          }}'
+        test_file: '{{ nzbget___app._cfg_dest }}'
         test_owner: 'media'
         test_group: 'media'
         test_mode: '0640'
+        test_diff: true
+
+    - name: '{{ "Verify | test | " ~ nzbget___app._scripts_dest }}'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name:
+          '{{ "Verify | test | " ~ nzbget___app._scripts_dest }}'
+        test_src: '{{
+            lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~
+            "/files/post_processing"
+          }}'
+        test_file:
+          '{{ nzbget___app._scripts_dest ~ "/post_processing" }}'
+        test_owner: 'media'
+        test_group: 'media'
+        test_mode: '0755'
         test_diff: true

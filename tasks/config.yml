@@ -2,142 +2,49 @@
 ###############################################################################
 # Configure Services
 ###############################################################################
-# NZBGet requires nzbget_script_dir, /var/lib/nzbget/nzbget.conf to start.
 # Service only supports restarts for configuration reloading.
 #
-# Decision: nzbget_script_dir is one directory - explicitly restricted to a
-#     single directory instead of a list of directories in original config.
-#
-# New nzbget.conf options must be manually added to the template and role
-# default templates.
+# Filetree returns a dict (instead of a list of dict) for one element. Use
+# query to guarantee a list result.
 #
 # Reference:
 # * https://nzbgetcom.github.io/#debian-repository
 # * https://nzbget.com
 
-- name: 'Config | lock NZBGet package user'
-  when: _nzbget_srv_user.raw != 'nzbget'
-  ansible.builtin.user:
-    name: 'nzbget'
-    password: '!'
-    password_lock: true
+- name: '{{ "Config | filesystem | set " ~ nzbget__cfg._cfg_dest }}'
+  ansible.builtin.template:
+    src: '{{ nzbget__cfg._cfg_file }}'
+    dest: '{{ nzbget__cfg._cfg_dest }}'
+    owner: '{{ nzbget__srv._user }}'
+    group: '{{ nzbget__srv._group }}'
+    mode: '0640'  # Default 0644, passwords.
 
-# Permissions determined from vanilla service start
-- name: 'Config | manage config directories'
-  ansible.builtin.file:
-    path: '{{ item.path }}'
-    owner: '{{ _nzbget_srv_user._uid }}'
-    group: '{{ _nzbget_srv_group._gid }}'
-    mode: '{{ item.mode }}'
-    recurse: false
-    state: 'directory'
-  become: true
-  changed_when: false  # https://github.com/ansible/ansible/issues/32636
-  loop:
-    - path: '{{ nzbget_role_install_dir }}'
-      mode: '2750'
-    - path: '{{ _nzbget_cfg_main_dir.raw }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_inter_dir.raw }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_nzb_dir.raw }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_queue_dir.raw }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_temp_dir.raw }}'
-      mode: '0755'
-    - path: '{{ _nzbget_cfg_web_dir.raw }}'
-      mode: '0755'
-    - path: '{{ _nzbget_cfg_script_dir.raw }}'
-      mode: '0755'
-    - path: '{{ _nzbget_cfg_lock_file._dest }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_log_file._dest }}'
-      mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
-    - path: '{{ _nzbget_cfg_config_template._dest }}'
-      mode: '0755'
-    - path: '{{ _nzbget_cfg_cert_store._dest }}'
-      mode: '0755'
+- name: 'Config | filetree | deploy managed files'
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: '{{ nzbget__cfg._scripts_dest ~ "/" ~ item.path }}'
+    owner: '{{ nzbget__srv._user }}'
+    group: '{{ nzbget__srv._group }}'
+    mode: '0755'
+  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_dir) }}'
   loop_control:
     label: '{{ item.path }}'
+  when: item.state == 'file'
+  register: nzbget__local
 
-- name: 'Config | manage media directories'
-  ansible.builtin.file:
-    path: '{{ item }}'
-    owner: '{{ _nzbget_srv_user._uid }}'
-    group: '{{ _nzbget_srv_group._gid }}'
-    mode: '{{ _nzbget_srv_media_perms_folder.raw }}'
+- name: 'Config | filesystem | query remote files'
+  ansible.builtin.find:
+    paths: '{{ nzbget__cfg._scripts_dest }}'
+    file_type: 'file'
     recurse: true
-    state: 'directory'
-  become: true
-  become_user: '{{
-      _nzbget_srv_user.raw
-      if _nzbget_srv_user_data_manage_enable.raw else
-      "root"
-    }}'
-  loop:
-    - '{{ _nzbget_cfg_dest_dir.raw }}'
+  register: nzbget__remote
 
-# yamllint disable rule:line-length
-- name: 'Config | set media file permissions'
-  when: _nzbget_srv_media_set_perms_file_enable.raw
-  ansible.builtin.shell: >-
-    find '{{ item }}'
-    -type f
-    -exec chmod {{ _nzbget_srv_media_perms_file.raw }} {};
-      chown {{ _nzbget_srv_user._uid }}:{{ _nzbget_srv_group._gid }} {} \;
-  changed_when: false
-  loop:
-    - '{{ _nzbget_cfg_main_dir.raw }}'
-    - '{{ _nzbget_cfg_nzb_dir.raw }}'
-    - '{{ _nzbget_cfg_queue_dir.raw }}'
-    - '{{ _nzbget_cfg_lock_file._file }}'
-    - '{{ _nzbget_cfg_log_file._file }}'
-    - '{{ _nzbget_cfg_dest_dir.raw }}'
-    - '{{ _nzbget_cfg_inter_dir.raw }}'
-
-- name: 'Config | extension scripts'
-  when: _nzbget_srv_scripts_source.raw | length > 0
-  block:
-    - name: 'Config | extension scripts | copy'
-      ansible.posix.synchronize:
-        src: '{{ _nzbget_srv_scripts_source._src }}'
-        dest: '{{ _nzbget_cfg_script_dir.raw }}'
-        delete: true
-        recursive: true
-        archive: false
-        checksum: true
-
-    # yamllint disable rule:line-length
-    - name: 'Config | extension scripts | set permissions'
-      ansible.builtin.shell: |
-        chown -R {{ _nzbget_srv_user._uid }}:{{ _nzbget_srv_group._gid }} '{{ _nzbget_cfg_script_dir.raw }}' &&
-        find '{{ _nzbget_cfg_script_dir.raw }}' -type d -exec chmod 2750 {} \; &&
-        find '{{ _nzbget_cfg_script_dir.raw }}' -type f -exec chmod 0755 {} \;
-      changed_when: false
-
-- name: 'Config | set nzbget configuration'
-  ansible.builtin.template:
-    src: 'nzbget.conf.j2'
-    dest: '{{ nzbget_role_config }}'
-    owner: '{{ _nzbget_srv_user._uid }}'
-    group: '{{ _nzbget_srv_group._gid }}'
-    mode: '0640'
-
-- name: 'Prep | set NZBGet service drop-in'
-  when: _nzbget_srv_user.raw != 'nzbget' or _nzbget_srv_group.raw != 'nzbget'
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.systemd'
-  vars:
-    systemd_daemon_reload_enable: true
-    systemd_services:
-      - name: 'nzbget'
-        state: 'present'
-        drop_in: true
-        service: {}
-        exec:
-          user: '{{ _nzbget_srv_user.raw }}'
-          group: '{{ _nzbget_srv_group.raw }}'
-
-- name: 'Config | flush handlers'
-  ansible.builtin.meta: 'flush_handlers'
+- name: 'Config | filesystem | remove unmanaged files'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ nzbget__remote.files }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: >
+    item.path not in nzbget__local.results | map(attribute='dest') | list
