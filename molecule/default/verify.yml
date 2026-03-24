@@ -40,5 +40,5 @@
           '{{ nzbget___app._scripts_dir ~ "/post_processing" }}'
         test_owner: 'media'
         test_group: 'media'
-        test_mode: '0755'
+        test_mode: '0750'
         test_diff: true

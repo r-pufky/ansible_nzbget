@@ -49,7 +49,7 @@
       Config source enabled but no config source defined.
 
       nzbget_flg_config: {{ nzbget_flg_config }}
-      nzbget_file: {{ nzbget__cfg._file }}
+      nzbget_cfg_file: {{ nzbget__cfg._file }}
 
 - name: '{{ "Prep | account | query user " ~ nzbget__srv._user }}'
   ansible.builtin.command: '{{ "id " ~ nzbget__srv._user }}'

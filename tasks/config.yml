@@ -25,7 +25,7 @@
     dest: '{{ nzbget__srv._cfg_script_dir ~ "/" ~ item.path }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
-    mode: '0755'
+    mode: '0750'  # Extension scripts must be executable.
   loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_dir) }}'
   loop_control:
     label: '{{ item.path }}'

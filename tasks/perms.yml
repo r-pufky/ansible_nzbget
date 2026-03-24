@@ -12,21 +12,28 @@
   ansible.builtin.shell: >-
     mkdir -p "{{ nzbget__srv._cfg_script_dir }}" &&
     chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_dir }}" &&
-    find "{{ nzbget__srv._cfg_script_dir }}" -type d -exec chmod 0755 {} \; &&
-    find "{{ nzbget__srv._cfg_script_dir }}" -type f -exec chmod 0755 {} \;
+    find "{{ nzbget__srv._cfg_script_dir }}" -type d -exec chmod 0750 {} \; &&
+    find "{{ nzbget__srv._cfg_script_dir }}" -type f -exec chmod 0750 {} \;
+  changed_when: false
+
+- name: 'Perms | cmd | set dest ownership and permissions'
+  ansible.builtin.shell: >-
+    mkdir -p {{ nzbget__srv._cfg_dest_dir }} &&
+    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_dir }} &&
+    find {{ nzbget__srv._cfg_dest_dir }} -type d -exec chmod 0755 {} \; &&
+    find {{ nzbget__srv._cfg_dest_dir }} -type f -exec chmod 0644 {} \;
   changed_when: false
 
 - name: 'Perms | cmd | set ownership and permissions'
   ansible.builtin.shell: >-
     mkdir -p {% for path in path_list %}"{{ path }}" {% endfor %} &&
     chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {% for path in path_list %}"{{ path }}" {% endfor %} &&
-    find {% for path in path_list %}"{{ path }}" {% endfor %} -type d -exec chmod 0755 {} \; &&
-    find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0644 {} \;
+    find {% for path in path_list %}"{{ path }}" {% endfor %} -type d -exec chmod 0750 {} \; &&
+    find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0640 {} \;
   changed_when: false
   vars:
     path_list:
       - '{{ nzbget__srv._cfg_main_dir }}'
-      - '{{ nzbget__srv._cfg_dest_dir }}'
       - '{{ nzbget__srv._cfg_inter_dir }}'
       - '{{ nzbget__srv._cfg_nzb_dir }}'
       - '{{ nzbget__srv._cfg_queue_dir }}'
