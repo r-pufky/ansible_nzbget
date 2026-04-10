@@ -27,10 +27,10 @@ nzbget___release: "{{ {} | r_pufky.data.v3(
 
 nzbget___app: "{{ {} | r_pufky.data.v3(
 
-    _etc_dir='/etc/opt/nzbget',
+    _etc_d='/etc/opt/nzbget',
     _cfg='/etc/opt/nzbget/nzbget.conf',
-    _var_dir='/var/opt/nzbget',
-    _scripts_dir='/var/opt/nzbget/scripts',
+    _var_d='/var/opt/nzbget',
+    _scripts_d='/var/opt/nzbget/scripts',
     _drop_in='/etc/systemd/system/nzbget.service.d/override.conf',
   ) }}"
 

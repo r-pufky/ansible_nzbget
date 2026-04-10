@@ -91,7 +91,7 @@ nzbget_srv_group: 'media'
 #
 # Reference:
 # * https://nzbget.com/documentation
-# * files/default/nzbget.conf
+# * templates/default/nzbget.conf
 nzbget_cfg_file: ''
 
 # NZBGet extension scripts to set.
@@ -100,10 +100,10 @@ nzbget_cfg_file: ''
 # allowing for ansible variable interpretation). Overwrites existing scripts
 # set located in ScriptDir. Files not sourced will be removed.
 #
-# nzbget_script_dir: 'host_vars/nzb.example.com/config/scripts'
+# nzbget_script_d: 'host_vars/nzb.example.com/config/scripts'
 #
 # Default: '' (disable).
 #
 # Reference:
 # * https://nzbget.com/documentation
-nzbget_cfg_scripts_dir: ''
+nzbget_cfg_scripts_d: ''

@@ -19,32 +19,49 @@
     group: '{{ nzbget__srv._group }}'
     mode: '0640'  # Default 0644, passwords.
 
-- name: 'Config | filetree | deploy managed files'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ nzbget__srv._cfg_script_dir ~ "/" ~ item.path }}'
+- name: 'Config | filetree | set managed directories'
+  ansible.builtin.file:
+    path: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
     mode: '0750'  # Extension scripts must be executable.
-  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_dir) }}'
+    state: 'directory'
+  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: item.state == 'directory'
+
+- name: 'Config | filetree | set managed files'
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
+    owner: '{{ nzbget__srv._user }}'
+    group: '{{ nzbget__srv._group }}'
+    mode: '0750'  # Extension scripts must be executable.
+  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
   loop_control:
     label: '{{ item.path }}'
   when: item.state == 'file'
-  register: nzbget__local
 
 - name: 'Config | filesystem | query remote files'
   ansible.builtin.find:
-    paths: '{{ nzbget__srv._cfg_script_dir }}'
-    file_type: 'file'
+    paths: '{{ nzbget__srv._cfg_script_d }}'
+    file_type: 'any'
+    hidden: true
     recurse: true
   register: nzbget__remote
 
-- name: 'Config | filesystem | remove unmanaged files'
+- name: 'Config | filetree | remove unmanaged files and directories'
   ansible.builtin.file:
     path: '{{ item.path }}'
     state: 'absent'
-  loop: '{{ nzbget__remote.files }}'
+  loop: '{{ nzbget__remote.files | sort(attribute="path", reverse=true) }}'
   loop_control:
     label: '{{ item.path }}'
   when: >
-    item.path not in nzbget__local.results | map(attribute='dest') | list
+    item.path not in
+    (
+      query("community.general.filetree", nzbget__cfg._scripts_d) |
+      map(attribute='path') |
+      map('regex_replace', '^', nzbget__srv._cfg_script_d ~ "/") | list
+    )

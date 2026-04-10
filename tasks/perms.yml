@@ -10,18 +10,18 @@
 # yamllint disable rule:line-length
 - name: 'Perms | cmd | set scripts ownership and permissions'
   ansible.builtin.shell: >-
-    mkdir -p "{{ nzbget__srv._cfg_script_dir }}" &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_dir }}" &&
-    find "{{ nzbget__srv._cfg_script_dir }}" -type d -exec chmod 0750 {} \; &&
-    find "{{ nzbget__srv._cfg_script_dir }}" -type f -exec chmod 0750 {} \;
+    mkdir -p "{{ nzbget__srv._cfg_script_d }}" &&
+    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_d }}" &&
+    find "{{ nzbget__srv._cfg_script_d }}" -type d -exec chmod 0750 {} \; &&
+    find "{{ nzbget__srv._cfg_script_d }}" -type f -exec chmod 0750 {} \;
   changed_when: false
 
 - name: 'Perms | cmd | set dest ownership and permissions'
   ansible.builtin.shell: >-
-    mkdir -p {{ nzbget__srv._cfg_dest_dir }} &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_dir }} &&
-    find {{ nzbget__srv._cfg_dest_dir }} -type d -exec chmod 0755 {} \; &&
-    find {{ nzbget__srv._cfg_dest_dir }} -type f -exec chmod 0644 {} \;
+    mkdir -p {{ nzbget__srv._cfg_dest_d }} &&
+    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_d }} &&
+    find {{ nzbget__srv._cfg_dest_d }} -type d -exec chmod 0755 {} \; &&
+    find {{ nzbget__srv._cfg_dest_d }} -type f -exec chmod 0644 {} \;
   changed_when: false
 
 - name: 'Perms | cmd | set ownership and permissions'
@@ -33,9 +33,9 @@
   changed_when: false
   vars:
     path_list:
-      - '{{ nzbget__srv._cfg_main_dir }}'
-      - '{{ nzbget__srv._cfg_inter_dir }}'
-      - '{{ nzbget__srv._cfg_nzb_dir }}'
-      - '{{ nzbget__srv._cfg_queue_dir }}'
-      - '{{ nzbget__srv._cfg_temp_dir }}'
-      - '{{ nzbget__srv._cfg_web_dir }}'
+      - '{{ nzbget__srv._cfg_main_d }}'
+      - '{{ nzbget__srv._cfg_inter_d }}'
+      - '{{ nzbget__srv._cfg_nzb_d }}'
+      - '{{ nzbget__srv._cfg_queue_d }}'
+      - '{{ nzbget__srv._cfg_temp_d }}'
+      - '{{ nzbget__srv._cfg_web_d }}'

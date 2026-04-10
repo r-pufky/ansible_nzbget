@@ -29,9 +29,9 @@ provisioner:
         nzbget_flg_perms: true
         nzbget_cfg_file: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
-            "/files/default/nzbget.conf"
+            "/templates/default/nzbget.conf"
           }}'
-        nzbget_cfg_scripts_dir: '{{
+        nzbget_cfg_scripts_d: '{{
             lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~ "/files"
           }}'
 platforms:

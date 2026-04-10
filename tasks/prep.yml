@@ -19,7 +19,7 @@
     nzbget__cfg: "{{ {} | r_pufky.data.v3(
 
         _file=nzbget_cfg_file,
-        _scripts_dir=nzbget_cfg_scripts_dir | regex_replace('\\/$', ''),
+        _scripts_d=nzbget_cfg_scripts_d | regex_replace('\\/$', ''),
       ) }}"
 
 - name: 'Prep | assert | service user is not nzbget'
@@ -110,7 +110,7 @@
           'ansible.builtin.template',
           nzbget__cfg._file
           if nzbget__cfg._file | length > 0 else
-          'files/default/nzbget.conf'
+          'templates/default/nzbget.conf'
         ),
       ) }}"
 
@@ -118,42 +118,42 @@
   ansible.builtin.set_fact:
     nzbget__srv: "{{ nzbget__srv | r_pufky.data.v3(
 
-        _cfg_main_dir=(
+        _cfg_main_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^MainDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_dest_dir=(
+        _cfg_dest_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^DestDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_inter_dir=(
+        _cfg_inter_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^InterDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_nzb_dir=(
+        _cfg_nzb_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^NzbDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_queue_dir=(
+        _cfg_queue_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^QueueDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_temp_dir=(
+        _cfg_temp_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^TempDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_web_dir=(
+        _cfg_web_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^WebDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first
         ),
-        _cfg_script_dir=(
+        _cfg_script_d=(
           nzbget__srv._tmpl_cfg |
           regex_search('^ScriptDir=(.*)$', '\\1', multiline=True) |
           default([''], true) | first

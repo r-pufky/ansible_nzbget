@@ -88,7 +88,7 @@ files.
     nzbget_flg_config: true
     nzbget_flg_perms: true
     nzbget_cfg_file: 'host_vars/nzb.example.com/config/nzbget.conf'
-    nzbget_cfg_scripts_dir: 'host_vars/nzb.example.com/config/scripts'
+    nzbget_cfg_scripts_d: 'host_vars/nzb.example.com/config/scripts'
 ```
 
 ## Development
@@ -134,4 +134,4 @@ PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 [j]: https://github.com/r-pufky/ansible_nzbget/tree/main/defaults/main/main.yml
 [k]: https://github.com/r-pufky/ansible_nzbget/blob/main/defaults/main/ports.yml
 [l]: https://nzbget.com/documentation/nzbget-path-and-folder-structure-guide
-[m]: https://github.com/r-pufky/ansible_nzbget/blob/main/files/default/nzbget.conf
+[m]: https://github.com/r-pufky/ansible_nzbget/blob/main/templates/default/nzbget.conf

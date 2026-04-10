@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory={{ nzbget___app._var_dir }}
+WorkingDirectory={{ nzbget___app._var_d }}
 ExecStart=
 ExecStart=/usr/bin/nzbget -s -c {{ nzbget___app._cfg }} -o OutputMode=log -o WriteLog=none
 ExecReload=

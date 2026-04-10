@@ -29,8 +29,8 @@
     mode: '0755'
     state: 'directory'
   loop:
-    - '{{ nzbget___app._etc_dir }}'
-    - '{{ nzbget___app._scripts_dir }}'  # scripts include var_dir.
+    - '{{ nzbget___app._etc_d }}'
+    - '{{ nzbget___app._scripts_d }}'  # scripts include var_d.
 
 - name: 'Install | packages'
   ansible.builtin.include_role:
@@ -64,7 +64,7 @@
 - name: '{{ "Install | filesystem | set minimal " ~ nzbget___app._cfg }}'
   when: nzbget__cfg._file | length == 0
   ansible.builtin.template:
-    src: 'files/default/nzbget.conf'
+    src: 'templates/default/nzbget.conf'
     dest: '{{ nzbget___app._cfg }}'
     owner: '{{ nzbget__srv._user }}'
     group: '{{ nzbget__srv._group }}'
