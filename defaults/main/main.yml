@@ -44,7 +44,7 @@ nzbget_flg_config: false
 #
 # Special Case:
 # * Always use absolute paths (do not use ${} in path variables).
-# * Must be modifiable by root user (e.g. NFS squashed mounts may fail).
+# * Run as the task user and fallback to the service user.
 # * Locations in /var/opt/nzbget will always be set to specified service user.
 #
 # Disable to managed these directories outside of this role.
@@ -79,7 +79,7 @@ nzbget_srv_group: 'media'
 # Set nzbget.conf.
 #
 # Ansible controller path to source nzbget.conf (treated as a jinja2 template
-# allowing for ansible variable interpretation). Overwrites existing
+# allowing for ansible variable use). Overwrites existing
 # /etc/opt/nzbget/nzbget.conf.
 #
 # Use absolute paths (Do not use ${}). Paths will be parsed and directories
@@ -96,13 +96,24 @@ nzbget_cfg_file: ''
 
 # NZBGet extension scripts to set.
 #
-# Ansible controller path to source script files (treated as a jinja2 templates
-# allowing for ansible variable interpretation). Overwrites existing scripts
-# set located in ScriptDir. Files not sourced will be removed.
+# Ansible controller path to source directory (treated as a jinja2 templates
+# allowing for ansible variable use).
 #
-# nzbget_script_d: 'host_vars/nzb.example.com/config/scripts'
+# Overwrites existing scripts set located in ScriptDir. Files not sourced will
+# be removed. Paths will be parsed and directories automatically created with
+# correct permissions when nzbget_flg_perms=true. See templates/default for
+# examples.
 #
-# Default: '' (disable).
+# nzbget_flg_config=true:
+# ⋮nzbget_cfg_scripts_d='' - Remove existing files.
+# ⋮nzbget_cfg_scripts_d='{DIR}' - Replace existing files with sourced template
+# ⋮    dir.
+# nzbget_flg_config=false:
+# ⋮nzbget_cfg_scripts_d=* - Use template dir in templates/default.
+#
+# nzbget_cfg_scripts_d: 'host_vars/nzbget.example.com/config/scripts'
+#
+# Default: '' (use minimally configured default).
 #
 # Reference:
 # * https://nzbget.com/documentation

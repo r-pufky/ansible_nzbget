@@ -19,49 +19,67 @@
     group: '{{ nzbget__srv._group }}'
     mode: '0640'  # Default 0644, passwords.
 
-- name: 'Config | filetree | set managed directories'
-  ansible.builtin.file:
-    path: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
-    owner: '{{ nzbget__srv._user }}'
-    group: '{{ nzbget__srv._group }}'
-    mode: '0750'  # Extension scripts must be executable.
-    state: 'directory'
-  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: item.state == 'directory'
+- name: '{{ "Config | filesystem | set " ~ nzbget__srv._cfg_script_d }}'
+  when: nzbget__cfg._scripts_d | length > 0
+  block:
+    - name: 'Config | filetree | set managed directories'
+      ansible.builtin.file:
+        path: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
+        owner: '{{ nzbget__srv._user }}'
+        group: '{{ nzbget__srv._group }}'
+        mode: '0750'  # Extension scripts must be executable.
+        state: 'directory'
+      loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'directory'
 
-- name: 'Config | filetree | set managed files'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
-    owner: '{{ nzbget__srv._user }}'
-    group: '{{ nzbget__srv._group }}'
-    mode: '0750'  # Extension scripts must be executable.
-  loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: item.state == 'file'
+    - name: 'Config | filetree | set managed files'
+      ansible.builtin.template:
+        src: '{{ item.src }}'
+        dest: '{{ nzbget__srv._cfg_script_d ~ "/" ~ item.path }}'
+        owner: '{{ nzbget__srv._user }}'
+        group: '{{ nzbget__srv._group }}'
+        mode: '0750'  # Extension scripts must be executable.
+      loop: '{{ query("community.general.filetree", nzbget__cfg._scripts_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'file'
 
-- name: 'Config | filesystem | query remote files'
+    - name: 'Config | filesystem | query remote files'
+      ansible.builtin.find:
+        paths: '{{ nzbget__srv._cfg_script_d }}'
+        file_type: 'any'
+        hidden: true
+        recurse: true
+      register: nzbget__remote
+
+    - name: 'Config | filetree | remove unmanaged files and directories'
+      ansible.builtin.file:
+        path: '{{ item.path }}'
+        state: 'absent'
+      loop: '{{ nzbget__remote.files | sort(attribute="path", reverse=true) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: >
+        item.path not in
+        (
+          query("community.general.filetree", nzbget__cfg._scripts_d) |
+          map(attribute='path') |
+          map('regex_replace', '^', nzbget__srv._cfg_script_d ~ "/") | list
+        )
+
+- name: '{{ "Config | filesystem | query " ~ nzbget__srv._cfg_script_d }}'
+  when: nzbget__cfg._scripts_d | length == 0
   ansible.builtin.find:
-    paths: '{{ nzbget__srv._cfg_script_d }}'
-    file_type: 'any'
+    paths: "{{ nzbget__srv._cfg_script_d }}"
+    recurse: false  # Don't need to enumerate sub-directories to remove.
     hidden: true
-    recurse: true
-  register: nzbget__remote
+  register: nzbget__cmd
 
-- name: 'Config | filetree | remove unmanaged files and directories'
+- name: '{{ "Config | filesystem | clear " ~ nzbget__srv._cfg_script_d }}'
+  when: nzbget__cfg._scripts_d | length == 0
   ansible.builtin.file:
-    path: '{{ item.path }}'
-    state: 'absent'
-  loop: '{{ nzbget__remote.files | sort(attribute="path", reverse=true) }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: >
-    item.path not in
-    (
-      query("community.general.filetree", nzbget__cfg._scripts_d) |
-      map(attribute='path') |
-      map('regex_replace', '^', nzbget__srv._cfg_script_d ~ "/") | list
-    )
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ nzbget__cmd.files }}"

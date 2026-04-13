@@ -9,33 +9,77 @@
 
 # yamllint disable rule:line-length
 - name: 'Perms | cmd | set scripts ownership and permissions'
-  ansible.builtin.shell: >-
-    mkdir -p "{{ nzbget__srv._cfg_script_d }}" &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_d }}" &&
-    find "{{ nzbget__srv._cfg_script_d }}" -type d -exec chmod 0750 {} \; &&
-    find "{{ nzbget__srv._cfg_script_d }}" -type f -exec chmod 0750 {} \;
-  changed_when: false
+  block:
+    - name: 'Perms | cmd | set scripts ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p "{{ nzbget__srv._cfg_script_d }}" &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_d }}" &&
+        find "{{ nzbget__srv._cfg_script_d }}" -type d -exec chmod 0750 {} \; &&
+        find "{{ nzbget__srv._cfg_script_d }}" -type f -exec chmod 0750 {} \;
+      changed_when: false
+  rescue:
+    - name: 'Perms ⛑ | cmd | set scripts ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p "{{ nzbget__srv._cfg_script_d }}" &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} "{{ nzbget__srv._cfg_script_d }}" &&
+        find "{{ nzbget__srv._cfg_script_d }}" -type d -exec chmod 0750 {} \; &&
+        find "{{ nzbget__srv._cfg_script_d }}" -type f -exec chmod 0750 {} \;
+      changed_when: false
+      become: true
+      become_user: '{{  nzbget__srv._user }}'
 
 - name: 'Perms | cmd | set dest ownership and permissions'
-  ansible.builtin.shell: >-
-    mkdir -p {{ nzbget__srv._cfg_dest_d }} &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_d }} &&
-    find {{ nzbget__srv._cfg_dest_d }} -type d -exec chmod 0755 {} \; &&
-    find {{ nzbget__srv._cfg_dest_d }} -type f -exec chmod 0644 {} \;
-  changed_when: false
+  block:
+    - name: 'Perms | cmd | set dest ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p {{ nzbget__srv._cfg_dest_d }} &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_d }} &&
+        find {{ nzbget__srv._cfg_dest_d }} -type d -exec chmod 0755 {} \; &&
+        find {{ nzbget__srv._cfg_dest_d }} -type f -exec chmod 0644 {} \;
+      changed_when: false
+  rescue:
+    - name: 'Perms ⛑ | cmd | set dest ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p {{ nzbget__srv._cfg_dest_d }} &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {{ nzbget__srv._cfg_dest_d }} &&
+        find {{ nzbget__srv._cfg_dest_d }} -type d -exec chmod 0755 {} \; &&
+        find {{ nzbget__srv._cfg_dest_d }} -type f -exec chmod 0644 {} \;
+      changed_when: false
+      become: true
+      become_user: '{{  nzbget__srv._user }}'
 
 - name: 'Perms | cmd | set ownership and permissions'
-  ansible.builtin.shell: >-
-    mkdir -p {% for path in path_list %}"{{ path }}" {% endfor %} &&
-    chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {% for path in path_list %}"{{ path }}" {% endfor %} &&
-    find {% for path in path_list %}"{{ path }}" {% endfor %} -type d -exec chmod 0750 {} \; &&
-    find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0640 {} \;
-  changed_when: false
-  vars:
-    path_list:
-      - '{{ nzbget__srv._cfg_main_d }}'
-      - '{{ nzbget__srv._cfg_inter_d }}'
-      - '{{ nzbget__srv._cfg_nzb_d }}'
-      - '{{ nzbget__srv._cfg_queue_d }}'
-      - '{{ nzbget__srv._cfg_temp_d }}'
-      - '{{ nzbget__srv._cfg_web_d }}'
+  block:
+    - name: 'Perms | cmd | set ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p {% for path in path_list %}"{{ path }}" {% endfor %} &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {% for path in path_list %}"{{ path }}" {% endfor %} &&
+        find {% for path in path_list %}"{{ path }}" {% endfor %} -type d -exec chmod 0750 {} \; &&
+        find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0640 {} \;
+      changed_when: false
+      vars:
+        path_list:
+          - '{{ nzbget__srv._cfg_main_d }}'
+          - '{{ nzbget__srv._cfg_inter_d }}'
+          - '{{ nzbget__srv._cfg_nzb_d }}'
+          - '{{ nzbget__srv._cfg_queue_d }}'
+          - '{{ nzbget__srv._cfg_temp_d }}'
+          - '{{ nzbget__srv._cfg_web_d }}'
+  rescue:
+    - name: 'Perms ⛑ | cmd | set ownership and permissions'
+      ansible.builtin.shell: >-
+        mkdir -p {% for path in path_list %}"{{ path }}" {% endfor %} &&
+        chown -R {{ nzbget__srv._user }}:{{ nzbget__srv._group }} {% for path in path_list %}"{{ path }}" {% endfor %} &&
+        find {% for path in path_list %}"{{ path }}" {% endfor %} -type d -exec chmod 0750 {} \; &&
+        find {% for path in path_list %}"{{ path }}" {% endfor %} -type f -exec chmod 0640 {} \;
+      changed_when: false
+      vars:
+        path_list:
+          - '{{ nzbget__srv._cfg_main_d }}'
+          - '{{ nzbget__srv._cfg_inter_d }}'
+          - '{{ nzbget__srv._cfg_nzb_d }}'
+          - '{{ nzbget__srv._cfg_queue_d }}'
+          - '{{ nzbget__srv._cfg_temp_d }}'
+          - '{{ nzbget__srv._cfg_web_d }}'
+      become: true
+      become_user: '{{ nzbget__srv._user }}'

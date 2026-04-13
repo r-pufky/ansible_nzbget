@@ -10,6 +10,10 @@ Install size: ~11MB
 Use absolute paths for directories in nzbget.conf. Default MainDir is
 **/var/opt/nzbget**.
 
+> Tasks [potentially touching Network Mounted Filesystems][o] will be run as
+> the task user and fallback to the service user. Manage these locations
+> externally if these fail.
+
 ## Role Variables
 Detailed variable use documented in defaults. See usage for role operation.
 
@@ -135,3 +139,4 @@ PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 [k]: https://github.com/r-pufky/ansible_nzbget/blob/main/defaults/main/ports.yml
 [l]: https://nzbget.com/documentation/nzbget-path-and-folder-structure-guide
 [m]: https://github.com/r-pufky/ansible_nzbget/blob/main/templates/default/nzbget.conf
+[o]: https://r-pufky.github.io/ansible_docs/best_practice/patterns/#network-mounts
