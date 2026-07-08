@@ -22,7 +22,7 @@ nzbget___release: "{{ {} | r_pufky.data.v3(
 
     _date='2026-03-21',
     _release='trixie',
-    _app='v25.2',
+    _app='v26.2',
   ) }}"
 
 nzbget___app: "{{ {} | r_pufky.data.v3(
@@ -41,6 +41,7 @@ nzbget___app: "{{ {} | r_pufky.data.v3(
 nzbget___packages:
   - 'nzbget'
   - 'unrar'  # Requires: contrib, non-free.
+  - '7zip-standalone'  # Provides: 7zz.
   - '7zip'  # Provides: 7zz.
   - 'p7zip-full'  # Provides: 7za.
   - 'rsync'  # ansible.posix.synchronize (script files).
